@@ -5,3 +5,4 @@ resources:
 - gotk-sync.yaml
 - cluster-settings.yaml
 - cluster-secrets.sops.yaml
+- discord-url.sops.yaml
