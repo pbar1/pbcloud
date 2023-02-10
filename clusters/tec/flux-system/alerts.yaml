@@ -9,16 +9,15 @@ spec:
   secretRef:
     name: discord-url
 ---
-apiVersion: notification.toolkit.fluxcd.io/v1beta5
+apiVersion: notification.toolkit.fluxcd.io/v1beta1
 kind: Alert
 metadata:
   name: test-alert
   namespace: flux-system
 spec:
-  summary: testing alerts for tec some more
   providerRef:
     name: discord
-  eventSeverity: error
+  eventSeverity: info
   eventSources:
   - kind: GitRepository
     name: '*'
