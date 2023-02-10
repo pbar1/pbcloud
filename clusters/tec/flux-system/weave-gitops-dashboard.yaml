@@ -1,10 +1,8 @@
----
 apiVersion: source.toolkit.fluxcd.io/v1beta2
 kind: HelmRepository
 metadata:
   annotations:
-    metadata.weave.works/description: This is the source location for the Weave GitOps
-      Dashboard's helm chart.
+    metadata.weave.works/description: This is the source location for the Weave GitOps Dashboard's helm chart.
   labels:
     app.kubernetes.io/component: ui
     app.kubernetes.io/created-by: weave-gitops-cli
@@ -21,8 +19,7 @@ apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
   annotations:
-    metadata.weave.works/description: This is the Weave GitOps Dashboard.  It provides
-      a simple way to get insights into your GitOps workloads.
+    metadata.weave.works/description: This is the Weave GitOps Dashboard.  It provides a simple way to get insights into your GitOps workloads.
   name: ww-gitops
   namespace: flux-system
 spec:
@@ -38,4 +35,30 @@ spec:
       create: true
       passwordHash: $2a$10$HPvsbsbVWfB37dHTpL1k0eDlPqWitfmz168cQlI/PWpBLmxyNOKRW
       username: admin
+---
+# FIXME: This is probably possible via the Helm values
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-production
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+  name: gitops
+  namespace: flux-system
+spec:
+  rules:
+  - host: gitops.xnauts.net
+    http:
+      paths:
+      - backend:
+          service:
+            name: ww-gitops-weave-gitops
+            port:
+              number: 9001
+        path: /
+        pathType: Prefix
+  tls:
+  - hosts:
+    - gitops.xnauts.net
+    secretName: gitops-tls
 
