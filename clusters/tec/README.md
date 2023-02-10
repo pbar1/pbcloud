@@ -2,7 +2,7 @@
 
 Created via `flux bootstrap` as per the [Flux docs][1]:
 
-```
+```sh
 export GITHUB_TOKEN=<your-token>
 
 # While using the kubectl context of the proper cluster
@@ -19,7 +19,7 @@ gpg --export-secret-keys --armor 40426439B25D67BD53C70F42D9C267B8CD0937BF \
     --from-file=sops.asc=/dev/stdin
 ```
 
-TODO: Consider [bootstrapping with Terraform][2], if the provider becomes a bit more mature.
+TODO: Consider [bootstrapping with Terraform][2], if the provider matures.
 
 [1]: https://fluxcd.io/flux/installation/#github-and-github-enterprise
 [2]: https://registry.terraform.io/providers/fluxcd/flux/latest/docs/guides/github

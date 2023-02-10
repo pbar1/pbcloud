@@ -1,6 +1,6 @@
 # clusters
 
-Kubernetes cluster manifests managed by Flux.
+[Kubernetes][1] cluster manifests managed by [Flux][2].
 
 Structure:
 
@@ -12,3 +12,6 @@ Structure:
       ├── <component>/
       └── kustomization.yaml
 ```
+
+[1]: https://kubernetes.io/
+[2]: https://fluxcd.io/

@@ -24,6 +24,7 @@ spec:
   sourceRef:
     kind: GitRepository
     name: flux-system
+  # FIXME: Depends on secret/sops-gpg having already been created
   decryption:
     provider: sops
     secretRef:
