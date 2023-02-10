@@ -7,3 +7,4 @@ resources:
 - cluster-secrets.sops.yaml
 - discord-url.sops.yaml
 - alerts.yaml
+- weave-gitops-dashboard.yaml
