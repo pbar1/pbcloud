@@ -15,7 +15,7 @@ metadata:
   name: test-alert
   namespace: flux-system
 spec:
-  summary: testing alerts for tec
+  summary: testing alerts for tec some more
   providerRef:
     name: discord
   eventSeverity: info
