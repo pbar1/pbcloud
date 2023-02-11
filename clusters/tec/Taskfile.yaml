@@ -26,4 +26,4 @@ tasks:
   phrasing:
     desc: When you just want to iterate
     cmds:
-    - git commit -am 'Phrasing' && git push
+    - git commit --all --message 'Phrasing' && git push
