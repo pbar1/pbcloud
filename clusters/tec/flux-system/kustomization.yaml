@@ -9,3 +9,4 @@ resources:
 - alerts.yaml
 - weave-gitops-dashboard.yaml
 - helm
+- oidc-auth.sops.yaml
