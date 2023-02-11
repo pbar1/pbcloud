@@ -21,7 +21,7 @@ spec:
       - target:
           group: rbac.authorization.k8s.io
           version: v1beta1
-          name: "*"
+          name: .*
         patch:
         - op: replace
           path: apiVersion
