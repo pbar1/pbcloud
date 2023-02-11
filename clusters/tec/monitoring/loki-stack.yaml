@@ -1,0 +1,30 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: loki-stack
+  namespace: monitoring
+spec:
+  interval: 24h
+  chart:
+    spec:
+      chart: loki-stack
+      sourceRef:
+        kind: HelmRepository
+        name: grafana
+        namespace: flux-system
+  values:
+    loki:
+      config:
+        limits_config:
+          retention_period: 168h
+      persistence:
+        enabled: true
+        storageClassName: local-path
+        accessModes: ["ReadWriteOnce"]
+        # NOTE: this does nothing with local-path currently
+        size: 10Gi
+
+    promtail:
+      # For proper JSON log parsing. See: https://github.com/grafana/helm-charts/issues/195
+      pipelineStages:
+      - cri: {}

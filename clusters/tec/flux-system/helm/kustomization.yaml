@@ -3,3 +3,4 @@ kind: Kustomization
 resources:
 - amd-gpu.yaml
 - prometheus-community.yaml
+- grafana.yaml
