@@ -4,4 +4,4 @@ metadata:
   name: cluster-settings
   namespace: flux-system
 data:
-  FOO: foo
+  DOMAIN: xnauts.net

@@ -8,3 +8,4 @@ resources:
 - discord-url.sops.yaml
 - alerts.yaml
 - weave-gitops-dashboard.yaml
+- helm
