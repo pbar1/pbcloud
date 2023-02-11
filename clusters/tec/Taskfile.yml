@@ -1,0 +1,24 @@
+version: '3'
+
+tasks:
+  default: task --list
+
+  sync:
+    desc: Sync Flux with this Git repo
+    cmds:
+    - flux reconcile source git flux-system
+
+  decrypt:
+    desc: Decrypts all SOPS files
+    cmds:
+    - fd --no-ignore --extension .sops.yaml --exec sops --decrypt --output {}.dec {}
+
+  encrypt:
+    desc: Encrypts all SOPS files
+    cmds:
+    - fd --no-ignore --extension .sops.yaml.dec --exec sops --encrypt --output {.} {}
+
+  clean:
+    desc: Deletes all generated files
+    cmds:
+    - fd --no-ignore --extension .sops.yaml.dec --exec rm {}
