@@ -12,6 +12,11 @@ spec:
         kind: HelmRepository
         name: weaveworks
   values:
+    adminUser:
+      create: true
+      passwordHash: $2a$10$HPvsbsbVWfB37dHTpL1k0eDlPqWitfmz168cQlI/PWpBLmxyNOKRW
+      username: admin
+
     ingress:
       enabled: true
       annotations:
