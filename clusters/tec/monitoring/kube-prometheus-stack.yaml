@@ -17,7 +17,19 @@ spec:
     # https://github.com/prometheus-community/helm-charts/blob/main/charts/kube-prometheus-stack/values.yaml
 
     alertmanager:
-      enabled: false
+      ingress:
+        enabled: true
+        annotations:
+          cert-manager.io/cluster-issuer: letsencrypt-production
+          traefik.ingress.kubernetes.io/router.entrypoints: websecure
+        hosts:
+        - "alertmanager.${DOMAIN}"
+        paths:
+        - /
+        tls:
+        - hosts:
+          - "alertmanager.${DOMAIN}"
+          secretName: alertmanager-tls
 
     # https://github.com/grafana/helm-charts/blob/main/charts/grafana/values.yaml
     grafana:
