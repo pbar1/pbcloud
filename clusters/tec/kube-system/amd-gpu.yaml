@@ -1,0 +1,17 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: amd-gpu
+  namespace: kube-system
+spec:
+  interval: 24h
+  chart:
+    spec:
+      chart: amd-gpu
+      sourceRef:
+        kind: HelmRepository
+        name: amd-gpu
+        namespace: flux-system
+  values:
+    labeller:
+      enabled: true
