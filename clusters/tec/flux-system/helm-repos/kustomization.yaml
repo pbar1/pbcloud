@@ -3,8 +3,8 @@ kind: Kustomization
 resources:
 - amd-gpu.yaml
 - external-dns.yaml
+- geek-cookbook.yaml
 - grafana.yaml
 - jetstack.yaml
-- k8s-at-home.yaml
 - prometheus-community.yaml
 - weaveworks.yaml
