@@ -13,7 +13,7 @@ spec:
         name: jetstack
         namespace: flux-system
   values:
-    installCRDs: true
+    installCRDs: false
 
     webhook:
       enabled: true
