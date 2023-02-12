@@ -33,3 +33,8 @@ tasks:
     desc: When you just want to iterate
     cmds:
     - git commit --all --message 'Phrasing' && git push
+
+  build:helmrepos:
+    desc: Builds Flux boilerplate for Helm repositories
+    cmds:
+    - ./flux-system/helmrepo/BUILD.py
