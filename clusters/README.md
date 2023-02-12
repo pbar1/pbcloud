@@ -10,7 +10,8 @@ Structure:
    └── <namespace>/
       ├── <component>.yaml
       ├── <component>/
-      └── kustomization.yaml
+      ├── ks.yaml             <-- `kubectl apply` to onboard dir to Flux
+      └── kustomization.yaml  <-- List of components to deploy
 ```
 
 [1]: https://kubernetes.io/
