@@ -11,8 +11,8 @@ helm_repos = {
   "amd-gpu": "https://radeonopencompute.github.io/k8s-device-plugin",
   "external-dns": "https://kubernetes-sigs.github.io/external-dns",
   "grafana": "https://grafana.github.io/helm-charts",
+  "k8s-at-home": "https://k8s-at-home.com/charts",
   "prometheus-community": "https://prometheus-community.github.io/helm-charts",
-  "truecharts": "https://charts.truecharts.org",
   "weaveworks": "oci://ghcr.io/weaveworks/charts",
 }
 

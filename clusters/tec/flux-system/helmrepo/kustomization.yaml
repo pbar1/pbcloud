@@ -4,6 +4,6 @@ resources:
 - amd-gpu.yaml
 - external-dns.yaml
 - grafana.yaml
+- k8s-at-home.yaml
 - prometheus-community.yaml
-- truecharts.yaml
 - weaveworks.yaml

@@ -10,13 +10,24 @@ spec:
       chart: plex
       sourceRef:
         kind: HelmRepository
-        name: truecharts
+        name: k8s-at-home
         namespace: flux-system
   values:
+    env:
+      TZ: America/Los_Angeles
+
     hostNetwork: true
 
     podSecurityContext:
-      supplementalGroups: [44, 109]
+      runAsUser: 1000
+      runAsGroup: 100
+      fsGroup: 100
+      fsGroupChangePolicy: OnRootMismatch
+      supplementalGroups:
+        - 44
+        - 109
+      seccompProfile:
+        type: RuntimeDefault
 
     persistence:
       config:
@@ -24,6 +35,10 @@ spec:
         type: hostPath
         hostPath: /data/general/config/plex
         mountPath: /config
+      transcode:
+        enabled: true
+        type: emptyDir
+        medium: Memory
       tv:
         enabled: true
         type: hostPath
@@ -39,6 +54,3 @@ spec:
         type: hostPath
         hostPath: /data/media/audiobooks
         mountPath: /audiobooks
-
-    env:
-      ALLOWED_NETWORKS: "192.168.0.0/16"
