@@ -1,0 +1,44 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: plex
+  namespace: media
+spec:
+  interval: 24h
+  chart:
+    spec:
+      chart: plex
+      sourceRef:
+        kind: HelmRepository
+        name: truecharts
+        namespace: flux-system
+  values:
+    hostNetwork: true
+
+    podSecurityContext:
+      supplementalGroups: [44, 109]
+
+    persistence:
+      config:
+        enabled: true
+        type: hostPath
+        hostPath: /data/general/config/plex
+        mountPath: /config
+      tv:
+        enabled: true
+        type: hostPath
+        hostPath: /data/media/tv
+        mountPath: /tv
+      movies:
+        enabled: true
+        type: hostPath
+        hostPath: /data/media/movies
+        mountPath: /movies
+      audiobooks:
+        enabled: true
+        type: hostPath
+        hostPath: /data/media/audiobooks
+        mountPath: /audiobooks
+
+    env:
+      ALLOWED_NETWORKS: "192.168.0.0/16"
