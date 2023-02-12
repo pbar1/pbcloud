@@ -16,3 +16,13 @@ spec:
     persistence:
       config:
         enabled: false
+
+    ingress:
+      main:
+        enabled: true
+        hosts:
+        - host: "{{ .Release.Name }}.${DOMAIN}"
+        tls:
+        - secretName: "{{ .Release.Name }}-tls"
+          hosts:
+          - "{{ .Release.Name }}.${DOMAIN}"
