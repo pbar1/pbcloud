@@ -4,5 +4,5 @@ resources:
 - cluster-secrets.sops.yaml
 - cluster-settings.yaml
 - helmrepo
-# - weave-gitops.yaml
+- weave-gitops.yaml
 - oidc-auth.sops.yaml
