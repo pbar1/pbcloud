@@ -9,6 +9,7 @@ os.chdir(scriptdir)
 
 helm_repos = {
   "amd-gpu": "https://radeonopencompute.github.io/k8s-device-plugin",
+  "external-dns": "https://kubernetes-sigs.github.io/external-dns",
   "grafana": "https://grafana.github.io/helm-charts",
   "prometheus-community": "https://prometheus-community.github.io/helm-charts",
   "truecharts": "https://charts.truecharts.org",
