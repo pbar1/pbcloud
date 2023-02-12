@@ -11,6 +11,16 @@ spec:
   secretRef:
     name: flux-system
   url: ssh://git@github.com/pbar1/pbcloud
+  ignore: |
+    # Exclude all
+    /*
+    # Include this cluster
+    !/clusters/tec
+    # Exclude specific things
+    /clusters/tec/**/*.md
+    /clusters/tec/Taskfile.yaml
+    /clusters/tec/.sops.yaml
+    /clusters/tec/.sops.pub.asc
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
 kind: Kustomization
