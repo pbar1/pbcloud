@@ -1,0 +1,79 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: kube-prometheus-stack
+  namespace: monitoring
+spec:
+  interval: 24h
+  chart:
+    spec:
+      chart: kube-prometheus-stack
+      sourceRef:
+        kind: HelmRepository
+        name: prometheus-community
+        namespace: flux-system
+  values:
+    # TODO: Consider installing CRDs with Flux instead of Helm
+    # https://github.com/prometheus-community/helm-charts/blob/main/charts/kube-prometheus-stack/values.yaml
+
+    alertmanager:
+      ingress:
+        enabled: true
+        annotations:
+          cert-manager.io/cluster-issuer: letsencrypt-production
+          traefik.ingress.kubernetes.io/router.entrypoints: websecure
+        hosts:
+        - "alertmanager.${DOMAIN}"
+        paths:
+        - /
+        tls:
+        - hosts:
+          - "alertmanager.${DOMAIN}"
+          secretName: alertmanager-tls
+
+    # https://github.com/grafana/helm-charts/blob/main/charts/grafana/values.yaml
+    grafana:
+      defaultDashboardsTimezone: browser
+      adminPassword: grafana
+      ingress:
+        enabled: true
+        annotations:
+          cert-manager.io/cluster-issuer: letsencrypt-production
+          traefik.ingress.kubernetes.io/router.entrypoints: websecure
+        hosts:
+        - "grafana.${DOMAIN}"
+        paths:
+        - /
+        tls:
+        - hosts:
+          - "grafana.${DOMAIN}"
+          secretName: grafana-tls
+      persistence:
+        enabled: true
+        storageClassName: local-path
+
+    prometheus:
+      ingress:
+        enabled: true
+        annotations:
+          cert-manager.io/cluster-issuer: letsencrypt-production
+          traefik.ingress.kubernetes.io/router.entrypoints: websecure
+        hosts:
+        - "prometheus.${DOMAIN}"
+        paths:
+        - /
+        tls:
+        - hosts:
+          - "prometheus.${DOMAIN}"
+          secretName: prometheus-tls
+      prometheusSpec:
+        retention: 30d
+        storageSpec:
+          volumeClaimTemplate:
+            spec:
+              storageClassName: local-path
+              accessModes: ["ReadWriteOnce"]
+              resources:
+                requests:
+                  # NOTE: this does nothing with local-path currently
+                  storage: 5Gi
