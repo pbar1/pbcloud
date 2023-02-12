@@ -27,9 +27,12 @@ spec:
       runAsGroup: 100
       fsGroup: 100
       fsGroupChangePolicy: OnRootMismatch
+      # $ cat /etc/group | grep "video\|render"
+      # video:x:26:
+      # render:x:303:
       supplementalGroups:
-      - 44
-      - 109
+      - 26
+      - 303
       seccompProfile:
         type: RuntimeDefault
 
