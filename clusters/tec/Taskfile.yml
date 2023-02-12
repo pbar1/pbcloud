@@ -1,0 +1,35 @@
+version: '3'
+
+tasks:
+  default: task --list
+
+  bootstrap:
+    desc: Bootstraps Flux on the cluster
+    cmds:
+    - flux bootstrap github --personal --owner=pbar1 --repository=pbcloud --path=clusters/tec/.bootstrap --interval=24h
+    - gpg --export-secret-keys --armor 40426439B25D67BD53C70F42D9C267B8CD0937BF | kubectl create secret generic sops-gpg --namespace=flux-system --from-file=sops.asc=/dev/stdin
+
+  sync:
+    desc: Sync Flux with this Git repo
+    cmds:
+    - flux reconcile source git flux-system
+
+  decrypt:
+    desc: Decrypts all SOPS files
+    cmds:
+    - fd --no-ignore --extension .sops.yaml --exec sops --decrypt --output {}.dec {}
+
+  encrypt:
+    desc: Encrypts all SOPS files
+    cmds:
+    - fd --no-ignore --extension .sops.yaml.dec --exec sops --encrypt --output {.} {}
+
+  clean:
+    desc: Deletes all generated files
+    cmds:
+    - fd --no-ignore --extension .sops.yaml.dec --exec rm {}
+
+  phrasing:
+    desc: When you just want to iterate
+    cmds:
+    - git commit --all --message 'Phrasing' && git push
