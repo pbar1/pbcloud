@@ -41,7 +41,7 @@ tasks:
   build:helmrepos:
     desc: Builds Flux boilerplate for Helm repositories
     cmds:
-    - ./flux-system/helmrepo/BUILD.py
+    - ./flux-system/helm-repos/BUILD.py
 
   get:crds:
     desc: Get Kubernetes CustomResourceDefinitions ordered by creation timestamp
