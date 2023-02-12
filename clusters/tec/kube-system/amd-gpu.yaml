@@ -1,0 +1,28 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: amd-gpu
+  namespace: kube-system
+spec:
+  interval: 24h
+  chart:
+    spec:
+      chart: amd-gpu
+      sourceRef:
+        kind: HelmRepository
+        name: amd-gpu
+        namespace: flux-system
+  values:
+    labeller:
+      enabled: true
+  postRenderers:
+  - kustomize:
+      patchesJson6902:
+      - target:
+          group: rbac.authorization.k8s.io
+          version: v1beta1
+          name: .*
+        patch:
+        - op: replace
+          path: /apiVersion
+          value: rbac.authorization.k8s.io/v1
