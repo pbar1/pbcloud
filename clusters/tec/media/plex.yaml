@@ -13,6 +13,10 @@ spec:
         name: geek-cookbook
         namespace: flux-system
   values:
+    image:
+      tag: latest
+      pullPolicy: Always
+
     env:
       TZ: America/Los_Angeles
 
@@ -24,8 +28,8 @@ spec:
       fsGroup: 100
       fsGroupChangePolicy: OnRootMismatch
       supplementalGroups:
-        - 44
-        - 109
+      - 44
+      - 109
       seccompProfile:
         type: RuntimeDefault
 
