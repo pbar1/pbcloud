@@ -1,12 +1,16 @@
 version: '3'
 
+vars:
+  GIT_ROOT:
+    sh: git rev-parse --show-toplevel
+
 tasks:
   default: task --list
 
   bootstrap:
     desc: Bootstraps Flux on the cluster. Requires GITHUB_TOKEN to be set
     cmds:
-    - flux bootstrap github --personal --owner=pbar1 --repository=pbcloud --path=clusters/tec/.bootstrap --interval=24h
+    - flux bootstrap github --personal --owner=pbar1 --repository=pbcloud --path=clusters/tec --interval=24h
     - gpg --export-secret-keys --armor 40426439B25D67BD53C70F42D9C267B8CD0937BF | kubectl create secret generic sops-gpg --namespace=flux-system --from-file=sops.asc=/dev/stdin
 
   sync:
@@ -38,3 +42,8 @@ tasks:
     desc: Builds Flux boilerplate for Helm repositories
     cmds:
     - ./flux-system/helmrepo/BUILD.py
+
+  get:crds:
+    desc: Get Kubernetes CustomResourceDefinitions ordered by creation timestamp
+    cmds:
+    - kubectl get customresourcedefinition --sort-by='.metadata.creationTimestamp'
