@@ -7,7 +7,7 @@ spec:
   interval: 24h
   chart:
     spec:
-      chart: plex
+      chart: sonarr
       sourceRef:
         kind: HelmRepository
         name: geek-cookbook
