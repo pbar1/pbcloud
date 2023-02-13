@@ -67,7 +67,3 @@ spec:
         - hosts:
           - "sonarr.${DOMAIN}"
           secretName: sonarr-tls
-
-    # TODO: Enable
-    metrics:
-      enabled: false

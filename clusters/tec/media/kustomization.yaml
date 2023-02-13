@@ -5,3 +5,4 @@ resources:
 - plex.yaml
 - sonarr.yaml
 - radarr.yaml
+- prowlarr.yaml
