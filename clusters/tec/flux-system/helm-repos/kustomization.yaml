@@ -6,5 +6,6 @@ resources:
 - geek-cookbook.yaml
 - grafana.yaml
 - jetstack.yaml
+- mvisonneau.yaml
 - prometheus-community.yaml
 - weaveworks.yaml

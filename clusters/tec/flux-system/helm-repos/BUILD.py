@@ -13,6 +13,7 @@ helm_repos = {
   "geek-cookbook": "https://geek-cookbook.github.io/charts",
   "grafana": "https://grafana.github.io/helm-charts",
   "jetstack": "https://charts.jetstack.io",
+  "mvisonneau": "https://charts.visonneau.fr",
   "prometheus-community": "https://prometheus-community.github.io/helm-charts",
   "weaveworks": "oci://ghcr.io/weaveworks/charts",
 }
