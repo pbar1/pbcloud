@@ -16,7 +16,7 @@ spec:
     labeller:
       enabled: true
 
-    db:
+    dp:
       image:
         # https://github.com/RadeonOpenCompute/k8s-device-plugin/issues/31#issuecomment-1361061842
         tag: "1.18.0"
