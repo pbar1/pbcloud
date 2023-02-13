@@ -17,7 +17,8 @@ spec:
       TZ: America/Los_Angeles
 
     podAnnotations:
-      container.apparmor.security.beta.kubernetes.io/sonarr: runtime/default
+      # FIXME: failed to get container spec opts: failed to generate apparmor spec opts: apparmor is not supported
+      container.apparmor.security.beta.kubernetes.io/sonarr: unconfined
 
     podSecurityContext:
       runAsUser: 1000
