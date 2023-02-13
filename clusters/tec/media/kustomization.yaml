@@ -3,7 +3,7 @@ kind: Kustomization
 resources:
 - namespace.yaml
 - plex.yaml
-# - sonarr.yaml
+- sonarr.yaml
 - radarr.yaml
 - prowlarr.yaml
 - bazarr.yaml
