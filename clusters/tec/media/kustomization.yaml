@@ -4,3 +4,4 @@ resources:
 - namespace.yaml
 - plex.yaml
 - sonarr.yaml
+- radarr.yaml
