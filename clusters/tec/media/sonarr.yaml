@@ -13,6 +13,10 @@ spec:
         name: geek-cookbook
         namespace: flux-system
   values:
+    image:
+      tag: latest
+      pullPolicy: Always
+
     env:
       TZ: America/Los_Angeles
 
