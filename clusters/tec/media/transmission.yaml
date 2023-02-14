@@ -13,24 +13,8 @@ spec:
         name: geek-cookbook
         namespace: flux-system
   values:
-    initContainers:
-      custom-webui:
-        name: custom-webui
-        image: curlimages/curl:7.76.1
-        command:
-        - "/bin/sh"
-        - "-c"
-        - "curl -o- -sL https://github.com/johman10/flood-for-transmission/releases/download/latest/flood-for-transmission.tar.gz | tar xzf - -C /config"
-        volumeMounts:
-        - name: config
-          mountPath: /config
-        securityContext:
-          runAsUser: 1000
-          runAsGroup: 100
-
     env:
       TZ: America/Los_Angeles
-      TRANSMISSION_WEB_HOME: /config/flood-for-transmission/
       TRANSMISSION_RPC_PASSWORD: transmission
       TRANSMISSION_DOWNLOAD_DIR: /downloads/complete
       TRANSMISSION_INCOMPLETE_DIR: /downloads/incomplete
@@ -80,45 +64,33 @@ spec:
       PIA_PASS: "${PIA_PASS}"
 
     additionalContainers:
-      pia-wireguard:
+      gluetun:
+        image: qmcgaw/gluetun
         securityContext:
-          runAsUser: 0
-          runAsGroup: 0
-          privileged: true
-        image: ghcr.io/pbar1/pia-wireguard:latest
-        imagePullPolicy: IfNotPresent
-        envFrom:
-        - secretRef:
-            name: transmission
+          capabilities:
+            add:
+            - NET_ADMIN
         env:
         - name: TZ
           value: America/Los_Angeles
-        - name: PIA_DNS
-          value: "true"
-        - name: PIA_PF
-          value: "true"
-        - name: AUTOCONNECT
-          value: "false"
-        - name: DISABLE_IPV6
-          value: "no"
-        - name: PREFERRED_REGION
-          value: swiss
-        - name: PF_FILE
+        - name: VPN_SERVICE_PROVIDER
+          value: private internet access
+        - name: OPENVPN_USER
+          valueFrom:
+            secretKeyRef:
+              name: transmission
+              key: PIA_USER
+        - name: OPENVPN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: transmission
+              key: PIA_PASS
+        - name: SERVER_REGIONS
+          value: Switzerland
+        - name: PRIVATE_INTERNET_ACCESS_VPN_PORT_FORWARDING
+          value: "on"
+        - name: PRIVATE_INTERNET_ACCESS_VPN_PORT_FORWARDING_STATUS_FILE
           value: /shared/forwarded_port
-        volumeMounts:
-        - name: shared
-          mountPath: /shared
-      transmission-remote:
-        image: kartouch/transmission-remote:latest
-        command:
-        - sh
-        - -c
-        - |
-          while [ ! -f /shared/forwarded_port ]; do sleep 2; done
-          while true; do
-            transmission-remote --port $(< /shared/forwarded_port)
-            sleep 900
-          done
         volumeMounts:
         - name: shared
           mountPath: /shared
