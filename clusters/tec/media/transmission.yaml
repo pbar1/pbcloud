@@ -96,3 +96,22 @@ spec:
         volumeMounts:
         - name: shared
           mountPath: /shared
+      inotify-port:
+        image: nixery.dev/shell/inotify-tools/transmission
+        command:
+        - bash
+        - -c
+        - |
+          set -o nounset -o errexit -o pipefail
+          trap 'received signal, exiting; exit' INT TERM
+          timeout 60s bash -c 'until [ -f /shared/forwarded_port ]; do echo "Waiting for /shared/forwarded_port"; sleep 5; done'
+          echo 'Found /shared/forwarded_port'
+          while true; do
+            transmission-remote --port $(< /shared/forwarded_port)
+            echo "Set Transmission port to: " $(< /shared/forwarded_port)
+            inotifywait --event modify /shared/forwarded_port
+            echo "Received notification of updated port"
+          done
+        volumeMounts:
+        - name: shared
+          mountPath: /shared
