@@ -108,7 +108,7 @@ spec:
           echo 'Found /shared/forwarded_port'
           while true; do
             transmission-remote --port $(< /shared/forwarded_port)
-            echo "Set Transmission port to: " $(< /shared/forwarded_port)
+            echo "Set Transmission port to:" $(< /shared/forwarded_port)
             inotifywait --event modify /shared/forwarded_port
             echo "Received notification of updated port"
           done
