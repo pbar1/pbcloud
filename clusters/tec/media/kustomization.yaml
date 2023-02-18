@@ -5,6 +5,7 @@ resources:
 - plex.yaml
 - sonarr.yaml
 - radarr.yaml
+- readarr-ab.yaml
 - prowlarr.yaml
 - bazarr.yaml
 - transmission.yaml

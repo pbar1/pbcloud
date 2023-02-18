@@ -1,0 +1,70 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: readarr-ab
+  namespace: media
+spec:
+  interval: 24h
+  chart:
+    spec:
+      chart: readarr
+      sourceRef:
+        kind: HelmRepository
+        name: geek-cookbook
+        namespace: flux-system
+  values:
+    image:
+      repository: ghcr.io/linuxserver/readarr
+      tag: latest
+      pullPolicy: Always
+
+    env:
+      TZ: America/Los_Angeles
+      PUID: 1000
+      PGID: 100
+
+    podAnnotations:
+      # FIXME: failed to get container spec opts: failed to generate apparmor spec opts: apparmor is not supported
+      container.apparmor.security.beta.kubernetes.io/readarr: unconfined
+
+    podSecurityContext:
+      fsGroup: 100
+      fsGroupChangePolicy: OnRootMismatch
+      capabilities:
+        drop:
+        - all
+      seccompProfile:
+        type: RuntimeDefault
+
+    persistence:
+      config:
+        enabled: true
+        type: hostPath
+        hostPath: /data/general/config/readarr-audiobooks
+        mountPath: /config
+      media:
+        enabled: true
+        type: hostPath
+        hostPath: /data/media/audiobooks
+        mountPath: /audiobooks
+      downloads:
+        enabled: true
+        type: hostPath
+        hostPath: /data/torrents/transmission
+        mountPath: /downloads
+
+    ingress:
+      main:
+        enabled: true
+        annotations:
+          cert-manager.io/cluster-issuer: letsencrypt-production
+          traefik.ingress.kubernetes.io/router.entrypoints: websecure
+        hosts:
+        - host: "readarr-ab.${DOMAIN}"
+          paths:
+          - path: /
+            pathType: Prefix
+        tls:
+        - hosts:
+          - "readarr-ab.${DOMAIN}"
+          secretName: readarr-ab-tls
