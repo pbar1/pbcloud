@@ -82,6 +82,10 @@ spec:
         - name: VPN_TYPE
           value: wireguard
         - name: WIREGUARD_ADDRESSES
-          value: 10.67.247.61/32 # Mullvad Zurich (ch-zrh-wg-401)
+          value: 10.67.247.61/32
+        - name: SERVER_CITIES
+          value: Zurich
+        - name: OWNED_ONLY
+          value: "yes"
         - name: FIREWALL_VPN_INPUT_PORTS
           value: 55487 # Mullvad port forward
