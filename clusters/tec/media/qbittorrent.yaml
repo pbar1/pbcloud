@@ -22,8 +22,7 @@ spec:
       TZ: America/Los_Angeles
       PUID: 1000
       PGID: 100
-      QBT_WEBUI_AUTHSUBNETWHITELISTENABLED: "TRUE"
-      QBT_WEBUI_AUTHSUBNETWHITELIST: 0.0.0.0/0
+      QBT_TORRENTING_PORT: 55487 # Mullvad port forward
 
     podSecurityContext:
       seccompProfile:
@@ -61,3 +60,26 @@ spec:
         - hosts:
           - "qbittorrent.${DOMAIN}"
           secretName: qbittorrent-tls
+
+    secret:
+      WIREGUARD_PRIVATE_KEY: "${MULLVAD_WG_PK}"
+
+    additionalContainers:
+      gluetun:
+        image: qmcgaw/gluetun
+        securityContext:
+          capabilities:
+            add:
+            - NET_ADMIN
+        envFrom:
+        - secretRef:
+            name: qbittorrent
+        env:
+        - name: TZ
+          value: America/Los_Angeles
+        - name: VPN_SERVICE_PROVIDER
+          value: wireguard
+        - name: WIREGUARD_ADDRESSES
+          value: 10.67.247.61/32 # Mullvad Zurich (ch-zrh-wg-401)
+        - name: FIREWALL_VPN_INPUT_PORTS
+          value: 55487 # Mullvad port forward
