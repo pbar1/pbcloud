@@ -26,6 +26,7 @@ spec:
       TRANSMISSION_DOWNLOAD_DIR: /downloads/complete
       TRANSMISSION_INCOMPLETE_DIR: /downloads/incomplete
       TRANSMISSION_INCOMPLETE_DIR_ENABLED: true
+      TRANSMISSION_WEB_HOME: ""
 
     podSecurityContext:
       seccompProfile:
