@@ -14,19 +14,20 @@ spec:
         namespace: flux-system
   values:
     image:
+      repository: ghcr.io/linuxserver/bazarr
       tag: latest
       pullPolicy: Always
 
     env:
       TZ: America/Los_Angeles
+      PUID: 1000
+      PGID: 100
 
     podAnnotations:
       # FIXME: failed to get container spec opts: failed to generate apparmor spec opts: apparmor is not supported
       container.apparmor.security.beta.kubernetes.io/bazarr: unconfined
 
     podSecurityContext:
-      runAsUser: 1000
-      runAsGroup: 100
       fsGroup: 100
       fsGroupChangePolicy: OnRootMismatch
       capabilities:
