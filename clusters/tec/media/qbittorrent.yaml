@@ -22,6 +22,8 @@ spec:
       TZ: America/Los_Angeles
       PUID: 1000
       PGID: 100
+      QBT_WEBUI_AUTHSUBNETWHITELISTENABLED: "TRUE"
+      QBT_WEBUI_AUTHSUBNETWHITELIST: 0.0.0.0/0
 
     podSecurityContext:
       seccompProfile:
@@ -31,6 +33,7 @@ spec:
       fsGroup: 100
       fsGroupChangePolicy: OnRootMismatch
 
+    # FIXME: Enable persistence
     persistence:
       config:
         enabled: false
