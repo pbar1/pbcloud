@@ -15,7 +15,7 @@ spec:
   values:
     image:
       repository: ghcr.io/linuxserver/readarr
-      tag: latest
+      tag: develop
       pullPolicy: Always
 
     env:
