@@ -79,6 +79,8 @@ spec:
           value: America/Los_Angeles
         - name: VPN_SERVICE_PROVIDER
           value: mullvad
+        - name: VPN_TYPE
+          value: wireguard
         - name: WIREGUARD_ADDRESSES
           value: 10.67.247.61/32 # Mullvad Zurich (ch-zrh-wg-401)
         - name: FIREWALL_VPN_INPUT_PORTS
