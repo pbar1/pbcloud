@@ -13,8 +13,15 @@ spec:
         name: geek-cookbook
         namespace: flux-system
   values:
+    image:
+      repository: ghcr.io/linuxserver/transmission
+      tag: latest
+      pullPolicy: Always
+
     env:
       TZ: America/Los_Angeles
+      PUID: 1000
+      PGID: 100
       TRANSMISSION_RPC_PASSWORD: transmission
       TRANSMISSION_DOWNLOAD_DIR: /downloads/complete
       TRANSMISSION_INCOMPLETE_DIR: /downloads/incomplete
@@ -25,8 +32,6 @@ spec:
         type: RuntimeDefault
 
     securityContext:
-      runAsUser: 1000
-      runAsGroup: 100
       fsGroup: 100
       fsGroupChangePolicy: OnRootMismatch
 
