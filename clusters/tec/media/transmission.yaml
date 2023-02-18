@@ -22,13 +22,11 @@ spec:
       TZ: America/Los_Angeles
       PUID: 1000
       PGID: 100
-      TRANSMISSION_RPC_PASSWORD: transmission
-      TRANSMISSION_DOWNLOAD_DIR: /downloads/complete
-      TRANSMISSION_INCOMPLETE_DIR: /downloads/incomplete
+      TRANSMISSION_DOWNLOAD_DIR: /downloads/transmission/complete
+      TRANSMISSION_INCOMPLETE_DIR: /downloads/transmission/incomplete
       TRANSMISSION_INCOMPLETE_DIR_ENABLED: true
       TRANSMISSION_WEB_HOME: ""
-      TRANSMISSION_RATIO_LIMIT: "1.0"
-      TRANSMISSION_RATIO_LIMIT_ENABLED: true
+      TRANSMISSION_RPC_PASSWORD: ""
 
     podSecurityContext:
       seccompProfile:
@@ -48,7 +46,7 @@ spec:
         enabled: true
         type: hostPath
         hostPath: /data/torrents/transmission
-        mountPath: /downloads
+        mountPath: /downloads/transmission
       shared:
         enabled: true
         mountPath: /shared

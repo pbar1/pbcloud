@@ -35,15 +35,15 @@ spec:
     # FIXME: Enable persistence
     persistence:
       config:
-        enabled: false
+        enabled: true
         type: hostPath
         hostPath: /data/general/config/qbittorrent
         mountPath: /config
       downloads:
-        enabled: false
+        enabled: true
         type: hostPath
         hostPath: /data/torrents/qbittorrent
-        mountPath: /downloads
+        mountPath: /downloads/qbittorrent
 
     ingress:
       main:
