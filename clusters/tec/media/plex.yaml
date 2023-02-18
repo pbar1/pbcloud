@@ -14,17 +14,18 @@ spec:
         namespace: flux-system
   values:
     image:
+      repository: ghcr.io/linuxserver/plex
       tag: latest
       pullPolicy: Always
 
     env:
       TZ: America/Los_Angeles
+      PUID: 1000
+      PGID: 100
 
     hostNetwork: true
 
     podSecurityContext:
-      runAsUser: 1000
-      runAsGroup: 100
       fsGroup: 100
       fsGroupChangePolicy: OnRootMismatch
       # $ cat /etc/group | grep "video\|render"
