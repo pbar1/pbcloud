@@ -14,8 +14,8 @@ spec:
         namespace: flux-system
   values:
     image:
-      tag: latest
-      pullPolicy: Always
+      repository: ghcr.io/linuxserver/sonarr
+      tag: 3.0.9
 
     env:
       TZ: America/Los_Angeles
