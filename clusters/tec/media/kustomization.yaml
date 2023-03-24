@@ -9,5 +9,4 @@ resources:
 - readarr-ab.yaml
 - prowlarr.yaml
 - bazarr.yaml
-- transmission.yaml
 - qbittorrent.yaml
