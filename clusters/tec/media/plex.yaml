@@ -63,6 +63,6 @@ spec:
         hostPath: /data/media/audiobooks
         mountPath: /audiobooks
 
-    resources:
-      limits:
-        amd.com/gpu: 1
+    # resources:
+    #   limits:
+    #     amd.com/gpu: 1
