@@ -4,6 +4,7 @@ resources:
 - amd-gpu.yaml
 - external-dns.yaml
 - geek-cookbook.yaml
+- gitea.yaml
 - grafana.yaml
 - jetstack.yaml
 - mvisonneau.yaml

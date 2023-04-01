@@ -11,6 +11,7 @@ helm_repos = {
   "amd-gpu": "https://radeonopencompute.github.io/k8s-device-plugin",
   "external-dns": "https://kubernetes-sigs.github.io/external-dns",
   "geek-cookbook": "https://geek-cookbook.github.io/charts",
+  "gitea": "https://dl.gitea.io/charts/",
   "grafana": "https://grafana.github.io/helm-charts",
   "jetstack": "https://charts.jetstack.io",
   "mvisonneau": "https://charts.visonneau.fr",
