@@ -32,8 +32,8 @@ spec:
         secretName: gitea-tls
 
     persistence:
-      enabled: false
-      # storageClass: local-path
+      enabled: true
+      storageClass: local-path
 
     # gitea:
     #   config:
