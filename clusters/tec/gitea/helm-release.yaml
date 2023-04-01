@@ -35,7 +35,13 @@ spec:
       enabled: true
       storageClass: local-path
 
-    # gitea:
-    #   config:
-    #     server:
-    #       SSH_DOMAIN: "ssh.gitea.${DOMAIN}"
+    gitea:
+      config:
+        server:
+          DISABLE_SSH: true
+
+    postgresql:
+      enabled: false
+
+    memcached:
+      enabled: false
