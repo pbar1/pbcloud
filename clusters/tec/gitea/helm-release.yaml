@@ -40,6 +40,9 @@ spec:
       config:
         server:
           DISABLE_SSH: true
+          START_SSH_SERVER: false
+        database:
+          DB_TYPE: sqlite3
 
     postgresql:
       enabled: false
