@@ -15,6 +15,7 @@ spec:
   values:
     image:
       pullPolicy: IfNotPresent
+      rootless: true
 
     ingress:
       enabled: true
