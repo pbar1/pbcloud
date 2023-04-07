@@ -11,5 +11,5 @@ for f in $(fd . -e jsonnet source); do
   # --jpath <path> : Adds <path> to Jsonnet path for resolving imports
   # --string       : Manifest the output as plain text, since we're expecting YAML
   # --multi <path> : Render filenames specified by top level object keys to <path>
-  jsonnet --jpath vendor --string --multi "${material}" "${f}"
+  jsonnet --jpath vendor --jpath source/lib --string --multi "${material}" "${f}"
 done

@@ -1,0 +1,30 @@
+{
+  // Returns true if the pattern is contained within the string
+  contains(pat, str): std.length(std.findSubstr(pat, str)) > 0,
+
+  // Adds an extension to the given filename only if it does not already have it
+  addExtension(filename, extension):
+    local withExtension = if std.startsWith(extension, '.') then extension else '.' + extension;
+    if std.endsWith(filename, withExtension) then filename else filename + withExtension,
+
+  // Converts an object to a YAML document string, with unquoted keys
+  toYaml(obj): std.manifestYamlDoc(obj, indent_array_in_object=false, quote_keys=false),
+
+  // Renders a top level object of (name):(Kubernetes object) pairs into a YAML files.
+  // Also builds a Kustomization containing each YAML filename by default.
+  exportK8s(
+    objectMap,
+    enableKustomization=true,
+  ):
+    local objMap = objectMap {
+      [if enableKustomization then 'kustomization']: {
+        apiVersion: 'kustomize.config.k8s.io/v1beta1',
+        kind: 'Kustomization',
+        resources: [$.addExtension(name, 'yaml') for name in std.objectFields(objectMap)],
+      },
+    };
+    {
+      [$.addExtension(name, 'yaml')]: $.toYaml(objMap[name])
+      for name in std.objectFields(objMap)
+    },
+}

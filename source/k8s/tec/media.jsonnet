@@ -1,12 +1,11 @@
 local fluxcd = import 'github.com/jsonnet-libs/fluxcd-libsonnet/0.41.1/main.libsonnet';
 local k8s = import 'github.com/jsonnet-libs/k8s-libsonnet/1.25/main.libsonnet';
+local pbcloud = import 'pbcloud.libsonnet';
 
 local ns = k8s.core.v1.namespace;
 local hr = fluxcd.helm.v2beta1.helmRelease;
 
 local ns_name = 'media';
-
-local toYaml(obj) = std.manifestYamlDoc(obj, indent_array_in_object=false, quote_keys=false);
 
 local make_values(
   name,
@@ -84,9 +83,9 @@ local make_helm_release(
   hr.spec.withValues(values) +
   hr.metadata.withNamespace(ns_name);
 
-local wrapped_make_helm_release(name) = toYaml(make_helm_release(name, ns_name, values=make_values(name)));
+local wrapped_make_helm_release(name) = make_helm_release(name, ns_name, values=make_values(name));
 
-{
-  'sonarr.yaml': wrapped_make_helm_release('sonarr'),
-  'radarr.yaml': wrapped_make_helm_release('radarr'),
-}
+pbcloud.exportK8s({
+  sonarr: wrapped_make_helm_release('sonarr'),
+  radarr: wrapped_make_helm_release('radarr'),
+})
