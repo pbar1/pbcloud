@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "dependencies": [
+    {
+      "source": {
+        "git": {
+          "remote": "https://github.com/jsonnet-libs/fluxcd-libsonnet.git",
+          "subdir": "0.41.1"
+        }
+      },
+      "version": "1450a64abb91c33ec5bd69b764ee36ba28ab4cd7",
+      "sum": "uCdVNOdDQrm83ArEgn/4HJG8k3o0EU286FivM9i8Y3k="
+    },
+    {
+      "source": {
+        "git": {
+          "remote": "https://github.com/jsonnet-libs/k8s-libsonnet.git",
+          "subdir": "1.25"
+        }
+      },
+      "version": "9e5b48eee32913938d3cac30f183b49ecd9fe13a",
+      "sum": "VhCS9AKLJ4U46OUrkHzP4WKr5pUADNx0WcuBur/QaOQ="
+    },
+    {
+      "source": {
+        "git": {
+          "remote": "https://github.com/jsonnet-libs/xtd.git",
+          "subdir": ""
+        }
+      },
+      "version": "a040840d2853ee07eb5fc7f144af3536573c38b7",
+      "sum": "eoEiHjbYtMjThfyj8GZWugArl9cOVFSW8nb6zyfGbuc="
+    }
+  ],
+  "legacyImports": false
+}
