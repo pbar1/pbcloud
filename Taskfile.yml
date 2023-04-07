@@ -1,0 +1,15 @@
+version: '3'
+
+env:
+  GIT_ROOT:
+    sh: git rev-parse --show-toplevel
+
+tasks:
+  default: task --list
+
+  # FIXME: Use Buck instead of looping through all the directories
+  build:
+    desc: Build source into materialized configs
+    cmds:
+    - rm -rf materialized
+    - bash scripts/materialize.sh
