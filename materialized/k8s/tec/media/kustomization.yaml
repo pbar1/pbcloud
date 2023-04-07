@@ -3,6 +3,8 @@ kind: "Kustomization"
 resources:
 - "bazarr.yaml"
 - "namespace.yaml"
+- "prowlarr.yaml"
+- "qbittorrent.yaml"
 - "radarr.yaml"
 - "readarr.yaml"
 - "sonarr.yaml"

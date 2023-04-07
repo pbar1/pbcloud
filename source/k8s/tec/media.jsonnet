@@ -2,8 +2,10 @@ local k8s = import 'github.com/jsonnet-libs/k8s-libsonnet/1.25/main.libsonnet';
 local pbcloud = import 'pbcloud.libsonnet';
 
 local ns = k8s.core.v1.namespace;
+local envVar = k8s.core.v1.envVar;
 
 local ns_name = 'media';
+local mullvadPort = 55487;
 
 local hostPathPersistence(hostPath, mountPath, enabled=true) = {
   enabled: true,
@@ -60,6 +62,30 @@ local helmRelease(name) = pbcloud.helmRelease('geek-cookbook', name, ns_name, va
 pbcloud.exportK8s({
   namespace: ns.new(ns_name),
 
+  qbittorrent: helmRelease('qbittorrent') + { spec+: { values+: {
+    persistence+: {
+      downloads: hostPathPersistence('/data/torrents/qbittorrent', '/downloads/qbittorrent'),
+    },
+    env+: { QBT_TORRENTING_PORT: mullvadPort },
+    secret+: { WIREGUARD_PRIVATE_KEY: '${MULLVAD_WG_PK}' },
+    additionalContainers+: { gluetun: {
+      image: 'qmcgaw/gluetun',
+      securityContext: { capabilities: { add: ['NET_ADMIN'] } },
+      envFrom: [{ secretRef: { name: 'qbittorrent' } }],
+      env: [
+        envVar.new('TZ', 'America/Los_Angeles'),
+        envVar.new('VPN_SERVICE_PROVIDER', 'mullvad'),
+        envVar.new('VPN_TYPE', 'wireguard'),
+        envVar.new('WIREGUARD_ADDRESSES', '10.67.247.61/32'),
+        envVar.new('SERVER_CITIES', 'Zurich'),
+        envVar.new('OWNED_ONLY', 'yes'),
+        envVar.new('FIREWALL_VPN_INPUT_PORTS', mullvadPort),
+      ],
+    } },
+  } } },
+
+  prowlarr: helmRelease('prowlarr'),
+
   sonarr: helmRelease('sonarr') + { spec+: { values+: { persistence+: {
     media: hostPathPersistence('/data/media/tv', '/tv'),
     downloads: hostPathPersistence('/data/torrents', '/downloads'),
@@ -70,6 +96,7 @@ pbcloud.exportK8s({
     downloads: hostPathPersistence('/data/torrents', '/downloads'),
   } } } },
 
+  // FIXME: readarr config is in /data/general/config/readar-audiobooks right now
   readarr: helmRelease('readarr') + { spec+: { values+: { persistence+: {
     media: hostPathPersistence('/data/media/audiobooks', '/audiobooks'),
     downloads: hostPathPersistence('/data/torrents', '/downloads'),
