@@ -35,12 +35,22 @@ spec:
         tls:
         - hosts:
           - "radarr.${DOMAIN}"
-          secretName: "radarr-tls"
+          secretName: "radarr.${DOMAIN}-tls"
     persistence:
       config:
         enabled: true
         hostPath: "/data/general/config/radarr"
         mountPath: "/config"
+        type: "hostPath"
+      downloads:
+        enabled: true
+        hostPath: "/data/torrents"
+        mountPath: "/downloads"
+        type: "hostPath"
+      media:
+        enabled: true
+        hostPath: "/data/media/movies"
+        mountPath: "/movies"
         type: "hostPath"
     podAnnotations:
       container.apparmor.security.beta.kubernetes.io/radarr: "unconfined"

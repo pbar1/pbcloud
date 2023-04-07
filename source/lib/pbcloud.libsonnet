@@ -33,6 +33,24 @@ local hr = fluxcd.helm.v2beta1.helmRelease;
     hr.spec.chart.spec.sourceRef.withNamespace(sourceRefNamespace) +
     hr.spec.withValues(values),
 
+  // Builds a standard Ingress block that is commonplace in Helm values files
+  ingressValue(host, enabled=true, clusterIssuer='letsencrypt-production'): {
+    enabled: true,
+    annotations: {
+      'cert-manager.io/cluster-issuer': clusterIssuer,
+      'traefik.ingress.kubernetes.io/router.entrypoints': 'websecure',
+    },
+    hosts: [{
+      host: host,
+      paths: [{ path: '/', pathType: 'Prefix' }],
+    }],
+    tls: [{
+      hosts: [host],
+      // FIXME: Existing stuff is `<name>-tls`, this is a mildly breaking change
+      secretName: host + '-tls',
+    }],
+  },
+
   // Renders a top level object of (name):(Kubernetes object) pairs into a YAML files.
   // Also builds a Kustomization containing each YAML filename by default.
   exportK8s(

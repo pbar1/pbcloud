@@ -35,12 +35,22 @@ spec:
         tls:
         - hosts:
           - "sonarr.${DOMAIN}"
-          secretName: "sonarr-tls"
+          secretName: "sonarr.${DOMAIN}-tls"
     persistence:
       config:
         enabled: true
         hostPath: "/data/general/config/sonarr"
         mountPath: "/config"
+        type: "hostPath"
+      downloads:
+        enabled: true
+        hostPath: "/data/torrents"
+        mountPath: "/downloads"
+        type: "hostPath"
+      media:
+        enabled: true
+        hostPath: "/data/media/tv"
+        mountPath: "/tv"
         type: "hostPath"
     podAnnotations:
       container.apparmor.security.beta.kubernetes.io/sonarr: "unconfined"
