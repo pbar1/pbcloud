@@ -1,3 +1,7 @@
+local fluxcd = import 'github.com/jsonnet-libs/fluxcd-libsonnet/0.41.1/main.libsonnet';
+
+local hr = fluxcd.helm.v2beta1.helmRelease;
+
 {
   // Returns true if the pattern is contained within the string
   contains(pat, str): std.length(std.findSubstr(pat, str)) > 0,
@@ -9,6 +13,25 @@
 
   // Converts an object to a YAML document string, with unquoted keys
   toYaml(obj): std.manifestYamlDoc(obj, indent_array_in_object=false, quote_keys=false),
+
+  // Builds a Flux HelmRelease object
+  helmRelease(
+    chartRepo,
+    chart,
+    namespace,
+    name=chart,
+    interval='24h',
+    sourceRefNamespace='flux-system',
+    values={},
+  ):
+    hr.new(name) +
+    hr.metadata.withNamespace(namespace) +
+    hr.spec.withInterval(interval) +
+    hr.spec.chart.spec.withChart(chart) +
+    hr.spec.chart.spec.sourceRef.withKind('HelmRepository') +
+    hr.spec.chart.spec.sourceRef.withName(chartRepo) +
+    hr.spec.chart.spec.sourceRef.withNamespace(sourceRefNamespace) +
+    hr.spec.withValues(values),
 
   // Renders a top level object of (name):(Kubernetes object) pairs into a YAML files.
   // Also builds a Kustomization containing each YAML filename by default.

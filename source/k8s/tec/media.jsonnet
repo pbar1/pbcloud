@@ -7,7 +7,7 @@ local hr = fluxcd.helm.v2beta1.helmRelease;
 
 local ns_name = 'media';
 
-local make_values(
+local values(
   name,
   repository='ghcr.io/linuxserver/' + name,
   tag='latest',
@@ -66,26 +66,10 @@ local make_values(
   },
 };
 
-local make_helm_release(
-  chart,
-  namespace,
-  name=chart,
-  interval='24h',
-  chartRepo='geek-cookbook',
-  values={},
-      ) =
-  hr.new(name) +
-  hr.spec.withInterval(interval) +
-  hr.spec.chart.spec.withChart(chart) +
-  hr.spec.chart.spec.sourceRef.withKind('HelmRepository') +
-  hr.spec.chart.spec.sourceRef.withName(chartRepo) +
-  hr.spec.chart.spec.sourceRef.withNamespace('flux-system') +
-  hr.spec.withValues(values) +
-  hr.metadata.withNamespace(ns_name);
 
-local wrapped_make_helm_release(name) = make_helm_release(name, ns_name, values=make_values(name));
+local helmRelease(name) = pbcloud.helmRelease('geek-cookbook', name, ns_name, values=values(name));
 
 pbcloud.exportK8s({
-  sonarr: wrapped_make_helm_release('sonarr'),
-  radarr: wrapped_make_helm_release('radarr'),
+  sonarr: helmRelease('sonarr'),
+  radarr: helmRelease('radarr'),
 })
