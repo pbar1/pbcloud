@@ -1,0 +1,64 @@
+apiVersion: "helm.toolkit.fluxcd.io/v2beta1"
+kind: "HelmRelease"
+metadata:
+  name: "bazarr"
+  namespace: "media"
+spec:
+  chart:
+    spec:
+      chart: "bazarr"
+      sourceRef:
+        kind: "HelmRepository"
+        name: "geek-cookbook"
+        namespace: "flux-system"
+  interval: "24h"
+  values:
+    env:
+      PGID: 100
+      PUID: 1000
+      TZ: "America/Los_Angeles"
+    image:
+      imagePullPolicy: "Always"
+      repository: "ghcr.io/linuxserver/bazarr"
+      tag: "latest"
+    ingress:
+      main:
+        annotations:
+          cert-manager.io/cluster-issuer: "letsencrypt-production"
+          traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
+        enabled: true
+        hosts:
+        - host: "bazarr.${DOMAIN}"
+          paths:
+          - path: "/"
+            pathType: "Prefix"
+        tls:
+        - hosts:
+          - "bazarr.${DOMAIN}"
+          secretName: "bazarr.${DOMAIN}-tls"
+    persistence:
+      config:
+        enabled: true
+        hostPath: "/data/general/config/bazarr"
+        mountPath: "/config"
+        type: "hostPath"
+      movies:
+        enabled: true
+        hostPath: "/data/media/movies"
+        mountPath: "/movies"
+        type: "hostPath"
+      tv:
+        enabled: true
+        hostPath: "/data/media/tv"
+        mountPath: "/tv"
+        type: "hostPath"
+    podAnnotations:
+      container.apparmor.security.beta.kubernetes.io/bazarr: "unconfined"
+    podSecurityContext:
+      capabilities:
+        drop:
+        - "all"
+      fsGroup: 100
+      fsGroupChangePolicy: "OnRootMismatch"
+      seccompProfile:
+        type: "RuntimeDefault"

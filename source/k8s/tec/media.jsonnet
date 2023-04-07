@@ -1,9 +1,7 @@
-local fluxcd = import 'github.com/jsonnet-libs/fluxcd-libsonnet/0.41.1/main.libsonnet';
 local k8s = import 'github.com/jsonnet-libs/k8s-libsonnet/1.25/main.libsonnet';
 local pbcloud = import 'pbcloud.libsonnet';
 
 local ns = k8s.core.v1.namespace;
-local hr = fluxcd.helm.v2beta1.helmRelease;
 
 local ns_name = 'media';
 
@@ -60,6 +58,8 @@ local values(
 local helmRelease(name) = pbcloud.helmRelease('geek-cookbook', name, ns_name, values=values(name));
 
 pbcloud.exportK8s({
+  namespace: ns.new(ns_name),
+
   sonarr: helmRelease('sonarr') + { spec+: { values+: { persistence+: {
     media: hostPathPersistence('/data/media/tv', '/tv'),
     downloads: hostPathPersistence('/data/torrents', '/downloads'),
@@ -68,5 +68,15 @@ pbcloud.exportK8s({
   radarr: helmRelease('radarr') + { spec+: { values+: { persistence+: {
     media: hostPathPersistence('/data/media/movies', '/movies'),
     downloads: hostPathPersistence('/data/torrents', '/downloads'),
+  } } } },
+
+  readarr: helmRelease('readarr') + { spec+: { values+: { persistence+: {
+    media: hostPathPersistence('/data/media/audiobooks', '/audiobooks'),
+    downloads: hostPathPersistence('/data/torrents', '/downloads'),
+  } } } },
+
+  bazarr: helmRelease('bazarr') + { spec+: { values+: { persistence+: {
+    tv: hostPathPersistence('/data/media/tv', '/tv'),
+    movies: hostPathPersistence('/data/media/movies', '/movies'),
   } } } },
 })
