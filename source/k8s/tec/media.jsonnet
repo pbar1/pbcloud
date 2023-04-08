@@ -3,6 +3,7 @@ local pbcloud = import 'pbcloud.libsonnet';
 
 local ns = k8s.core.v1.namespace;
 local envVar = k8s.core.v1.envVar;
+local ctr = k8s.core.v1.container;
 
 local ns_name = 'media';
 local mullvadPort = 55487;
