@@ -16,6 +16,8 @@ tasks:
     # TODO: The following are only for clowntown purposes until migration complete:
     - rm -rf clusters/tec/media
     - cp -r materialized/k8s/tec/media clusters/tec/media
+    - rm -rf clusters/tec/flux-system/helm-repos
+    - cp -r materialized/k8s/tec/flux-system/helm-repos clusters/tec/flux-system/helm-repos
 
   # FIXME: Convenience putting this here, also exists in clusters/tec
   sync:

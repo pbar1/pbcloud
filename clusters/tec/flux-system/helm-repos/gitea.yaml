@@ -1,8 +1,8 @@
-apiVersion: source.toolkit.fluxcd.io/v1beta2
-kind: HelmRepository
+apiVersion: "source.toolkit.fluxcd.io/v1beta2"
+kind: "HelmRepository"
 metadata:
-  name: gitea
-  namespace: flux-system
+  name: "gitea"
+  namespace: "flux-system"
 spec:
-  interval: 24h
-  url: https://dl.gitea.io/charts/
+  interval: "24h"
+  url: "https://dl.gitea.io/charts/"
