@@ -13,3 +13,9 @@ tasks:
     cmds:
     - rm -rf materialized
     - bash scripts/materialize.sh
+
+  # FIXME: Convenience putting this here, also exists in clusters/tec
+  sync:
+    desc: Sync Flux with this Git repo
+    cmds:
+    - flux reconcile source git flux-system
