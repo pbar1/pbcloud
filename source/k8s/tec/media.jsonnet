@@ -108,11 +108,10 @@ pbcloud.exportK8s({
     downloads: hostPathPersistence('/data/torrents', '/downloads'),
   } } } },
 
-  // FIXME: readarr config is in /data/general/config/readar-audiobooks right now
-  // readarr: helmRelease('readarr', tag='develop') + { spec+: { values+: { persistence+: {
-  //   media: hostPathPersistence('/data/media/audiobooks', '/audiobooks'),
-  //   downloads: hostPathPersistence('/data/torrents', '/downloads'),
-  // } } } },
+  readarr: helmRelease('readarr', tag='develop') + { spec+: { values+: { persistence+: {
+    media: hostPathPersistence('/data/media/audiobooks', '/audiobooks'),
+    downloads: hostPathPersistence('/data/torrents', '/downloads'),
+  } } } },
 
   bazarr: helmRelease('bazarr') + { spec+: { values+: { persistence+: {
     tv: hostPathPersistence('/data/media/tv', '/tv'),
