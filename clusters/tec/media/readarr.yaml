@@ -1,12 +1,12 @@
 apiVersion: "helm.toolkit.fluxcd.io/v2beta1"
 kind: "HelmRelease"
 metadata:
-  name: "bazarr"
+  name: "readarr"
   namespace: "media"
 spec:
   chart:
     spec:
-      chart: "bazarr"
+      chart: "readarr"
       sourceRef:
         kind: "HelmRepository"
         name: "geek-cookbook"
@@ -19,7 +19,7 @@ spec:
       TZ: "America/Los_Angeles"
     image:
       imagePullPolicy: "Always"
-      repository: "ghcr.io/linuxserver/bazarr"
+      repository: "ghcr.io/linuxserver/readarr"
       tag: "latest"
     ingress:
       main:
@@ -28,32 +28,32 @@ spec:
           traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
         enabled: true
         hosts:
-        - host: "bazarr.${DOMAIN}"
+        - host: "readarr.${DOMAIN}"
           paths:
           - path: "/"
             pathType: "Prefix"
         tls:
         - hosts:
-          - "bazarr.${DOMAIN}"
-          secretName: "bazarr-tls"
+          - "readarr.${DOMAIN}"
+          secretName: "readarr-tls"
     persistence:
       config:
         enabled: true
-        hostPath: "/data/general/config/bazarr"
+        hostPath: "/data/general/config/readarr"
         mountPath: "/config"
         type: "hostPath"
-      movies:
+      downloads:
         enabled: true
-        hostPath: "/data/media/movies"
-        mountPath: "/movies"
+        hostPath: "/data/torrents"
+        mountPath: "/downloads"
         type: "hostPath"
-      tv:
+      media:
         enabled: true
-        hostPath: "/data/media/tv"
-        mountPath: "/tv"
+        hostPath: "/data/media/audiobooks"
+        mountPath: "/audiobooks"
         type: "hostPath"
     podAnnotations:
-      container.apparmor.security.beta.kubernetes.io/bazarr: "unconfined"
+      container.apparmor.security.beta.kubernetes.io/readarr: "unconfined"
     podSecurityContext:
       capabilities:
         drop:

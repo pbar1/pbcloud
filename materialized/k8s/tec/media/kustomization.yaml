@@ -3,6 +3,7 @@ kind: "Kustomization"
 resources:
 - "bazarr.yaml"
 - "namespace.yaml"
+- "plex.yaml"
 - "prowlarr.yaml"
 - "qbittorrent.yaml"
 - "radarr.yaml"

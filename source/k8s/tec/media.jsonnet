@@ -118,4 +118,23 @@ pbcloud.exportK8s({
     tv: hostPathPersistence('/data/media/tv', '/tv'),
     movies: hostPathPersistence('/data/media/movies', '/movies'),
   } } } },
+
+  plex: helmRelease('plex') + { spec+: { values+: {
+    persistence+: {
+      transcode: { enabled: true, type: 'emptyDir', medium: 'Memory' },
+      tv: hostPathPersistence('/data/media/tv', '/tv'),
+      movies: hostPathPersistence('/data/media/movies', '/movies'),
+      audiobooks: hostPathPersistence('/data/media/audiobooks', '/audiobooks'),
+    },
+    podSecurityContext+: {
+      // $ cat /etc/group | grep "video\|render"
+      // video:x:26:
+      // render:x:303:
+      supplementalGroups: [26, 303],
+      capabilities: null,
+    },
+    hostNetwork: true,
+    ingress: null,
+    // resources: { limits: { 'amd.com/gpu': 1 } },
+  } } },
 })

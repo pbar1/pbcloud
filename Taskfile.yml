@@ -14,9 +14,8 @@ tasks:
     - rm -rf materialized
     - bash scripts/materialize.sh
     # TODO: The following are only for clowntown purposes until migration complete:
-    - cp materialized/k8s/tec/media/sonarr.yaml clusters/tec/media/sonarr.yaml
-    - cp materialized/k8s/tec/media/radarr.yaml clusters/tec/media/radarr.yaml
-    - cp materialized/k8s/tec/media/prowlarr.yaml clusters/tec/media/prowlarr.yaml
+    - rm -rf clusters/tec/media
+    - cp -r materialized/k8s/tec/media clusters/tec/media
 
   # FIXME: Convenience putting this here, also exists in clusters/tec
   sync:

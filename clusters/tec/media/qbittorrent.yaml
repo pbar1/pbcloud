@@ -1,99 +1,89 @@
-apiVersion: helm.toolkit.fluxcd.io/v2beta1
-kind: HelmRelease
+apiVersion: "helm.toolkit.fluxcd.io/v2beta1"
+kind: "HelmRelease"
 metadata:
-  name: qbittorrent
-  namespace: media
+  name: "qbittorrent"
+  namespace: "media"
 spec:
-  interval: 24h
   chart:
     spec:
-      chart: qbittorrent
+      chart: "qbittorrent"
       sourceRef:
-        kind: HelmRepository
-        name: geek-cookbook
-        namespace: flux-system
+        kind: "HelmRepository"
+        name: "geek-cookbook"
+        namespace: "flux-system"
+  interval: "24h"
   values:
-    image:
-      repository: ghcr.io/linuxserver/qbittorrent
-      tag: latest
-      pullPolicy: Always
-
-    env:
-      TZ: America/Los_Angeles
-      PUID: 1000
-      PGID: 100
-      QBT_TORRENTING_PORT: 55487 # Mullvad port forward
-
-    podSecurityContext:
-      seccompProfile:
-        type: RuntimeDefault
-
-    securityContext:
-      fsGroup: 100
-      fsGroupChangePolicy: OnRootMismatch
-
-    # FIXME: Enable persistence
-    persistence:
-      config:
-        enabled: true
-        type: hostPath
-        hostPath: /data/general/config/qbittorrent
-        mountPath: /config
-      downloads:
-        enabled: true
-        type: hostPath
-        hostPath: /data/torrents/qbittorrent
-        mountPath: /downloads/qbittorrent
-
-    ingress:
-      main:
-        enabled: true
-        annotations:
-          cert-manager.io/cluster-issuer: letsencrypt-production
-          traefik.ingress.kubernetes.io/router.entrypoints: websecure
-        hosts:
-        - host: "qbittorrent.${DOMAIN}"
-          paths:
-          - path: /
-            pathType: Prefix
-        tls:
-        - hosts:
-          - "qbittorrent.${DOMAIN}"
-          secretName: qbittorrent-tls
-
-    secret:
-      WIREGUARD_PRIVATE_KEY: "${MULLVAD_WG_PK}"
-
     additionalContainers:
       gluetun:
-        image: qmcgaw/gluetun
+        env:
+        - name: "FIREWALL_VPN_INPUT_PORTS"
+          value: "55487"
+        - name: "HEALTH_VPN_DURATION_INITIAL"
+          value: "120s"
+        - name: "OWNED_ONLY"
+          value: "yes"
+        - name: "SERVER_CITIES"
+          value: "Zurich"
+        - name: "TZ"
+          value: "America/Los_Angeles"
+        - name: "VPN_SERVICE_PROVIDER"
+          value: "mullvad"
+        - name: "VPN_TYPE"
+          value: "wireguard"
+        - name: "WIREGUARD_ADDRESSES"
+          value: "10.67.247.61/32"
+        envFrom:
+        - secretRef:
+            name: "qbittorrent"
+        image: "qmcgaw/gluetun"
         securityContext:
           capabilities:
             add:
-            - NET_ADMIN
-        envFrom:
-        - secretRef:
-            name: qbittorrent
-        env:
-        - name: TZ
-          value: America/Los_Angeles
-        - name: VPN_SERVICE_PROVIDER
-          value: mullvad
-        - name: VPN_TYPE
-          value: wireguard
-        - name: WIREGUARD_ADDRESSES
-          value: 10.67.247.61/32
-        - name: SERVER_CITIES
-          value: Zurich
-        - name: OWNED_ONLY
-          value: "yes"
-        - name: FIREWALL_VPN_INPUT_PORTS
-          value: 55487 # Mullvad port forward
-        # VPN health check failures take down port and breaks qBittorrent
-        # https://github.com/qdm12/gluetun/issues/1407
-        # FIXME: On qBittorrent restart, existing torrents may startup and
-        # connect to peers WITH A NON-VPN IP ADDRESS! Also, if a torrent is
-        # added after the restart, it may still stall. Due to timing issues
-        # the torrent port still needs to be kicked on the qBittorrent side.
-        - name: HEALTH_VPN_DURATION_INITIAL
-          value: "120s"
+            - "NET_ADMIN"
+    env:
+      PGID: 100
+      PUID: 1000
+      QBT_TORRENTING_PORT: "55487"
+      TZ: "America/Los_Angeles"
+    image:
+      imagePullPolicy: "Always"
+      repository: "ghcr.io/linuxserver/qbittorrent"
+      tag: "latest"
+    ingress:
+      main:
+        annotations:
+          cert-manager.io/cluster-issuer: "letsencrypt-production"
+          traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
+        enabled: true
+        hosts:
+        - host: "qbittorrent.${DOMAIN}"
+          paths:
+          - path: "/"
+            pathType: "Prefix"
+        tls:
+        - hosts:
+          - "qbittorrent.${DOMAIN}"
+          secretName: "qbittorrent-tls"
+    persistence:
+      config:
+        enabled: true
+        hostPath: "/data/general/config/qbittorrent"
+        mountPath: "/config"
+        type: "hostPath"
+      downloads:
+        enabled: true
+        hostPath: "/data/torrents/qbittorrent"
+        mountPath: "/downloads/qbittorrent"
+        type: "hostPath"
+    podAnnotations:
+      container.apparmor.security.beta.kubernetes.io/qbittorrent: "unconfined"
+    podSecurityContext:
+      capabilities:
+        drop:
+        - "all"
+      fsGroup: 100
+      fsGroupChangePolicy: "OnRootMismatch"
+      seccompProfile:
+        type: "RuntimeDefault"
+    secret:
+      WIREGUARD_PRIVATE_KEY: "${MULLVAD_WG_PK}"
