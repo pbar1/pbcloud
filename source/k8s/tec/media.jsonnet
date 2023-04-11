@@ -55,7 +55,7 @@ local values(
     config: hostPathPersistence(configHostPath, configMountPath),
   },
 
-  ingress: { main: pbcloud.ingressValue(host) },
+  ingress: { main: pbcloud.ingressValue(host, secretName=name + '-tls') },
 };
 
 local helmRelease(name) = pbcloud.helmRelease('geek-cookbook', name, ns_name, values=values(name));

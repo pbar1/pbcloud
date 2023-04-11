@@ -35,7 +35,7 @@ spec:
         tls:
         - hosts:
           - "bazarr.${DOMAIN}"
-          secretName: "bazarr.${DOMAIN}-tls"
+          secretName: "bazarr-tls"
     persistence:
       config:
         enabled: true

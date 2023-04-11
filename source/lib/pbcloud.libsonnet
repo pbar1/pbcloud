@@ -34,7 +34,12 @@ local hr = fluxcd.helm.v2beta1.helmRelease;
     hr.spec.withValues(values),
 
   // Builds a standard Ingress block that is commonplace in Helm values files
-  ingressValue(host, enabled=true, clusterIssuer='letsencrypt-production'): {
+  ingressValue(
+    host,
+    enabled=true,
+    clusterIssuer='letsencrypt-production',
+    secretName=host + '-tls'
+  ): {
     enabled: true,
     annotations: {
       'cert-manager.io/cluster-issuer': clusterIssuer,
@@ -46,8 +51,7 @@ local hr = fluxcd.helm.v2beta1.helmRelease;
     }],
     tls: [{
       hosts: [host],
-      // FIXME: Existing stuff is `<name>-tls`, this is a mildly breaking change
-      secretName: host + '-tls',
+      secretName: secretName,
     }],
   },
 

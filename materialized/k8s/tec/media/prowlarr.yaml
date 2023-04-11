@@ -35,7 +35,7 @@ spec:
         tls:
         - hosts:
           - "prowlarr.${DOMAIN}"
-          secretName: "prowlarr.${DOMAIN}-tls"
+          secretName: "prowlarr-tls"
     persistence:
       config:
         enabled: true

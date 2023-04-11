@@ -35,7 +35,7 @@ spec:
         tls:
         - hosts:
           - "radarr.${DOMAIN}"
-          secretName: "radarr.${DOMAIN}-tls"
+          secretName: "radarr-tls"
     persistence:
       config:
         enabled: true

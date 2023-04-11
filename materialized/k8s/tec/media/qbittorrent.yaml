@@ -63,7 +63,7 @@ spec:
         tls:
         - hosts:
           - "qbittorrent.${DOMAIN}"
-          secretName: "qbittorrent.${DOMAIN}-tls"
+          secretName: "qbittorrent-tls"
     persistence:
       config:
         enabled: true
