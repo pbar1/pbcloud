@@ -20,7 +20,7 @@ spec:
     image:
       imagePullPolicy: "Always"
       repository: "ghcr.io/linuxserver/readarr"
-      tag: "latest"
+      tag: "develop"
     ingress:
       main:
         annotations:

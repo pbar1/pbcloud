@@ -58,7 +58,7 @@ local values(
   ingress: { main: pbcloud.ingressValue(host, secretName=name + '-tls') },
 };
 
-local helmRelease(name) = pbcloud.helmRelease('geek-cookbook', name, ns_name, values=values(name));
+local helmRelease(name, tag='latest') = pbcloud.helmRelease('geek-cookbook', name, ns_name, values=values(name, tag=tag));
 
 pbcloud.exportK8s({
   namespace: ns.new(ns_name),
@@ -109,7 +109,7 @@ pbcloud.exportK8s({
   } } } },
 
   // FIXME: readarr config is in /data/general/config/readar-audiobooks right now
-  readarr: helmRelease('readarr') + { spec+: { values+: { persistence+: {
+  readarr: helmRelease('readarr', tag='develop') + { spec+: { values+: { persistence+: {
     media: hostPathPersistence('/data/media/audiobooks', '/audiobooks'),
     downloads: hostPathPersistence('/data/torrents', '/downloads'),
   } } } },
