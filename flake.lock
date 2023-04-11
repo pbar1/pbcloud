@@ -1,0 +1,129 @@
+{
+  "nodes": {
+    "cert-manager-libsonnet": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1674852257,
+        "narHash": "sha256-FAOgnQ7EdChLXOj+DhBauThMQDfF00dVMvGTAIRPG38=",
+        "owner": "jsonnet-libs",
+        "repo": "cert-manager-libsonnet",
+        "rev": "1cbbbe1bbab07f6259f9c2c9076f2c91a8417bce",
+        "type": "github"
+      },
+      "original": {
+        "owner": "jsonnet-libs",
+        "repo": "cert-manager-libsonnet",
+        "type": "github"
+      }
+    },
+    "crossplane-libsonnet": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1680024557,
+        "narHash": "sha256-H8LIycmEUoz3eXlt8zrgagBu83RtpnaZFkEVDv5zO0w=",
+        "owner": "jsonnet-libs",
+        "repo": "crossplane-libsonnet",
+        "rev": "5c8f58a7ffd8a6783fda6783542d631cbdbdf9fd",
+        "type": "github"
+      },
+      "original": {
+        "owner": "jsonnet-libs",
+        "repo": "crossplane-libsonnet",
+        "type": "github"
+      }
+    },
+    "flake-utils": {
+      "inputs": {
+        "systems": "systems"
+      },
+      "locked": {
+        "lastModified": 1681037374,
+        "narHash": "sha256-XL6X3VGbEFJZDUouv2xpKg2Aljzu/etPLv5e1FPt1q0=",
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "rev": "033b9f258ca96a10e543d4442071f614dc3f8412",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "type": "github"
+      }
+    },
+    "fluxcd-libsonnet": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1679957989,
+        "narHash": "sha256-o5VSx9YUqTBdS6JiymJAHGwBT6uHtTVB/dT4IGaZgfM=",
+        "owner": "jsonnet-libs",
+        "repo": "fluxcd-libsonnet",
+        "rev": "1450a64abb91c33ec5bd69b764ee36ba28ab4cd7",
+        "type": "github"
+      },
+      "original": {
+        "owner": "jsonnet-libs",
+        "repo": "fluxcd-libsonnet",
+        "type": "github"
+      }
+    },
+    "k8s-libsonnet": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1679587329,
+        "narHash": "sha256-hvV+pn+SUBYg4rd7YSk0bMn26JUAnoCGqoiZ6PT0BKo=",
+        "owner": "jsonnet-libs",
+        "repo": "k8s-libsonnet",
+        "rev": "9e5b48eee32913938d3cac30f183b49ecd9fe13a",
+        "type": "github"
+      },
+      "original": {
+        "owner": "jsonnet-libs",
+        "repo": "k8s-libsonnet",
+        "type": "github"
+      }
+    },
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1681036984,
+        "narHash": "sha256-AbScJXshYzbeUKHh+Y3OICc3iAtr+NqJ3Xb81GW+ptU=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "fd531dee22c9a3d4336cc2da39e8dd905e8f3de4",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "root": {
+      "inputs": {
+        "cert-manager-libsonnet": "cert-manager-libsonnet",
+        "crossplane-libsonnet": "crossplane-libsonnet",
+        "flake-utils": "flake-utils",
+        "fluxcd-libsonnet": "fluxcd-libsonnet",
+        "k8s-libsonnet": "k8s-libsonnet",
+        "nixpkgs": "nixpkgs"
+      }
+    },
+    "systems": {
+      "locked": {
+        "lastModified": 1681028828,
+        "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",
+        "owner": "nix-systems",
+        "repo": "default",
+        "rev": "da67096a3b9bf56a91d16901293e51ba5b49a27e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-systems",
+        "repo": "default",
+        "type": "github"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}
