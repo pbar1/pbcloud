@@ -91,5 +91,9 @@ spec:
           value: 55487 # Mullvad port forward
         # VPN health check failures take down port and breaks qBittorrent
         # https://github.com/qdm12/gluetun/issues/1407
+        # FIXME: On qBittorrent restart, existing torrents may startup and
+        # connect to peers WITH A NON-VPN IP ADDRESS! Also, if a torrent is
+        # added after the restart, it may still stall. Due to timing issues
+        # the torrent port still needs to be kicked on the qBittorrent side.
         - name: HEALTH_VPN_DURATION_INITIAL
           value: "120s"

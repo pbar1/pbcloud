@@ -16,6 +16,14 @@ spec:
     additionalContainers:
       gluetun:
         env:
+        - name: "FIREWALL_VPN_INPUT_PORTS"
+          value: "55487"
+        - name: "HEALTH_VPN_DURATION_INITIAL"
+          value: "120s"
+        - name: "OWNED_ONLY"
+          value: "yes"
+        - name: "SERVER_CITIES"
+          value: "Zurich"
         - name: "TZ"
           value: "America/Los_Angeles"
         - name: "VPN_SERVICE_PROVIDER"
@@ -24,12 +32,6 @@ spec:
           value: "wireguard"
         - name: "WIREGUARD_ADDRESSES"
           value: "10.67.247.61/32"
-        - name: "SERVER_CITIES"
-          value: "Zurich"
-        - name: "OWNED_ONLY"
-          value: "yes"
-        - name: "FIREWALL_VPN_INPUT_PORTS"
-          value: 55487
         envFrom:
         - secretRef:
             name: "qbittorrent"
@@ -41,7 +43,7 @@ spec:
     env:
       PGID: 100
       PUID: 1000
-      QBT_TORRENTING_PORT: 55487
+      QBT_TORRENTING_PORT: "55487"
       TZ: "America/Los_Angeles"
     image:
       imagePullPolicy: "Always"

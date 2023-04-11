@@ -1,12 +1,12 @@
 local k8s = import 'github.com/jsonnet-libs/k8s-libsonnet/1.25/main.libsonnet';
 local pbcloud = import 'pbcloud.libsonnet';
 
-local ns = k8s.core.v1.namespace;
-local envVar = k8s.core.v1.envVar;
 local ctr = k8s.core.v1.container;
+local envFromSource = k8s.core.v1.envFromSource;
+local ns = k8s.core.v1.namespace;
 
 local ns_name = 'media';
-local mullvadPort = 55487;
+local mullvadPort = '55487';
 
 local hostPathPersistence(hostPath, mountPath, enabled=true) = {
   enabled: true,
@@ -67,22 +67,33 @@ pbcloud.exportK8s({
     persistence+: {
       downloads: hostPathPersistence('/data/torrents/qbittorrent', '/downloads/qbittorrent'),
     },
-    env+: { QBT_TORRENTING_PORT: mullvadPort },
-    secret+: { WIREGUARD_PRIVATE_KEY: '${MULLVAD_WG_PK}' },
-    additionalContainers+: { gluetun: {
-      image: 'qmcgaw/gluetun',
-      securityContext: { capabilities: { add: ['NET_ADMIN'] } },
-      envFrom: [{ secretRef: { name: 'qbittorrent' } }],
-      env: [
-        envVar.new('TZ', 'America/Los_Angeles'),
-        envVar.new('VPN_SERVICE_PROVIDER', 'mullvad'),
-        envVar.new('VPN_TYPE', 'wireguard'),
-        envVar.new('WIREGUARD_ADDRESSES', '10.67.247.61/32'),
-        envVar.new('SERVER_CITIES', 'Zurich'),
-        envVar.new('OWNED_ONLY', 'yes'),
-        envVar.new('FIREWALL_VPN_INPUT_PORTS', mullvadPort),
-      ],
-    } },
+    env+: {
+      QBT_TORRENTING_PORT: mullvadPort,
+    },
+    secret+: {
+      WIREGUARD_PRIVATE_KEY: '${MULLVAD_WG_PK}',
+    },
+    additionalContainers+: {
+      gluetun: ctr.withImage('qmcgaw/gluetun') +
+               ctr.securityContext.capabilities.withAdd(['NET_ADMIN']) +
+               ctr.withEnvFrom(envFromSource.secretRef.withName('qbittorrent')) +
+               ctr.withEnvMap({
+                 TZ: 'America/Los_Angeles',
+                 VPN_SERVICE_PROVIDER: 'mullvad',
+                 VPN_TYPE: 'wireguard',
+                 WIREGUARD_ADDRESSES: '10.67.247.61/32',
+                 SERVER_CITIES: 'Zurich',
+                 OWNED_ONLY: 'yes',
+                 FIREWALL_VPN_INPUT_PORTS: mullvadPort,
+                 // VPN health check failures take down port and breaks qBittorrent
+                 // https://github.com/qdm12/gluetun/issues/1407
+                 // FIXME: On qBittorrent restart, existing torrents may startup and
+                 // connect to peers WITH A NON-VPN IP ADDRESS! Also, if a torrent is
+                 // added after the restart, it may still stall. Due to timing issues
+                 // the torrent port still needs to be kicked on the qBittorrent side.
+                 HEALTH_VPN_DURATION_INITIAL: '120s',
+               }),
+    },
   } } },
 
   prowlarr: helmRelease('prowlarr'),
