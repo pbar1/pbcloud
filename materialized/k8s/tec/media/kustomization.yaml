@@ -7,5 +7,4 @@ resources:
 - "prowlarr.yaml"
 - "qbittorrent.yaml"
 - "radarr.yaml"
-- "readarr.yaml"
 - "sonarr.yaml"
