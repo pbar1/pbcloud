@@ -47,7 +47,7 @@ spec:
       TZ: "America/Los_Angeles"
     image:
       imagePullPolicy: "Always"
-      repository: "ghcr.io/linuxserver/qbittorrent"
+      repository: "ghcr.io/hotio/qbittorrent"
       tag: "latest"
     ingress:
       main:

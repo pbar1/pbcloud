@@ -64,6 +64,9 @@ pbcloud.exportK8s({
   namespace: ns.new(ns_name),
 
   qbittorrent: helmRelease('qbittorrent') + { spec+: { values+: {
+    image+: {
+      repository: 'ghcr.io/hotio/qbittorrent',
+    },
     persistence+: {
       downloads: hostPathPersistence('/data/torrents/qbittorrent', '/downloads/qbittorrent'),
     },
