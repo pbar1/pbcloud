@@ -8,7 +8,7 @@ local nsName = 'unifi';
 pbcloud.exportK8s({
   namespace: ns.new(nsName),
 
-  'unifi-controller': pbcloud.helmRelease('geek-cookbook', 'unifi-controller', nsName, values={
+  'unifi-controller': pbcloud.helmRelease('geek-cookbook', 'unifi', nsName, name='unifi-controller', values={
     env: {
       TZ: 'America/Los_Angeles',
       UNIFI_GID: '100',

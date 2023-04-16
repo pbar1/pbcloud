@@ -6,7 +6,7 @@ metadata:
 spec:
   chart:
     spec:
-      chart: "unifi-controller"
+      chart: "unifi"
       sourceRef:
         kind: "HelmRepository"
         name: "geek-cookbook"
