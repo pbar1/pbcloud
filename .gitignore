@@ -1,2 +1,4 @@
 **/*.sops.dec.yaml
 /clusters/tec-old
+
+**/buck-out
