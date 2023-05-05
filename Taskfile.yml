@@ -2,7 +2,7 @@ version: '3'
 
 env:
   GIT_ROOT:
-    sh: git rev-parse --show-toplevel
+    sh: git rev-parse --show-toplevel || sl root
 
 tasks:
   default: task --list
