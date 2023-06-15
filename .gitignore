@@ -1,4 +1,5 @@
 **/*.sops.dec.yaml
 /clusters/tec-old
 
-**/buck-out
+.ignore
+smb.yaml
