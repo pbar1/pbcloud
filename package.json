@@ -1,0 +1,19 @@
+{
+  "name": "pbcloud",
+  "main": "index.ts",
+  "devDependencies": {
+    "@trivago/prettier-plugin-sort-imports": "^4.1.1",
+    "@types/node": "^16",
+    "yaml": "^2.3.1"
+  },
+  "dependencies": {
+    "@pulumi/kubernetes": "^3.0.0",
+    "@pulumi/kubernetesx": "^0.1.5",
+    "@pulumi/pulumi": "^3.0.0",
+    "ts-generic-builder": "^1.0.4"
+  },
+  "scripts": {
+    "crdclean": "node scripts/crdclean.ts"
+  },
+  "prettier": {}
+}

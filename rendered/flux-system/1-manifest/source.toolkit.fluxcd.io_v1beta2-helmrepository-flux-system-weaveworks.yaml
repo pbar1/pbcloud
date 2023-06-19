@@ -1,0 +1,16 @@
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: HelmRepository
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"source.toolkit.fluxcd.io/v1beta2","kind":"HelmRepository","metadata":{"labels":{"app.kubernetes.io/managed-by":"pulumi"},"name":"weaveworks","namespace":"flux-system"},"spec":{"interval":"24h","provider":"generic","timeout":"60s","type":"oci","url":"oci://ghcr.io/weaveworks/charts"}}
+  labels:
+    app.kubernetes.io/managed-by: pulumi
+  name: weaveworks
+  namespace: flux-system
+spec:
+  interval: 24h
+  provider: generic
+  timeout: 60s
+  type: oci
+  url: oci://ghcr.io/weaveworks/charts
