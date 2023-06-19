@@ -3,3 +3,7 @@
 
 .ignore
 smb.yaml
+
+# Pulumi
+/bin/
+/node_modules

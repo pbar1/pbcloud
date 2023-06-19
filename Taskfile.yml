@@ -7,7 +7,6 @@ env:
 tasks:
   default: task --list
 
-  # FIXME: Use Buck instead of looping through all the directories
   build:
     desc: Build source into materialized configs
     cmds:
@@ -21,8 +20,22 @@ tasks:
     - rm -rf clusters/tec/unifi
     - cp -r materialized/k8s/tec/unifi clusters/tec/unifi
 
+  # TODO: All generated CRDs go into the same package; might be useful to
+  # separate them by package
+  crds:
+    desc: Import K8s CRDs to Pulumi
+    cmds:
+    - rm -rf source/crds/clean source/crds/gen
+    - npm run crdclean
+    - crd2pulumi --nodejs --nodejsPath=source/crds/gen source/crds/clean/*.yaml
+
   # FIXME: Convenience putting this here, also exists in clusters/tec
   sync:
     desc: Sync Flux with this Git repo
     cmds:
     - flux reconcile source git flux-system
+
+  pu:
+    desc: Build with Pulumi
+    cmds:
+    - pulumi up
