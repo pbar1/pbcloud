@@ -1,5 +1,5 @@
 import * as pbcloud from "./source/lib/pbcloud";
-import { HostPathPersistence } from "./source/lib/pbcloud";
+import { HostPathPersistence, EmptyDirPersistence } from "./source/lib/pbcloud";
 import * as k8s from "@pulumi/kubernetes";
 import * as pulumi from "@pulumi/pulumi";
 
@@ -69,6 +69,14 @@ const mediaGeekCookbookHelmReleaseBuilder = new pbcloud.HelmReleaseBuilder()
   .withNamespace("media")
   .withChartRepo("geek-cookbook");
 
+const prowlarr = mediaGeekCookbookHelmReleaseBuilder
+  .clone()
+  .withChart("prowlarr")
+  .withValues(
+    new pbcloud.GeekCookbookValuesBuilder().withName("prowlarr").build()
+  )
+  .build();
+
 const sonarr = mediaGeekCookbookHelmReleaseBuilder
   .clone()
   .withChart("sonarr")
@@ -97,10 +105,97 @@ const radarr = mediaGeekCookbookHelmReleaseBuilder
   )
   .build();
 
-const prowlarr = mediaGeekCookbookHelmReleaseBuilder
+const readarr = mediaGeekCookbookHelmReleaseBuilder
   .clone()
-  .withChart("prowlarr")
+  .withChart("readarr")
   .withValues(
-    new pbcloud.GeekCookbookValuesBuilder().withName("prowlarr").build()
+    new pbcloud.GeekCookbookValuesBuilder()
+      .withName("readarr")
+      .withTag("develop")
+      .withPersistence({
+        media: hpAudiobooks,
+        downloads: hpDownloads,
+      })
+      .build()
+  )
+  .build();
+
+const bazarr = mediaGeekCookbookHelmReleaseBuilder
+  .clone()
+  .withChart("bazarr")
+  .withValues(
+    new pbcloud.GeekCookbookValuesBuilder()
+      .withName("bazarr")
+      .withPersistence({
+        tv: hpTv,
+        movies: hpMovies,
+      })
+      .build()
+  )
+  .build();
+
+// Supplemental groups are for GPU support and were found using:
+// $ cat /etc/group | grep "video\|render"
+// video:x:26:
+// render:x:303:
+// TODO: resources: { limits: { 'amd.com/gpu': 1 } }
+const plex = mediaGeekCookbookHelmReleaseBuilder
+  .clone()
+  .withChart("plex")
+  .withValues(
+    new pbcloud.GeekCookbookValuesBuilder()
+      .withName("plex")
+      .withPersistence({
+        transcode: new EmptyDirPersistence(),
+        tv: hpTv,
+        movies: hpMovies,
+        audiobooks: hpAudiobooks,
+      })
+      .withSupplementalGroups([26, 303])
+      .disableDropCaps()
+      .disableIngress()
+      .enableHostNetwork()
+      .build()
+  )
+  .build();
+
+const mullvadPort = "55487";
+// TODO: Abstract additionalContainers
+const gluetunCtr = {
+  name: "gluetun",
+  image: "qmcgaw/gluetun",
+  securityContext: { capabilities: { add: ["NET_ADMIN"] } },
+  envFrom: [{ secretRef: { name: "qbittorrent" } }],
+  env: [
+    { name: "TZ", value: "America/Los_Angeles" },
+    { name: "VPN_SERVICE_PROVIDER", value: "mullvad" },
+    { name: "VPN_TYPE", value: "wireguard" },
+    { name: "WIREGUARD_ADDRESSES", value: "10.67.247.61/32" },
+    { name: "SERVER_CITIES", value: "Zurich" },
+    { name: "OWNED_ONLY", value: "yes" },
+    { name: "FIREWALL_VPN_INPUT_PORTS", value: mullvadPort },
+    // VPN health check failures take down port and breaks qBittorrent
+    // https://github.com/qdm12/gluetun/issues/1407
+    // FIXME: On qBittorrent restart, existing torrents may startup and
+    // connect to peers WITH A NON-VPN IP ADDRESS! Also, if a torrent is
+    // added after the restart, it may still stall. Due to timing issues
+    // the torrent port still needs to be kicked on the qBittorrent side.
+    { name: "HEALTH_VPN_DURATION_INITIAL", value: "120s" },
+  ],
+};
+const qbittorrent = mediaGeekCookbookHelmReleaseBuilder
+  .clone()
+  .withChart("qbittorrent")
+  .withValues(
+    new pbcloud.GeekCookbookValuesBuilder()
+      .withName("qbittorrent")
+      .withRepository("ghcr.io/hotio/qbittorrent")
+      .withPersistence({
+        downloads: hpDownloads,
+      })
+      .withEnv({ QBT_TORRENTING_PORT: mullvadPort })
+      .withSecret({ WIREGUARD_PRIVATE_KEY: "${MULLVAD_WG_PK}" })
+      .withAdditionalContainers({ gluetun: gluetunCtr })
+      .build()
   )
   .build();
