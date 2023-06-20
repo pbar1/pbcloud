@@ -3,7 +3,7 @@
   "main": "index.ts",
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "^4.1.1",
-    "@types/node": "^16",
+    "@types/node": "^17.0.29",
     "yaml": "^2.3.1"
   },
   "dependencies": {

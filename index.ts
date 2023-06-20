@@ -9,17 +9,15 @@ import {
 } from "./source/lib/helm";
 import { K8sNamespaceRender } from "./source/lib/pbcloud";
 
-let opts = {
-  parent: new K8sNamespaceRender("flux-system"),
-};
-
 // [Namespace] flux-system ----------------------------------------------------
 
-const fluxSystemHelmRepositoryBuilder = new CustomResourceBuilder(
+let fluxSystemOpts = { parent: new K8sNamespaceRender("flux-system") };
+
+const helmRepoBuilder = new CustomResourceBuilder(
   crds.source.v1beta2.HelmRepository,
   ""
 )
-  .withOpts(opts)
+  .withOpts(fluxSystemOpts)
   .withArgs({
     metadata: { namespace: "flux-system" },
     spec: { interval: "24h" },
@@ -39,113 +37,117 @@ const repos = {
 
 for (const [name, url] of Object.entries(repos)) {
   const type = url.includes("oci://") ? "oci" : undefined;
-  fluxSystemHelmRepositoryBuilder
+  helmRepoBuilder
+    .clone()
     .withName(name)
     .withArgs({ metadata: { name }, spec: { url, type } })
     .build();
 }
 
-// [Namespace] cert-manager ---------------------------------------------------
+// [Namespace] media ----------------------------------------------------------
 
-// const certManagerNs = "cert-manager";
-// const certManagerOpts = new K8sNamespaceRenderOpts(certManagerNs);
+let mediaOpts = { parent: new K8sNamespaceRender("media") };
 
-// const certManager = new HelmReleaseBuilder()
-//   .withOpts(certManagerOpts)
-//   .withNamespace(certManagerNs)
-//   .withChartRepo("jetstack")
-//   .withChart("cert-manager")
-//   .withValues({
-//     installCRDs: false,
-//     webhook: { enabled: false },
-//     extraArgs: [
-//       "--dns01-recursive-nameservers=1.1.1.1:53,9.9.9.9:53",
-//       "--dns01-recursive-nameservers-only",
-//     ],
-//     replicaCount: 1,
-//     podDnsPolicy: "None",
-//     podDnsConfig: { nameservers: ["1.1.1.1", "9.9.9.9"] },
-//   })
-//   .build();
-
-// [Namespace] monitoring -----------------------------------------------------
-
-// const monitoringNs = "monitoring";
-// const monitoringOpts = new K8sNamespaceRenderOpts(monitoringNs);
-
-// const kubePrometheusStack = new HelmReleaseBuilder()
-//   .withOpts(monitoringOpts)
-//   .withNamespace(monitoringNs)
-//   .withChartRepo("prometheus-community")
-//   .withChart("kube-prometheus-stack")
-//   .withValues({})
-//   .build();
-
-// // [Namespace] media ----------------------------------------------------------
-
-// const mediaOpts = new K8sNamespaceRenderOpts("media");
-
-// const hpDownloads = new HostPathPersistence("/data/torrents", "/downloads");
-// const hpTv = new HostPathPersistence("/data/media/tv", "/tv");
-// const hpMovies = new HostPathPersistence("/data/media/movies", "/movies");
-// const hpAudiobooks = new HostPathPersistence(
-//   "/data/media/audiobooks",
-//   "/audiobooks"
-// );
+const hpDownloads = new HostPathPersistence("/data/torrents", "/downloads");
+const hpTv = new HostPathPersistence("/data/media/tv", "/tv");
+const hpMovies = new HostPathPersistence("/data/media/movies", "/movies");
+const hpAudiobooks = new HostPathPersistence(
+  "/data/media/audiobooks",
+  "/audiobooks"
+);
 
 // const mediaGeekCookbookHelmReleaseBuilder = new HelmReleaseBuilder()
 //   .withOpts(mediaOpts)
 //   .withNamespace("media")
 //   .withChartRepo("geek-cookbook");
 
-// const prowlarr = mediaGeekCookbookHelmReleaseBuilder
-//   .clone()
-//   .withChart("prowlarr")
-//   .withValues(new GeekCookbookValuesBuilder().withName("prowlarr").build())
-//   .build();
+const mediaGeekCookbookHelmReleaseBuilder = new CustomResourceBuilder(
+  crds.helm.v2beta1.HelmRelease,
+  ""
+)
+  .withOpts(mediaOpts)
+  .withArgs({
+    metadata: { namespace: "media" },
+    spec: {
+      interval: "24h",
+      chart: {
+        spec: {
+          sourceRef: {
+            name: "geek-cookbook",
+            namespace: "flux-system",
+            kind: "HelmRepository",
+          },
+        },
+      },
+    },
+  });
 
-// const sonarr = mediaGeekCookbookHelmReleaseBuilder
-//   .clone()
-//   .withChart("sonarr")
-//   .withValues(
-//     new GeekCookbookValuesBuilder()
-//       .withName("sonarr")
-//       .withPersistence({
-//         media: hpTv,
-//         downloads: hpDownloads,
-//       })
-//       .build()
-//   )
-//   .build();
+const prowlarr = mediaGeekCookbookHelmReleaseBuilder
+  .clone()
+  .withName("prowlarr")
+  .withArgs({
+    metadata: { name: "prowlarr" },
+    spec: {
+      chart: { spec: { chart: "prowlarr" } },
+      values: new GeekCookbookValuesBuilder().withName("prowlarr").build(),
+    },
+  })
+  .build();
 
-// const radarr = mediaGeekCookbookHelmReleaseBuilder
-//   .clone()
-//   .withChart("radarr")
-//   .withValues(
-//     new GeekCookbookValuesBuilder()
-//       .withName("radarr")
-//       .withPersistence({
-//         media: hpMovies,
-//         downloads: hpDownloads,
-//       })
-//       .build()
-//   )
-//   .build();
+const sonarr = mediaGeekCookbookHelmReleaseBuilder
+  .clone()
+  .withName("sonarr")
+  .withArgs({
+    metadata: { name: "sonarr" },
+    spec: {
+      chart: { spec: { chart: "sonarr" } },
+      values: new GeekCookbookValuesBuilder()
+        .withName("sonarr")
+        .withPersistence({
+          media: hpTv,
+          downloads: hpDownloads,
+        })
+        .build(),
+    },
+  })
+  .build();
 
-// const readarr = mediaGeekCookbookHelmReleaseBuilder
-//   .clone()
-//   .withChart("readarr")
-//   .withValues(
-//     new GeekCookbookValuesBuilder()
-//       .withName("readarr")
-//       .withTag("develop")
-//       .withPersistence({
-//         media: hpAudiobooks,
-//         downloads: hpDownloads,
-//       })
-//       .build()
-//   )
-//   .build();
+const radarr = mediaGeekCookbookHelmReleaseBuilder
+  .clone()
+  .withName("radarr")
+  .withArgs({
+    metadata: { name: "radarr" },
+    spec: {
+      chart: { spec: { chart: "radarr" } },
+      values: new GeekCookbookValuesBuilder()
+        .withName("radarr")
+        .withPersistence({
+          media: hpMovies,
+          downloads: hpDownloads,
+        })
+        .build(),
+    },
+  })
+  .build();
+
+const readarr = mediaGeekCookbookHelmReleaseBuilder
+  .clone()
+  .withName("readarr")
+  .withArgs({
+    metadata: { name: "readarr" },
+    spec: {
+      chart: { spec: { chart: "readarr" } },
+      values: new GeekCookbookValuesBuilder()
+        .withName("readarr")
+        .withTag("develop")
+        .withPersistence({
+          media: hpAudiobooks,
+          downloads: hpDownloads,
+        })
+        .build(),
+    },
+  })
+  .build();
 
 // const bazarr = mediaGeekCookbookHelmReleaseBuilder
 //   .clone()
