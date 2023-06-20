@@ -3,6 +3,7 @@ version: '3'
 env:
   GIT_ROOT:
     sh: git rev-parse --show-toplevel || sl root
+  PULUMI_CONFIG_PASSPHRASE: ""
 
 tasks:
   default: task --list

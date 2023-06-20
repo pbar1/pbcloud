@@ -10,7 +10,8 @@
     "@pulumi/kubernetes": "^3.0.0",
     "@pulumi/kubernetesx": "^0.1.5",
     "@pulumi/pulumi": "^3.0.0",
-    "ts-generic-builder": "^1.0.4"
+    "ts-deepmerge": "^6.1.0",
+    "type-fest": "^3.12.0"
   },
   "scripts": {
     "crdclean": "node scripts/crdclean.ts"
