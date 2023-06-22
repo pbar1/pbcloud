@@ -1,4 +1,4 @@
-import * as crds from "../../crds/gen";
+import * as fluxcd from "../crds/fluxcd";
 import * as pbcloud from "../pbcloud";
 import * as pulumi from "@pulumi/pulumi";
 
@@ -30,13 +30,13 @@ function newHelmRepo(
   url: string,
   namespace: string,
   opts: pulumi.CustomResourceOptions
-): crds.source.v1beta2.HelmRepository {
+): fluxcd.source.v1beta2.HelmRepository {
   const type = url.includes("oci://") ? "oci" : undefined;
 
-  const args: crds.source.v1beta2.HelmRepositoryArgs = {
+  const args: fluxcd.source.v1beta2.HelmRepositoryArgs = {
     metadata: { name, namespace },
     spec: { interval: "24h", url, type },
   };
 
-  return new crds.source.v1beta2.HelmRepository(name, args, opts);
+  return new fluxcd.source.v1beta2.HelmRepository(name, args, opts);
 }

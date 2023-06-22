@@ -1,26 +1,12 @@
 const yaml = require("yaml");
 const fs = require("fs");
 
-const crdDir = "source/crds";
-const cleanCrdDir = `${crdDir}/clean`;
-fs.mkdirSync(cleanCrdDir, { recursive: true });
+const inFile = process.argv.length < 3 ? process.stdin.fd : process.argv[2];
+const inCrdYaml = fs.readFileSync(inFile, "utf-8").toString();
+const inCrd = yaml.parseDocument(inCrdYaml);
 
-fs.readdirSync("source/crds")
-  .filter((filename) => filename.endsWith(".yaml"))
-  .map((crdFile) => fs.readFileSync(`${crdDir}/${crdFile}`).toString())
-  .forEach((crdYaml) => cleanAndDumpCrd(crdYaml));
-
-function cleanAndDumpCrd(crdYaml) {
-  yaml.parseAllDocuments(crdYaml).forEach((parsedKubeResource, i) => {
-    const data = yaml.parse(parsedKubeResource.toString(), (k, v) => {
-      return typeof v === "object" && k === "default" ? undefined : v;
-    });
-
-    if (data.kind === "CustomResourceDefinition") {
-      fs.writeFileSync(
-        `${cleanCrdDir}/${data.metadata.name}.yaml`,
-        yaml.stringify(data)
-      );
-    }
-  });
-}
+const outCrd = yaml.parse(inCrd.toString(), (k, v) => {
+  return typeof v === "object" && k === "default" ? undefined : v;
+});
+const outCrdYaml = yaml.stringify(outCrd);
+console.log(outCrdYaml);

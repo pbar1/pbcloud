@@ -1,4 +1,5 @@
-import * as crds from "../../crds/gen";
+import * as fluxcd from "../crds/fluxcd";
+import * as certManager from "../crds/cert-manager";
 import * as pbcloud from "../pbcloud";
 import * as k8s from "@pulumi/kubernetes";
 import * as pulumi from "@pulumi/pulumi";
@@ -12,7 +13,7 @@ export class Namespace extends pbcloud.RenderedKubeNamespace {
     const opts: pulumi.CustomResourceOptions = { parent: this };
 
     const chartName = "cert-manager";
-    const helmReleaseArgs: crds.helm.v2beta1.HelmReleaseArgs = {
+    const helmReleaseArgs: fluxcd.helm.v2beta1.HelmReleaseArgs = {
       metadata: {
         name: chartName,
         namespace,
@@ -42,7 +43,7 @@ export class Namespace extends pbcloud.RenderedKubeNamespace {
         },
       },
     };
-    new crds.helm.v2beta1.HelmRelease(chartName, helmReleaseArgs, opts);
+    new fluxcd.helm.v2beta1.HelmRelease(chartName, helmReleaseArgs, opts);
 
     const secretArgs: k8s.core.v1.SecretArgs = {
       metadata: {
@@ -73,8 +74,8 @@ function newClusterIssuer(
   name: string,
   server: string,
   opts: pulumi.CustomResourceOptions
-): crds.certmanager.v1.ClusterIssuer {
-  const args: crds.certmanager.v1.ClusterIssuerArgs = {
+): certManager.certmanager.v1.ClusterIssuer {
+  const args: certManager.certmanager.v1.ClusterIssuerArgs = {
     metadata: { name },
     spec: {
       acme: {
@@ -98,5 +99,5 @@ function newClusterIssuer(
       },
     },
   };
-  return new crds.certmanager.v1.ClusterIssuer(name, args, opts);
+  return new certManager.certmanager.v1.ClusterIssuer(name, args, opts);
 }

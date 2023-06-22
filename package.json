@@ -13,8 +13,6 @@
     "ts-deepmerge": "^6.1.0",
     "type-fest": "^3.12.0"
   },
-  "scripts": {
-    "crdclean": "node scripts/crdclean.ts"
-  },
+  "license": "MIT",
   "prettier": {}
 }

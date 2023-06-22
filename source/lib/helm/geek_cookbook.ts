@@ -1,4 +1,4 @@
-import * as crds from "../../crds/gen";
+import * as fluxcd from "../crds/fluxcd";
 import * as pulumi from "@pulumi/pulumi";
 
 export interface GeekCookbookValues {
@@ -293,11 +293,11 @@ export class NewGkHelmReleaseArgs {
 export function newGkHelmRelease(
   args: NewGkHelmReleaseArgs,
   opts: pulumi.ComponentResourceOptions
-): crds.helm.v2beta1.HelmRelease {
+): fluxcd.helm.v2beta1.HelmRelease {
   const name = args.name ?? args.chart;
   const chartRepo = args.chartRepo ?? "geek-cookbook";
 
-  const helmReleaseArgs: crds.helm.v2beta1.HelmReleaseArgs = {
+  const helmReleaseArgs: fluxcd.helm.v2beta1.HelmReleaseArgs = {
     metadata: { name, namespace: args.namespace },
     spec: {
       interval: "24h",
@@ -315,5 +315,5 @@ export function newGkHelmRelease(
     },
   };
 
-  return new crds.helm.v2beta1.HelmRelease(name, helmReleaseArgs, opts);
+  return new fluxcd.helm.v2beta1.HelmRelease(name, helmReleaseArgs, opts);
 }
