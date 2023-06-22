@@ -6,7 +6,7 @@ export class RenderedKubeNamespace extends pulumi.ComponentResource {
     const type = "pulumi:component:RenderedKubeNamespace";
 
     const k8sRenderProvider = new k8s.Provider(name, {
-      renderYamlToDirectory: `rendered/${name}`,
+      renderYamlToDirectory: `materialized/${name}`,
     });
 
     const opts: pulumi.ComponentResourceOptions = {
