@@ -1,0 +1,33 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"helm.toolkit.fluxcd.io/v2beta1","kind":"HelmRelease","metadata":{"labels":{"app.kubernetes.io/managed-by":"pulumi"},"name":"unifi-controller","namespace":"unifi"},"spec":{"chart":{"spec":{"chart":"unifi","reconcileStrategy":"ChartVersion","sourceRef":{"kind":"HelmRepository","name":"geek-cookbook","namespace":"flux-system"},"version":"*"}},"interval":"24h","values":{"env":{"TZ":"America/Los_Angeles","UNIFI_GID":"100","UNIFI_UID":"1000"},"hostNetwork":true,"persistence":{"data":{"enabled":true,"hostPath":"/data/general/unifi","mountPath":"/unifi","type":"hostPath"}}}}}
+  labels:
+    app.kubernetes.io/managed-by: pulumi
+  name: unifi-controller
+  namespace: unifi
+spec:
+  chart:
+    spec:
+      chart: unifi
+      reconcileStrategy: ChartVersion
+      sourceRef:
+        kind: HelmRepository
+        name: geek-cookbook
+        namespace: flux-system
+      version: '*'
+  interval: 24h
+  values:
+    env:
+      TZ: America/Los_Angeles
+      UNIFI_GID: "100"
+      UNIFI_UID: "1000"
+    hostNetwork: true
+    persistence:
+      data:
+        enabled: true
+        hostPath: /data/general/unifi
+        mountPath: /unifi
+        type: hostPath

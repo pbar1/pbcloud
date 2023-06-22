@@ -1,8 +1,8 @@
-import * as crds from "../../crds/gen";
 import {
   HostPathPersistence,
   EmptyDirPersistence,
   GeekCookbookValuesBuilder,
+  newGkHelmRelease,
 } from "../helm/geek_cookbook";
 import * as pbcloud from "../pbcloud";
 import * as pulumi from "@pulumi/pulumi";
@@ -161,45 +161,4 @@ export class Namespace extends pbcloud.RenderedKubeNamespace {
       opts
     );
   }
-}
-
-class NewGkHelmReleaseArgs {
-  name?: string;
-  namespace: string;
-  chart: string;
-  chartRepo?: string;
-  values: any = {};
-
-  constructor(namespace: string, chart: string) {
-    this.namespace = namespace;
-    this.chart = chart;
-  }
-}
-
-function newGkHelmRelease(
-  args: NewGkHelmReleaseArgs,
-  opts: pulumi.ComponentResourceOptions
-): crds.helm.v2beta1.HelmRelease {
-  const name = args.name ?? args.chart;
-  const chartRepo = args.chartRepo ?? "geek-cookbook";
-
-  const helmReleaseArgs: crds.helm.v2beta1.HelmReleaseArgs = {
-    metadata: { name, namespace: args.namespace },
-    spec: {
-      interval: "24h",
-      chart: {
-        spec: {
-          chart: args.chart,
-          sourceRef: {
-            kind: "HelmRepository",
-            namespace: "flux-system",
-            name: chartRepo,
-          },
-        },
-      },
-      values: args.values,
-    },
-  };
-
-  return new crds.helm.v2beta1.HelmRelease(name, helmReleaseArgs, opts);
 }
