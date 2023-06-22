@@ -1,8 +1,5 @@
 **/*.sops.dec.yaml
-
-.ignore
-
-# Pulumi
-/node_modules
-
 **/.DS_Store
+.ignore
+/node_modules
+Pulumi.prod.yaml
