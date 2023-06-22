@@ -28,7 +28,7 @@ tasks:
     desc: Import K8s CRDs to Pulumi
     cmds:
     - rm -rf source/crds/clean source/crds/gen
-    - npm run crdclean
+    - yarn run crdclean
     - crd2pulumi --nodejs --nodejsPath=source/crds/gen source/crds/clean/*.yaml
 
   # FIXME: Convenience putting this here, also exists in clusters/tec
