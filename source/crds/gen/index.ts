@@ -12,6 +12,8 @@ utilities.lazyLoad(exports, ["Provider"], () => require("./provider"));
 
 
 // Export sub-modules:
+import * as acme from "./acme";
+import * as certmanager from "./certmanager";
 import * as helm from "./helm";
 import * as kustomize from "./kustomize";
 import * as notification from "./notification";
@@ -19,6 +21,8 @@ import * as source from "./source";
 import * as types from "./types";
 
 export {
+    acme,
+    certmanager,
     helm,
     kustomize,
     notification,
