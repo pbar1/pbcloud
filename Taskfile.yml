@@ -2,8 +2,9 @@ version: '3'
 
 env:
   GIT_ROOT:
-    sh: git rev-parse --show-toplevel || sl root
+    sh: 2>/dev/null git rev-parse --show-toplevel || sl root
   PULUMI_CONFIG_PASSPHRASE: ""
+  PULUMI_SKIP_UPDATE_CHECK: true
 
 tasks:
   default: task --list
@@ -36,7 +37,12 @@ tasks:
     cmds:
     - flux reconcile source git flux-system
 
-  pu:
+  pulumi:up:
     desc: Build with Pulumi
     cmds:
     - pulumi up
+
+  pulumi:resources:
+    desc: Show Pulumi resource tree
+    cmds:
+    - pulumi stack

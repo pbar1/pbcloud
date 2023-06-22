@@ -1,31 +1,22 @@
 import * as k8s from "@pulumi/kubernetes";
-import { ComponentResource, CustomResourceOptions } from "@pulumi/pulumi";
+import * as pulumi from "@pulumi/pulumi";
 
-export const K8sNamespaceType = "pulumi:component:KubernetesNamespace";
+export class RenderedKubeNamespace extends pulumi.ComponentResource {
+  constructor(name: string, createNamespace = true) {
+    const type = "pulumi:component:RenderedKubeNamespace";
 
-export class K8sNamespaceRender extends ComponentResource {
-  constructor(namespace: string) {
-    const k8sProvider = new k8s.Provider(namespace, {
-      renderYamlToDirectory: `rendered/${namespace}`,
+    const k8sRenderProvider = new k8s.Provider(name, {
+      renderYamlToDirectory: `rendered/${name}`,
     });
 
-    super(
-      "pulumi:component:K8sNamespaceRender",
-      namespace,
-      {},
-      { providers: [k8sProvider] }
-    );
+    const opts: pulumi.ComponentResourceOptions = {
+      providers: [k8sRenderProvider],
+    };
 
-    new k8s.core.v1.Namespace(
-      namespace,
-      { metadata: { name: namespace } },
-      { parent: this }
-    );
+    super(type, name, {}, opts);
+
+    if (createNamespace) {
+      new k8s.core.v1.Namespace(name, { metadata: { name } }, { parent: this });
+    }
   }
-}
-
-export function k8sRenderProvider(name: string): k8s.Provider {
-  return new k8s.Provider(name, {
-    renderYamlToDirectory: `rendered/${name}`,
-  });
 }
