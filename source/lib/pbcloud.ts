@@ -1,6 +1,8 @@
 import * as k8s from "@pulumi/kubernetes";
 import { ComponentResource, CustomResourceOptions } from "@pulumi/pulumi";
 
+export const K8sNamespaceType = "pulumi:component:KubernetesNamespace";
+
 export class K8sNamespaceRender extends ComponentResource {
   constructor(namespace: string) {
     const k8sProvider = new k8s.Provider(namespace, {
@@ -20,4 +22,10 @@ export class K8sNamespaceRender extends ComponentResource {
       { parent: this }
     );
   }
+}
+
+export function k8sRenderProvider(name: string): k8s.Provider {
+  return new k8s.Provider(name, {
+    renderYamlToDirectory: `rendered/${name}`,
+  });
 }

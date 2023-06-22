@@ -1,0 +1,34 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"helm.toolkit.fluxcd.io/v2beta1","kind":"HelmRelease","metadata":{"labels":{"app.kubernetes.io/managed-by":"pulumi"},"name":"cert-manager","namespace":"cert-manager"},"spec":{"chart":{"spec":{"chart":"cert-manager","reconcileStrategy":"ChartVersion","sourceRef":{"kind":"HelmRepository","name":"jetstack","namespace":"flux-system"},"version":"*"}},"interval":"24h","values":{"extraArgs":["--dns01-recursive-nameservers=1.1.1.1:53,9.9.9.9:53","--dns01-recursive-nameservers-only"],"installCRDs":false,"podDnsConfig":{"nameservers":["1.1.1.1","9.9.9.9"]},"podDnsPolicy":"None","replicaCount":1,"webhook":{"enabled":true}}}}
+  labels:
+    app.kubernetes.io/managed-by: pulumi
+  name: cert-manager
+  namespace: cert-manager
+spec:
+  chart:
+    spec:
+      chart: cert-manager
+      reconcileStrategy: ChartVersion
+      sourceRef:
+        kind: HelmRepository
+        name: jetstack
+        namespace: flux-system
+      version: '*'
+  interval: 24h
+  values:
+    extraArgs:
+    - --dns01-recursive-nameservers=1.1.1.1:53,9.9.9.9:53
+    - --dns01-recursive-nameservers-only
+    installCRDs: false
+    podDnsConfig:
+      nameservers:
+      - 1.1.1.1
+      - 9.9.9.9
+    podDnsPolicy: None
+    replicaCount: 1
+    webhook:
+      enabled: true

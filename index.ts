@@ -7,6 +7,7 @@ import {
   HelmReleaseBuilder,
   HelmRepositoryBuilder,
 } from "./source/lib/helm";
+import { CertManagerNamespace } from "./source/lib/namespaces/cert-manager";
 import { K8sNamespaceRender } from "./source/lib/pbcloud";
 
 // [Namespace] flux-system ----------------------------------------------------
@@ -43,6 +44,10 @@ for (const [name, url] of Object.entries(repos)) {
     .withArgs({ metadata: { name }, spec: { url, type } })
     .build();
 }
+
+// [Namespace] cert-manager ---------------------------------------------------
+
+new CertManagerNamespace();
 
 // [Namespace] media ----------------------------------------------------------
 
