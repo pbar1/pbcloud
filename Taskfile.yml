@@ -35,7 +35,6 @@ tasks:
     - fd . source/lib/crds/.import/ -e yaml -x sh -c 'out=$(echo "{}" | sed "s|\.import|\.clean|g"); mkdir -p $(dirname $out); node scripts/crdclean.ts {} > $out'
     - fd . source/lib/crds/.clean/ -t d -x sh -c 'name=$(basename {}); crd2pulumi --nodejs --nodejsName=$name --nodejsPath=source/lib/crds/$name {}/*.yaml'
 
-
   pulumi:up:
     desc: Build with Pulumi
     cmds:
