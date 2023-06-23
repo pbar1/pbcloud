@@ -4,3 +4,4 @@
 /node_modules
 Pulumi.prod.yaml
 secret-safehouse/*
+flux

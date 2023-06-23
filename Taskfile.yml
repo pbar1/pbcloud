@@ -9,24 +9,11 @@ env:
 tasks:
   default: task --list
 
-  build:
-    desc: Build source into materialized configs
-    cmds:
-    - rm -rf materialized
-    - bash scripts/materialize.sh
-    # TODO: The following are only for clowntown purposes until migration complete:
-    - rm -rf clusters/tec/media
-    - cp -r materialized/k8s/tec/media clusters/tec/media
-    - rm -rf clusters/tec/flux-system/helm-repos
-    - cp -r materialized/k8s/tec/flux-system/helm-repos clusters/tec/flux-system/helm-repos
-    - rm -rf clusters/tec/unifi
-    - cp -r materialized/k8s/tec/unifi clusters/tec/unifi
-
   # FIXME: Convenience putting this here, also exists in clusters/tec
   sync:
     desc: Sync Flux with this Git repo
     cmds:
-    - flux reconcile source git flux-system
+    - ./flux reconcile source git flux-system
 
   pulumi:crds:
     desc: Import Kubernetes CRDs to Pulumi
