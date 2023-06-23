@@ -9,14 +9,14 @@ export interface GeekCookbookValues {
   };
   env?: {
     TZ?: string;
-    PUID?: string;
-    PGID?: string;
+    PUID?: number;
+    PGID?: number;
   };
   podAnnotations?: {
     [index: string]: string;
   };
   podSecurityContext?: {
-    fsGroup?: string;
+    fsGroup?: number;
     fsGroupChangePolicy?: string;
     capabilities?: {
       drop?: Array<string>;
@@ -77,8 +77,8 @@ export class GeekCookbookValuesBuilder {
   private tag: string = "latest";
   private imagePullPolicy: string = "Always";
   private tz: string = "America/Los_Angeles";
-  private puid: string = "1000";
-  private pgid: string = "100";
+  private puid: number = 1000;
+  private pgid: number = 100;
   private configHostPath?: string;
   private configMountPath: string = "/config";
   private host?: string;
@@ -117,12 +117,12 @@ export class GeekCookbookValuesBuilder {
     return this;
   }
 
-  withPuid(puid: string) {
+  withPuid(puid: number) {
     this.puid = puid;
     return this;
   }
 
-  withPgid(pgid: string) {
+  withPgid(pgid: number) {
     this.pgid = pgid;
     return this;
   }
