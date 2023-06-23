@@ -7,6 +7,8 @@ import * as pulumi from "@pulumi/pulumi";
 const CF_SECRET_NAME = "cloudflare-creds";
 const CF_API_KEY_ENV_VAR = "CF_API_KEY";
 
+// TODO: CRDs
+
 export class Namespace extends pbcloud.RenderedKubeNamespace {
   constructor(namespace = "cert-manager") {
     super(namespace);
