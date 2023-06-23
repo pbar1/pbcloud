@@ -1,0 +1,18 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"kustomize.toolkit.fluxcd.io/v1beta2","kind":"Kustomization","metadata":{"labels":{"app.kubernetes.io/managed-by":"pulumi"},"name":"monitoring","namespace":"monitoring"},"spec":{"force":false,"interval":"24h","path":"./materialized/monitoring","prune":true,"sourceRef":{"kind":"GitRepository","name":"flux-system"}}}
+  labels:
+    app.kubernetes.io/managed-by: pulumi
+  name: monitoring
+  namespace: monitoring
+spec:
+  force: false
+  interval: 24h
+  path: ./materialized/monitoring
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system

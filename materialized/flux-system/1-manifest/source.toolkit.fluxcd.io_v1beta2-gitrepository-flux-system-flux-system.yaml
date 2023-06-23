@@ -3,7 +3,7 @@ kind: GitRepository
 metadata:
   annotations:
     kubectl.kubernetes.io/last-applied-configuration: |
-      {"apiVersion":"source.toolkit.fluxcd.io/v1beta2","kind":"GitRepository","metadata":{"labels":{"app.kubernetes.io/managed-by":"pulumi"},"name":"flux-system","namespace":"flux-system"},"spec":{"interval":"24h0m0s","ref":{"branch":"main"},"secretRef":{"name":"flux-system"},"url":"ssh://git@github.com/pbar1/pbcloud"}}
+      {"apiVersion":"source.toolkit.fluxcd.io/v1beta2","kind":"GitRepository","metadata":{"labels":{"app.kubernetes.io/managed-by":"pulumi"},"name":"flux-system","namespace":"flux-system"},"spec":{"interval":"24h0m0s","ref":{"branch":"main"},"url":"https://github.com/pbar1/pbcloud.git"}}
   labels:
     app.kubernetes.io/managed-by: pulumi
   name: flux-system
@@ -12,6 +12,4 @@ spec:
   interval: 24h0m0s
   ref:
     branch: main
-  secretRef:
-    name: flux-system
-  url: ssh://git@github.com/pbar1/pbcloud
+  url: https://github.com/pbar1/pbcloud.git

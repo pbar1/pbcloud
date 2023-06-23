@@ -1,0 +1,18 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"kustomize.toolkit.fluxcd.io/v1beta2","kind":"Kustomization","metadata":{"labels":{"app.kubernetes.io/managed-by":"pulumi"},"name":"cert-manager","namespace":"cert-manager"},"spec":{"force":false,"interval":"24h","path":"./materialized/cert-manager","prune":true,"sourceRef":{"kind":"GitRepository","name":"flux-system"}}}
+  labels:
+    app.kubernetes.io/managed-by: pulumi
+  name: cert-manager
+  namespace: cert-manager
+spec:
+  force: false
+  interval: 24h
+  path: ./materialized/cert-manager
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system

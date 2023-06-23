@@ -16,6 +16,7 @@ tasks:
     - ./flux reconcile source git flux-system
 
   pulumi:crds:
+    aliases: ["crds"]
     desc: Import Kubernetes CRDs to Pulumi
     cmds:
     - rm -rf source/lib/crds/.clean
@@ -23,11 +24,19 @@ tasks:
     - fd . source/lib/crds/.clean/ -t d -x sh -c 'name=$(basename {}); crd2pulumi --nodejs --nodejsName=$name --nodejsPath=source/lib/crds/$name {}/*.yaml'
 
   pulumi:up:
+    aliases: ["build", "up"]
     desc: Build with Pulumi
     cmds:
     - pulumi up
 
   pulumi:resources:
+    aliases: ["resources"]
     desc: Show Pulumi resource tree
     cmds:
     - pulumi stack
+
+  pulumi:down:
+    aliases: ["destroy", "down"]
+    desc: Destroy Pulumi resources
+    cmds:
+    - pulumi destroy
