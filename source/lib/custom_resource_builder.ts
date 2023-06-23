@@ -1,5 +1,7 @@
 import merge from "ts-deepmerge";
 import { PartialDeep } from "type-fest";
+import * as k8s from "@pulumi/kubernetes";
+import { CustomResource } from "@pulumi/pulumi";
 
 export type Constructible<
   Params extends readonly any[] = any[],
@@ -14,6 +16,24 @@ class Creator {
   ): InstanceType<T> {
     return new constructible(...params);
   }
+}
+
+// https://stackoverflow.com/questions/69687087/transform-named-tuple-to-object
+type TupleToObject<
+  T extends readonly any[],
+  M extends Record<Exclude<keyof T, keyof any[]>, PropertyKey>
+> = { [K in Exclude<keyof T, keyof any[]> as M[K]]: T[K] };
+
+type PodCtor = ConstructorParameters<typeof k8s.core.v1.Pod>;
+type PodCtorArgs = TupleToObject<PodCtor, ["name", "args", "opts"]>;
+
+class PodBuilder {
+  private args: PartialDeep<
+    TupleToObject<
+      ConstructorParameters<typeof k8s.core.v1.Pod>,
+      ["name", "args", "opts"]
+    >
+  >;
 }
 
 export class CustomResourceBuilder<T extends Constructible> {
