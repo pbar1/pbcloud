@@ -1,0 +1,27 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"helm.toolkit.fluxcd.io/v2beta1","kind":"HelmRelease","metadata":{"labels":{"app.kubernetes.io/managed-by":"pulumi"},"name":"tailscale-relay","namespace":"networking"},"spec":{"chart":{"spec":{"chart":"tailscale-relay","reconcileStrategy":"ChartVersion","sourceRef":{"kind":"HelmRepository","name":"mvisonneau","namespace":"flux-system"},"version":"*"}},"interval":"24h","values":{"config":{"authKey":"${TAILSCALE_AUTH_KEY}","variables":{"TAILSCALE_ADVERTISE_ROUTES":"${NETWORK_CIDR}","TAILSCALE_HOSTNAME":"tec"}}}}}
+  labels:
+    app.kubernetes.io/managed-by: pulumi
+  name: tailscale-relay
+  namespace: networking
+spec:
+  chart:
+    spec:
+      chart: tailscale-relay
+      reconcileStrategy: ChartVersion
+      sourceRef:
+        kind: HelmRepository
+        name: mvisonneau
+        namespace: flux-system
+      version: '*'
+  interval: 24h
+  values:
+    config:
+      authKey: ${TAILSCALE_AUTH_KEY}
+      variables:
+        TAILSCALE_ADVERTISE_ROUTES: ${NETWORK_CIDR}
+        TAILSCALE_HOSTNAME: tec

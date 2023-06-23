@@ -26,7 +26,7 @@ export class Namespace extends pbcloud.RenderedKubeNamespace {
       {
         namespace,
         chart: "prowlarr",
-        values: new GeekCookbookValuesBuilder().withName("sonarr").build(),
+        values: new GeekCookbookValuesBuilder().withName("prowlarr").build(),
       },
       opts
     );
@@ -119,7 +119,6 @@ export class Namespace extends pbcloud.RenderedKubeNamespace {
     );
 
     const gluetunCtr = {
-      name: "gluetun",
       image: "qmcgaw/gluetun",
       securityContext: { capabilities: { add: ["NET_ADMIN"] } },
       envFrom: [{ secretRef: { name: "qbittorrent" } }],
