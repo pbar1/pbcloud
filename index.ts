@@ -1,11 +1,11 @@
 import * as namespaces from "./source/lib/namespaces";
 
-new namespaces.certManager.Namespace(); // verified
-new namespaces.externalDns.Namespace(); // verified
+new namespaces.certManager.Namespace();
+new namespaces.externalDns.Namespace();
 new namespaces.fluxSystem.Namespace();
-new namespaces.gitea.Namespace(); // verified
-new namespaces.kubeSystem.Namespace(); // verified
-new namespaces.media.Namespace(); // verified
-new namespaces.monitoring.Namespace(); // verified
-new namespaces.networking.Namespace(); // verified
-new namespaces.unifi.Namespace(); // verified
+new namespaces.gitea.Namespace();
+new namespaces.kubeSystem.Namespace();
+new namespaces.media.Namespace();
+new namespaces.monitoring.Namespace();
+new namespaces.networking.Namespace();
+new namespaces.unifi.Namespace();
