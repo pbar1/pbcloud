@@ -1,0 +1,54 @@
+[nixos@tec:~]$ systemctl status
+● tec
+    State: running
+    Units: 336 loaded (incl. loaded aliases)
+     Jobs: 0 queued
+   Failed: 0 units
+    Since: Thu 2023-06-22 22:59:47 PDT; 8min ago
+  systemd: 253.5
+   CGroup: /
+           ├─init.scope
+           │ └─1 /run/current-system/systemd/lib/systemd/systemd
+           ├─system.slice
+           │ ├─dbus.service
+           │ │ └─2443 /nix/store/a67dgs3jkxvk0rm7gbjnv90sq9j4rriw-dbus-1.14.8/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only
+           │ ├─dhcpcd.service
+           │ │ ├─2356 "dhcpcd: [manager] [ip4] [ip6]"
+           │ │ ├─2357 "dhcpcd: [privileged proxy]"
+           │ │ ├─2359 "dhcpcd: [network proxy]"
+           │ │ ├─2361 "dhcpcd: [control proxy]"
+           │ │ └─2523 "dhcpcd: [BPF ARP] enp4s0 192.168.0.5"
+           │ ├─nscd.service
+           │ │ └─2688 /nix/store/cnfps32hvnh4mls714wv80hq9c2s98n3-nsncd-unstable-2022-11-14/bin/nsncd
+           │ ├─sshd.service
+           │ │ └─2504 "sshd: /nix/store/1s5f2qcr8dp0mxmh8k26cbi1xgcqp8xg-openssh-9.3p1/bin/sshd -D -f /etc/ssh/sshd_config [listener] 0 of 10-100 startups"
+           │ ├─system-getty.slice
+           │ │ └─getty@tty1.service
+           │ │   └─2505 agetty --login-program /nix/store/bx5qbszgqlpvynimjnz9nb9kfpkglvvk-shadow-4.13/bin/login --noclear --keep-baud tty1 115200,38400,9600 linux
+           │ ├─systemd-journald.service
+           │ │ └─760 /nix/store/9adpz6y8s4mgkxfhc9rzy25r7f3wdyll-systemd-253.5/lib/systemd/systemd-journald
+           │ ├─systemd-logind.service
+           │ │ └─2450 /nix/store/9adpz6y8s4mgkxfhc9rzy25r7f3wdyll-systemd-253.5/lib/systemd/systemd-logind
+           │ ├─systemd-oomd.service
+           │ │ └─2342 /nix/store/9adpz6y8s4mgkxfhc9rzy25r7f3wdyll-systemd-253.5/lib/systemd/systemd-oomd
+           │ ├─systemd-timesyncd.service
+           │ │ └─2343 /nix/store/9adpz6y8s4mgkxfhc9rzy25r7f3wdyll-systemd-253.5/lib/systemd/systemd-timesyncd
+           │ ├─systemd-udevd.service
+           │ │ └─udev
+           │ │   └─786 /nix/store/9adpz6y8s4mgkxfhc9rzy25r7f3wdyll-systemd-253.5/lib/systemd/systemd-udevd
+           │ └─zfs-zed.service
+           │   └─2366 /nix/store/pz03zb1gjq6r6d1kxnff38lg73fvgd70-zfs-user-2.1.12/sbin/zed -F
+           └─user.slice
+             └─user-1000.slice
+               ├─session-1.scope
+               │ ├─2919 "sshd: nixos [priv]"
+               │ ├─2930 "sshd: nixos@pts/0"
+               │ ├─2932 -bash
+               │ ├─3003 systemctl status
+               │ └─3004 less
+               └─user@1000.service
+                 └─init.scope
+                   ├─2922 /nix/store/9adpz6y8s4mgkxfhc9rzy25r7f3wdyll-systemd-253.5/lib/systemd/systemd --user
+                   └─2923 "(sd-pam)"
+
+[nixos@tec:~]$
