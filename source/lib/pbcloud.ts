@@ -36,7 +36,11 @@ function newKustomization(
       interval: "24h",
       path: `./${renderDir}`,
       prune: true,
-      sourceRef: { kind: "GitRepository", name: "flux-system" }, // FIXME: hardcode
+      sourceRef: {
+        kind: "GitRepository",
+        name: "flux-system",
+        namespace: "flux-system",
+      },
     },
   };
 
