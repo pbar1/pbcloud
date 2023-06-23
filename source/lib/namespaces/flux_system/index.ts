@@ -1,6 +1,8 @@
-import * as fluxcd from "../crds/fluxcd";
-import * as pbcloud from "../pbcloud";
+import * as fluxcd from "../../crds/fluxcd";
+import * as pbcloud from "../../pbcloud";
 import * as pulumi from "@pulumi/pulumi";
+import * as k8s from "@pulumi/kubernetes";
+import * as path from "path";
 
 export const HELM_REPOS = {
   "amd-gpu": "https://radeonopencompute.github.io/k8s-device-plugin",
@@ -16,8 +18,13 @@ export const HELM_REPOS = {
 
 export class Namespace extends pbcloud.RenderedKubeNamespace {
   constructor(namespace = "flux-system") {
-    super(namespace);
+    super(namespace, false); // TODO: No create namespace with Flux bootstrap resources
     const opts: pulumi.CustomResourceOptions = { parent: this };
+
+    const manifestArgs: k8s.yaml.ConfigGroupOpts = {
+      files: [path.join(__dirname, "manifests", "*.yaml")],
+    };
+    new k8s.yaml.ConfigGroup("manifests", manifestArgs, opts);
 
     for (const [name, url] of Object.entries(HELM_REPOS)) {
       newHelmRepo(name, url, namespace, opts);

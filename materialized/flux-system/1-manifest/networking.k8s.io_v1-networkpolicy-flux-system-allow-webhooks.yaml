@@ -1,0 +1,22 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"labels":{"app.kubernetes.io/instance":"flux-system","app.kubernetes.io/managed-by":"pulumi","app.kubernetes.io/part-of":"flux","app.kubernetes.io/version":"v0.37.0"},"name":"allow-webhooks","namespace":"flux-system"},"spec":{"ingress":[{"from":[{"namespaceSelector":{}}]}],"podSelector":{"matchLabels":{"app":"notification-controller"}},"policyTypes":["Ingress"]}}
+  labels:
+    app.kubernetes.io/instance: flux-system
+    app.kubernetes.io/managed-by: pulumi
+    app.kubernetes.io/part-of: flux
+    app.kubernetes.io/version: v0.37.0
+  name: allow-webhooks
+  namespace: flux-system
+spec:
+  ingress:
+  - from:
+    - namespaceSelector: {}
+  podSelector:
+    matchLabels:
+      app: notification-controller
+  policyTypes:
+  - Ingress
