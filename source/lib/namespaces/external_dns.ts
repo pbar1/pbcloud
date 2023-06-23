@@ -28,7 +28,7 @@ export class Namespace extends pbcloud.RenderedKubeNamespace {
           env: [
             {
               name: "CF_API_EMAIL",
-              value: "${EMAIL}",
+              value: "piercebartine@gmail.com",
             },
             {
               name: "CF_API_KEY",
@@ -44,15 +44,5 @@ export class Namespace extends pbcloud.RenderedKubeNamespace {
       },
     };
     new fluxcd.helm.v2beta1.HelmRelease(namespace, externalDnsArgs, opts);
-
-    const secretName = "cloudflare-creds";
-    const secretArgs: k8s.core.v1.SecretArgs = {
-      metadata: { namespace, name: secretName },
-      stringData: {
-        CF_API_KEY: "${CF_API_KEY}", // FIXME: No flux injection
-      },
-    };
-    // FIXME: prefix all resources with namespace
-    new k8s.core.v1.Secret(namespace + "/" + secretName, secretArgs, opts);
   }
 }

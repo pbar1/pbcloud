@@ -47,28 +47,17 @@ export class Namespace extends pbcloud.RenderedKubeNamespace {
     };
     new fluxcd.helm.v2beta1.HelmRelease(chartName, helmReleaseArgs, opts);
 
-    const secretArgs: k8s.core.v1.SecretArgs = {
-      metadata: {
-        name: CF_SECRET_NAME,
-        namespace,
-      },
-      stringData: {
-        [CF_API_KEY_ENV_VAR]: "${" + CF_API_KEY_ENV_VAR + "}", // FIXME: No Flux injection
-      },
-    };
-    new k8s.core.v1.Secret(CF_SECRET_NAME, secretArgs, opts);
+    // newClusterIssuer(
+    //   "letsencrypt-production",
+    //   "https://acme-v02.api.letsencrypt.org/directory",
+    //   opts
+    // );
 
-    newClusterIssuer(
-      "letsencrypt-production",
-      "https://acme-v02.api.letsencrypt.org/directory",
-      opts
-    );
-
-    newClusterIssuer(
-      "letsencrypt-staging",
-      "https://acme-staging-v02.api.letsencrypt.org/directory",
-      opts
-    );
+    // newClusterIssuer(
+    //   "letsencrypt-staging",
+    //   "https://acme-staging-v02.api.letsencrypt.org/directory",
+    //   opts
+    // );
   }
 }
 
@@ -77,25 +66,26 @@ function newClusterIssuer(
   server: string,
   opts: pulumi.CustomResourceOptions
 ): certManager.certmanager.v1.ClusterIssuer {
+  const email = "piercebartine@gmail.com";
   const args: certManager.certmanager.v1.ClusterIssuerArgs = {
     metadata: { name },
     spec: {
       acme: {
         server,
-        email: "${EMAIL}", // FIXME: No Flux injection
+        email,
         privateKeySecretRef: { name },
         solvers: [
           {
             dns01: {
               cloudflare: {
-                email: "${EMAIL}", // FIXME: No Flux injection
+                email,
                 apiKeySecretRef: {
                   name: CF_SECRET_NAME,
                   key: CF_API_KEY_ENV_VAR,
                 },
               },
             },
-            selector: { dnsZones: ["${DOMAIN}"] }, // FIXME: No Flux injection
+            selector: { dnsZones: ["xnauts.net"] },
           },
         ],
       },

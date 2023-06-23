@@ -66,7 +66,7 @@ export class Namespace extends pbcloud.RenderedKubeNamespace {
         {
           apiGroup: "rbac.authorization.k8s.io",
           kind: "User",
-          name: "${EMAIL}",
+          name: "piercebartine@gmail.com",
         },
       ],
     };
