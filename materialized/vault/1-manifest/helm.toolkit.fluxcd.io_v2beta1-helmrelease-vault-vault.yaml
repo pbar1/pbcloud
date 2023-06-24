@@ -3,7 +3,7 @@ kind: HelmRelease
 metadata:
   annotations:
     kubectl.kubernetes.io/last-applied-configuration: |
-      {"apiVersion":"helm.toolkit.fluxcd.io/v2beta1","kind":"HelmRelease","metadata":{"labels":{"app.kubernetes.io/managed-by":"pulumi"},"name":"vault","namespace":"vault"},"spec":{"chart":{"spec":{"chart":"vault","reconcileStrategy":"ChartVersion","sourceRef":{"kind":"HelmRepository","name":"hashicorp","namespace":"flux-system"},"version":"*"}},"interval":"24h","values":{"agent":{"enabled":false},"injector":{"enabled":false},"server":{"dataStorage":{"enabled":false},"ingress":{"annotations":{"cert-manager.io/cluster-issuer":"letsencrypt-production","traefik.ingress.kubernetes.io/router.entrypoints":"websecure"},"enabled":true,"hosts":[{"host":"vault.xnauts.net","paths":["/"]}],"tls":[{"hosts":["vault.xnauts.net"],"secretName":"vault-tls"}]},"standalone":{"enabled":true}}}}}
+      {"apiVersion":"helm.toolkit.fluxcd.io/v2beta1","kind":"HelmRelease","metadata":{"labels":{"app.kubernetes.io/managed-by":"pulumi"},"name":"vault","namespace":"vault"},"spec":{"chart":{"spec":{"chart":"vault","reconcileStrategy":"ChartVersion","sourceRef":{"kind":"HelmRepository","name":"hashicorp","namespace":"flux-system"},"version":"*"}},"interval":"24h","values":{"agent":{"enabled":false},"injector":{"enabled":false},"server":{"config":"\nui = true\n\nlistener \"tcp\" {\n  tls_disable = 1\n  address = \"[::]:8200\"\n  cluster_address = \"[::]:8201\"\n  # Enable unauthenticated metrics access (necessary for Prometheus Operator)\n  telemetry {\n    unauthenticated_metrics_access = \"true\"\n  }\n}\nstorage \"file\" {\n  path = \"/vault/data\"\n}\n\n# Example configuration for enabling Prometheus metrics in your config.\ntelemetry {\n  prometheus_retention_time = \"30s\"\n  disable_hostname = true\n}\n","dataStorage":{"enabled":true},"ingress":{"annotations":{"cert-manager.io/cluster-issuer":"letsencrypt-production","traefik.ingress.kubernetes.io/router.entrypoints":"websecure"},"enabled":true,"hosts":[{"host":"vault.xnauts.net","paths":["/"]}],"tls":[{"hosts":["vault.xnauts.net"],"secretName":"vault-tls"}]},"standalone":{"enabled":true}}}}}
   labels:
     app.kubernetes.io/managed-by: pulumi
   name: vault
@@ -25,8 +25,30 @@ spec:
     injector:
       enabled: false
     server:
+      config: |2
+
+        ui = true
+
+        listener "tcp" {
+          tls_disable = 1
+          address = "[::]:8200"
+          cluster_address = "[::]:8201"
+          # Enable unauthenticated metrics access (necessary for Prometheus Operator)
+          telemetry {
+            unauthenticated_metrics_access = "true"
+          }
+        }
+        storage "file" {
+          path = "/vault/data"
+        }
+
+        # Example configuration for enabling Prometheus metrics in your config.
+        telemetry {
+          prometheus_retention_time = "30s"
+          disable_hostname = true
+        }
       dataStorage:
-        enabled: false
+        enabled: true
       ingress:
         annotations:
           cert-manager.io/cluster-issuer: letsencrypt-production

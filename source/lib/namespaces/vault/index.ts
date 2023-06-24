@@ -2,6 +2,29 @@ import * as pbcloud from "../../pbcloud";
 import * as pulumi from "@pulumi/pulumi";
 import { HelmReleaseArgs, HelmRelease } from "../../crds/fluxcd/helm/v2beta1";
 
+const vaultServerConfig = `
+ui = true
+
+listener "tcp" {
+  tls_disable = 1
+  address = "[::]:8200"
+  cluster_address = "[::]:8201"
+  # Enable unauthenticated metrics access (necessary for Prometheus Operator)
+  telemetry {
+    unauthenticated_metrics_access = "true"
+  }
+}
+storage "file" {
+  path = "/vault/data"
+}
+
+# Example configuration for enabling Prometheus metrics in your config.
+telemetry {
+  prometheus_retention_time = "30s"
+  disable_hostname = true
+}
+`;
+
 export class Namespace extends pbcloud.RenderedKubeNamespace {
   constructor(namespace = "vault") {
     super(namespace);
@@ -11,6 +34,7 @@ export class Namespace extends pbcloud.RenderedKubeNamespace {
     const values: VaultHelmChartValues = {
       injector: { enabled: false },
       server: {
+        config: vaultServerConfig,
         ingress: {
           enabled: true,
           annotations: {
@@ -21,7 +45,7 @@ export class Namespace extends pbcloud.RenderedKubeNamespace {
           tls: [{ secretName: "vault-tls", hosts: ["vault.xnauts.net"] }],
         },
         standalone: { enabled: true },
-        dataStorage: { enabled: false },
+        dataStorage: { enabled: true },
       },
       agent: { enabled: false },
     };
