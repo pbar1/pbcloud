@@ -7,3 +7,4 @@ export * as media from "./media";
 export * as monitoring from "./monitoring";
 export * as networking from "./networking";
 export * as unifi from "./unifi";
+export * as vault from "./vault";

@@ -11,6 +11,7 @@ export const HELM_REPOS = {
   "prometheus-community": "https://prometheus-community.github.io/helm-charts",
   gitea: "https://dl.gitea.io/charts/",
   grafana: "https://grafana.github.io/helm-charts",
+  hashicorp: "https://helm.releases.hashicorp.com",
   jetstack: "https://charts.jetstack.io",
   mvisonneau: "https://charts.visonneau.fr",
   weaveworks: "oci://ghcr.io/weaveworks/charts",

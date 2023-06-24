@@ -1,0 +1,44 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"helm.toolkit.fluxcd.io/v2beta1","kind":"HelmRelease","metadata":{"labels":{"app.kubernetes.io/managed-by":"pulumi"},"name":"vault","namespace":"vault"},"spec":{"chart":{"spec":{"chart":"vault","reconcileStrategy":"ChartVersion","sourceRef":{"kind":"HelmRepository","name":"hashicorp","namespace":"flux-system"},"version":"*"}},"interval":"24h","values":{"agent":{"enabled":false},"injector":{"enabled":false},"server":{"dataStorage":{"enabled":false},"ingress":{"annotations":{"cert-manager.io/cluster-issuer":"letsencrypt-production","traefik.ingress.kubernetes.io/router.entrypoints":"websecure"},"enabled":true,"hosts":[{"host":"vault.xnauts.net","paths":["/"]}],"tls":[{"hosts":["vault.xnauts.net"],"secretName":"vault-tls"}]},"standalone":{"enabled":true}}}}}
+  labels:
+    app.kubernetes.io/managed-by: pulumi
+  name: vault
+  namespace: vault
+spec:
+  chart:
+    spec:
+      chart: vault
+      reconcileStrategy: ChartVersion
+      sourceRef:
+        kind: HelmRepository
+        name: hashicorp
+        namespace: flux-system
+      version: '*'
+  interval: 24h
+  values:
+    agent:
+      enabled: false
+    injector:
+      enabled: false
+    server:
+      dataStorage:
+        enabled: false
+      ingress:
+        annotations:
+          cert-manager.io/cluster-issuer: letsencrypt-production
+          traefik.ingress.kubernetes.io/router.entrypoints: websecure
+        enabled: true
+        hosts:
+        - host: vault.xnauts.net
+          paths:
+          - /
+        tls:
+        - hosts:
+          - vault.xnauts.net
+          secretName: vault-tls
+      standalone:
+        enabled: true

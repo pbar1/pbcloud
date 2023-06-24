@@ -9,3 +9,4 @@ new namespaces.media.Namespace();
 new namespaces.monitoring.Namespace();
 new namespaces.networking.Namespace();
 new namespaces.unifi.Namespace();
+new namespaces.vault.Namespace();
