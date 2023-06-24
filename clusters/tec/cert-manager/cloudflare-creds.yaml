@@ -1,7 +1,0 @@
-apiVersion: v1
-kind: Secret
-metadata:
-  name: cloudflare-creds
-  namespace: cert-manager
-stringData:
-  CF_API_KEY: "${CF_API_KEY}"
