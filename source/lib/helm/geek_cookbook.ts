@@ -71,6 +71,11 @@ export interface GeekCookbookValuesIngressTls {
   secretName: string;
 }
 
+export interface GeekCookbookValuesCapabilities {
+  add?: Array<string>;
+  drop?: Array<string>;
+}
+
 export class GeekCookbookValuesBuilder {
   private name?: string;
   private repository?: string;
@@ -87,6 +92,7 @@ export class GeekCookbookValuesBuilder {
   private secret?: { [index: string]: string };
   private supplementalGroups?: Array<number>;
   private additionalContainers?: { [index: string]: any };
+  private capabilities?: GeekCookbookValuesCapabilities = { drop: ["all"] };
 
   private noHostNetwork = true;
   private noIngress = false;
@@ -164,6 +170,11 @@ export class GeekCookbookValuesBuilder {
       ...this.additionalContainers,
       ...additionalContainers,
     };
+    return this;
+  }
+
+  withCapabilities(capabilities: GeekCookbookValuesCapabilities) {
+    this.capabilities = capabilities;
     return this;
   }
 
@@ -245,7 +256,7 @@ export class GeekCookbookValuesBuilder {
       podSecurityContext: {
         fsGroup: this.pgid,
         fsGroupChangePolicy: "OnRootMismatch",
-        capabilities: this.noDropCaps ? undefined : { drop: ["all"] },
+        capabilities: this.noDropCaps ? undefined : this.capabilities,
         seccompProfile: { type: "RuntimeDefault" },
         supplementalGroups: this.supplementalGroups,
       },

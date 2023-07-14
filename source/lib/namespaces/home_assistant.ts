@@ -13,6 +13,7 @@ export class Namespace extends pbcloud.RenderedKubeNamespace {
       values: new geekCookbook.GeekCookbookValuesBuilder()
         .withName(namespace)
         .withRepository("ghcr.io/home-assistant/home-assistant")
+        .withCapabilities({ add: ["NET_RAW"] })
         .build(),
     };
     geekCookbook.newGkHelmRelease(helmArgs, opts);
