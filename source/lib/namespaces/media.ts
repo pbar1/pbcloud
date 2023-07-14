@@ -120,7 +120,8 @@ export class Namespace extends pbcloud.RenderedKubeNamespace {
 
     const gluetunCtr = {
       image: "qmcgaw/gluetun",
-      securityContext: { capabilities: { add: ["NET_ADMIN"] } },
+      // FIXME: Why did NET_ADMIN cap stop working?
+      securityContext: { privileged: true },
       envFrom: [{ secretRef: { name: "qbittorrent" } }],
       env: [
         { name: "TZ", value: "America/Los_Angeles" },
@@ -139,6 +140,7 @@ export class Namespace extends pbcloud.RenderedKubeNamespace {
         { name: "HEALTH_VPN_DURATION_INITIAL", value: "120s" },
       ],
     };
+    // FIXME: secret/qbittorrent with Mullvad wireguard pk needs to be applied manually
     newGkHelmRelease(
       {
         namespace,
@@ -153,7 +155,6 @@ export class Namespace extends pbcloud.RenderedKubeNamespace {
             ),
           })
           .withEnv({ QBT_TORRENTING_PORT: MULLVAD_PORT })
-          .withSecret({ WIREGUARD_PRIVATE_KEY: "${MULLVAD_WG_PK}" }) // FIXME: No Flux injection
           .withAdditionalContainers({ gluetun: gluetunCtr })
           .build(),
       },

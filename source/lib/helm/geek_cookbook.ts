@@ -96,7 +96,7 @@ export class GeekCookbookValuesBuilder {
   private secret?: { [index: string]: string };
   private supplementalGroups?: Array<number>;
   private additionalContainers?: { [index: string]: any };
-  private capabilities?: GeekCookbookValuesCapabilities = { drop: ["all"] };
+  private capabilities?: GeekCookbookValuesCapabilities = {};
 
   private noHostNetwork = true;
   private noIngress = false;
