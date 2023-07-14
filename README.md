@@ -16,6 +16,9 @@ Here is the basic lifecycle of a Kubernetes config:
 
 ## TODOs
 
+- Materialized configs are not initially applied automatically by Flux. This
+  makes sense, because they include the `Kustomization` resource needed to
+  control this behavior. This could be better.
 - [OpenEBS ZFS][1] K8s StorageClass
 
 <!-- Links -->

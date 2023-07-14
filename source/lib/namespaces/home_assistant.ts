@@ -12,6 +12,7 @@ export class Namespace extends pbcloud.RenderedKubeNamespace {
       chart: namespace,
       values: new geekCookbook.GeekCookbookValuesBuilder()
         .withName(namespace)
+        .withRepository("ghcr.io/home-assistant/home-assistant")
         .build(),
     };
     geekCookbook.newGkHelmRelease(helmArgs, opts);
