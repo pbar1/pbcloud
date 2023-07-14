@@ -26,6 +26,10 @@ export interface GeekCookbookValues {
     };
     supplementalGroups?: Array<number>;
   };
+  securityContext?: {
+    privileged?: boolean;
+    capabilities?: GeekCookbookValuesCapabilities;
+  };
   persistence?: {
     [index: string]: GeekCookbookValuesPersistence;
   };
@@ -173,6 +177,8 @@ export class GeekCookbookValuesBuilder {
     return this;
   }
 
+  // Capabilities are (except for `drop`, apparently) are not valid on
+  // PodSecurityContext, only the container-level SecurityContext.
   withCapabilities(capabilities: GeekCookbookValuesCapabilities) {
     this.capabilities = capabilities;
     return this;
@@ -256,10 +262,15 @@ export class GeekCookbookValuesBuilder {
       podSecurityContext: {
         fsGroup: this.pgid,
         fsGroupChangePolicy: "OnRootMismatch",
-        capabilities: this.noDropCaps ? undefined : this.capabilities,
         seccompProfile: { type: "RuntimeDefault" },
         supplementalGroups: this.supplementalGroups,
       },
+      // FIXME: Remove noDropCaps in favor of just passing undefined capabilities
+      securityContext: this.noDropCaps
+        ? undefined
+        : {
+            capabilities: this.capabilities,
+          },
       persistence,
       ingress,
       hostNetwork: this.noHostNetwork ? undefined : true,
