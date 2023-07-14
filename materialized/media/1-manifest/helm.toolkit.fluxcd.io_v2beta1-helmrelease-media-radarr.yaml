@@ -3,7 +3,7 @@ kind: HelmRelease
 metadata:
   annotations:
     kubectl.kubernetes.io/last-applied-configuration: |
-      {"apiVersion":"helm.toolkit.fluxcd.io/v2beta1","kind":"HelmRelease","metadata":{"labels":{"app.kubernetes.io/managed-by":"pulumi"},"name":"radarr","namespace":"media"},"spec":{"chart":{"spec":{"chart":"radarr","reconcileStrategy":"ChartVersion","sourceRef":{"kind":"HelmRepository","name":"geek-cookbook","namespace":"flux-system"},"version":"*"}},"interval":"24h","values":{"env":{"PGID":100,"PUID":1000,"TZ":"America/Los_Angeles"},"image":{"imagePullPolicy":"Always","repository":"ghcr.io/linuxserver/radarr","tag":"latest"},"ingress":{"main":{"annotations":{"cert-manager.io/cluster-issuer":"letsencrypt-production","traefik.ingress.kubernetes.io/router.entrypoints":"websecure"},"enabled":true,"hosts":[{"host":"radarr.xnauts.net","paths":[{"path":"/","pathType":"Prefix"}]}],"tls":[{"hosts":["radarr.xnauts.net"],"secretName":"radarr-tls"}]}},"persistence":{"config":{"enabled":true,"hostPath":"/data/general/config/radarr","mountPath":"/config","type":"hostPath"},"downloads":{"enabled":true,"hostPath":"/data/torrents","mountPath":"/downloads","type":"hostPath"},"media":{"enabled":true,"hostPath":"/data/media/movies","mountPath":"/movies","type":"hostPath"}},"podAnnotations":{"container.apparmor.security.beta.kubernetes.io/radarr":"unconfined"},"podSecurityContext":{"capabilities":{"drop":["all"]},"fsGroup":100,"fsGroupChangePolicy":"OnRootMismatch","seccompProfile":{"type":"RuntimeDefault"}}}}}
+      {"apiVersion":"helm.toolkit.fluxcd.io/v2beta1","kind":"HelmRelease","metadata":{"labels":{"app.kubernetes.io/managed-by":"pulumi"},"name":"radarr","namespace":"media"},"spec":{"chart":{"spec":{"chart":"radarr","reconcileStrategy":"ChartVersion","sourceRef":{"kind":"HelmRepository","name":"geek-cookbook","namespace":"flux-system"},"version":"*"}},"interval":"24h","values":{"env":{"PGID":100,"PUID":1000,"TZ":"America/Los_Angeles"},"image":{"imagePullPolicy":"Always","repository":"ghcr.io/linuxserver/radarr","tag":"latest"},"ingress":{"main":{"annotations":{"cert-manager.io/cluster-issuer":"letsencrypt-production","traefik.ingress.kubernetes.io/router.entrypoints":"websecure"},"enabled":true,"hosts":[{"host":"radarr.xnauts.net","paths":[{"path":"/","pathType":"Prefix"}]}],"tls":[{"hosts":["radarr.xnauts.net"],"secretName":"radarr-tls"}]}},"persistence":{"config":{"enabled":true,"hostPath":"/data/general/config/radarr","mountPath":"/config","type":"hostPath"},"downloads":{"enabled":true,"hostPath":"/data/torrents","mountPath":"/downloads","type":"hostPath"},"media":{"enabled":true,"hostPath":"/data/media/movies","mountPath":"/movies","type":"hostPath"}},"podAnnotations":{"container.apparmor.security.beta.kubernetes.io/radarr":"unconfined"},"podSecurityContext":{"fsGroup":100,"fsGroupChangePolicy":"OnRootMismatch","seccompProfile":{"type":"RuntimeDefault"}},"securityContext":{"capabilities":{"drop":["all"]}}}}}
   labels:
     app.kubernetes.io/managed-by: pulumi
   name: radarr
@@ -62,10 +62,11 @@ spec:
     podAnnotations:
       container.apparmor.security.beta.kubernetes.io/radarr: unconfined
     podSecurityContext:
-      capabilities:
-        drop:
-        - all
       fsGroup: 100
       fsGroupChangePolicy: OnRootMismatch
       seccompProfile:
         type: RuntimeDefault
+    securityContext:
+      capabilities:
+        drop:
+        - all

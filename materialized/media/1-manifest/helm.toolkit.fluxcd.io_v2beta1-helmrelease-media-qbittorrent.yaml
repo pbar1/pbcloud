@@ -3,7 +3,7 @@ kind: HelmRelease
 metadata:
   annotations:
     kubectl.kubernetes.io/last-applied-configuration: |
-      {"apiVersion":"helm.toolkit.fluxcd.io/v2beta1","kind":"HelmRelease","metadata":{"labels":{"app.kubernetes.io/managed-by":"pulumi"},"name":"qbittorrent","namespace":"media"},"spec":{"chart":{"spec":{"chart":"qbittorrent","reconcileStrategy":"ChartVersion","sourceRef":{"kind":"HelmRepository","name":"geek-cookbook","namespace":"flux-system"},"version":"*"}},"interval":"24h","values":{"additionalContainers":{"gluetun":{"env":[{"name":"TZ","value":"America/Los_Angeles"},{"name":"VPN_SERVICE_PROVIDER","value":"mullvad"},{"name":"VPN_TYPE","value":"wireguard"},{"name":"WIREGUARD_ADDRESSES","value":"10.67.247.61/32"},{"name":"SERVER_CITIES","value":"Zurich"},{"name":"OWNED_ONLY","value":"yes"},{"name":"FIREWALL_VPN_INPUT_PORTS","value":"55487"},{"name":"HEALTH_VPN_DURATION_INITIAL","value":"120s"}],"envFrom":[{"secretRef":{"name":"qbittorrent"}}],"image":"qmcgaw/gluetun","securityContext":{"capabilities":{"add":["NET_ADMIN"]}}}},"env":{"PGID":100,"PUID":1000,"QBT_TORRENTING_PORT":"55487","TZ":"America/Los_Angeles"},"image":{"imagePullPolicy":"Always","repository":"ghcr.io/hotio/qbittorrent","tag":"latest"},"ingress":{"main":{"annotations":{"cert-manager.io/cluster-issuer":"letsencrypt-production","traefik.ingress.kubernetes.io/router.entrypoints":"websecure"},"enabled":true,"hosts":[{"host":"qbittorrent.xnauts.net","paths":[{"path":"/","pathType":"Prefix"}]}],"tls":[{"hosts":["qbittorrent.xnauts.net"],"secretName":"qbittorrent-tls"}]}},"persistence":{"config":{"enabled":true,"hostPath":"/data/general/config/qbittorrent","mountPath":"/config","type":"hostPath"},"downloads":{"enabled":true,"hostPath":"/data/torrents/qbittorrent","mountPath":"/downloads/qbittorrent","type":"hostPath"}},"podAnnotations":{"container.apparmor.security.beta.kubernetes.io/qbittorrent":"unconfined"},"podSecurityContext":{"capabilities":{"drop":["all"]},"fsGroup":100,"fsGroupChangePolicy":"OnRootMismatch","seccompProfile":{"type":"RuntimeDefault"}},"secret":{"WIREGUARD_PRIVATE_KEY":"${MULLVAD_WG_PK}"}}}}
+      {"apiVersion":"helm.toolkit.fluxcd.io/v2beta1","kind":"HelmRelease","metadata":{"labels":{"app.kubernetes.io/managed-by":"pulumi"},"name":"qbittorrent","namespace":"media"},"spec":{"chart":{"spec":{"chart":"qbittorrent","reconcileStrategy":"ChartVersion","sourceRef":{"kind":"HelmRepository","name":"geek-cookbook","namespace":"flux-system"},"version":"*"}},"interval":"24h","values":{"additionalContainers":{"gluetun":{"env":[{"name":"TZ","value":"America/Los_Angeles"},{"name":"VPN_SERVICE_PROVIDER","value":"mullvad"},{"name":"VPN_TYPE","value":"wireguard"},{"name":"WIREGUARD_ADDRESSES","value":"10.67.247.61/32"},{"name":"SERVER_CITIES","value":"Zurich"},{"name":"OWNED_ONLY","value":"yes"},{"name":"FIREWALL_VPN_INPUT_PORTS","value":"55487"},{"name":"HEALTH_VPN_DURATION_INITIAL","value":"120s"}],"envFrom":[{"secretRef":{"name":"qbittorrent"}}],"image":"qmcgaw/gluetun","securityContext":{"capabilities":{"add":["NET_ADMIN"]}}}},"env":{"PGID":100,"PUID":1000,"QBT_TORRENTING_PORT":"55487","TZ":"America/Los_Angeles"},"image":{"imagePullPolicy":"Always","repository":"ghcr.io/hotio/qbittorrent","tag":"latest"},"ingress":{"main":{"annotations":{"cert-manager.io/cluster-issuer":"letsencrypt-production","traefik.ingress.kubernetes.io/router.entrypoints":"websecure"},"enabled":true,"hosts":[{"host":"qbittorrent.xnauts.net","paths":[{"path":"/","pathType":"Prefix"}]}],"tls":[{"hosts":["qbittorrent.xnauts.net"],"secretName":"qbittorrent-tls"}]}},"persistence":{"config":{"enabled":true,"hostPath":"/data/general/config/qbittorrent","mountPath":"/config","type":"hostPath"},"downloads":{"enabled":true,"hostPath":"/data/torrents/qbittorrent","mountPath":"/downloads/qbittorrent","type":"hostPath"}},"podAnnotations":{"container.apparmor.security.beta.kubernetes.io/qbittorrent":"unconfined"},"podSecurityContext":{"fsGroup":100,"fsGroupChangePolicy":"OnRootMismatch","seccompProfile":{"type":"RuntimeDefault"}},"secret":{"WIREGUARD_PRIVATE_KEY":"${MULLVAD_WG_PK}"},"securityContext":{"capabilities":{"drop":["all"]}}}}}
   labels:
     app.kubernetes.io/managed-by: pulumi
   name: qbittorrent
@@ -85,12 +85,13 @@ spec:
     podAnnotations:
       container.apparmor.security.beta.kubernetes.io/qbittorrent: unconfined
     podSecurityContext:
-      capabilities:
-        drop:
-        - all
       fsGroup: 100
       fsGroupChangePolicy: OnRootMismatch
       seccompProfile:
         type: RuntimeDefault
     secret:
       WIREGUARD_PRIVATE_KEY: ${MULLVAD_WG_PK}
+    securityContext:
+      capabilities:
+        drop:
+        - all
