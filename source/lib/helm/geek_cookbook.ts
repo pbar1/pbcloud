@@ -97,6 +97,7 @@ export class GeekCookbookValuesBuilder {
   private supplementalGroups?: Array<number>;
   private additionalContainers?: { [index: string]: any };
   private capabilities?: GeekCookbookValuesCapabilities = {};
+  private podAnnotations?: { [index: string]: string };
 
   private noHostNetwork = true;
   private noIngress = false;
@@ -189,6 +190,11 @@ export class GeekCookbookValuesBuilder {
     return this;
   }
 
+  withPodAnnotations(podAnnotations: { [index: string]: string }) {
+    this.podAnnotations = podAnnotations;
+    return this;
+  }
+
   enableHostNetwork() {
     this.noHostNetwork = false;
     return this;
@@ -247,6 +253,11 @@ export class GeekCookbookValuesBuilder {
       PGID: this.pgid,
       ...this.env,
     };
+    const podAnnotations = {
+      [`container.apparmor.security.beta.kubernetes.io/${this.name}`]:
+        "unconfined",
+      ...this.podAnnotations,
+    };
 
     return {
       image: {
@@ -255,10 +266,7 @@ export class GeekCookbookValuesBuilder {
         imagePullPolicy: this.imagePullPolicy,
       },
       env,
-      podAnnotations: {
-        [`container.apparmor.security.beta.kubernetes.io/${this.name}`]:
-          "unconfined",
-      },
+      podAnnotations,
       podSecurityContext: {
         fsGroup: this.pgid,
         fsGroupChangePolicy: "OnRootMismatch",
