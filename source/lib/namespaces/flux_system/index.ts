@@ -15,6 +15,7 @@ export const HELM_REPOS = {
   jetstack: "https://charts.jetstack.io",
   mvisonneau: "https://charts.visonneau.fr",
   weaveworks: "oci://ghcr.io/weaveworks/charts",
+  "1password": "https://1password.github.io/connect-helm-charts",
 };
 
 export class Namespace extends pbcloud.RenderedKubeNamespace {
