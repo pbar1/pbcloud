@@ -20,7 +20,10 @@ Here is the basic lifecycle of a Kubernetes config:
   makes sense, because they include the `Kustomization` resource needed to
   control this behavior. This could be better.
 - [OpenEBS ZFS][1] K8s StorageClass
+- [This guy][2] is using Calico/BGP/MetalLB to put pods on homenet, for Home
+  Assistant support.
 
 <!-- Links -->
 
 [1]: https://www.reddit.com/r/kubernetes/comments/q7sw24/a_local_maximum_on_bare_metal_k8s_storage_openebs/
+[2]: https://www.technowizardry.net/series/home-lab/
