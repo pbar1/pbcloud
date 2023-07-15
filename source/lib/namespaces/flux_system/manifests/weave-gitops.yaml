@@ -31,3 +31,7 @@ spec:
       - secretName: gitops-tls
         hosts:
         - "gitops.xnauts.net"
+
+    podAnnotations:
+      operator.1password.io/item-name: oidc-auth
+      operator.1password.io/item-path: vaults/pbcloud/items/auth0
