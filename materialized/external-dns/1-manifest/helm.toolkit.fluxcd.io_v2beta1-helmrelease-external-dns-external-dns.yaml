@@ -3,7 +3,7 @@ kind: HelmRelease
 metadata:
   annotations:
     kubectl.kubernetes.io/last-applied-configuration: |
-      {"apiVersion":"helm.toolkit.fluxcd.io/v2beta1","kind":"HelmRelease","metadata":{"labels":{"app.kubernetes.io/managed-by":"pulumi"},"name":"external-dns","namespace":"external-dns"},"spec":{"chart":{"spec":{"chart":"external-dns","reconcileStrategy":"ChartVersion","sourceRef":{"kind":"HelmRepository","name":"external-dns","namespace":"flux-system"},"version":"*"}},"interval":"24h","values":{"env":[{"name":"CF_API_EMAIL","value":"piercebartine@gmail.com"},{"name":"CF_API_KEY","valueFrom":{"secretKeyRef":{"key":"CF_API_KEY","name":"cloudflare-creds"}}}],"logLevel":"debug","provider":"cloudflare"}}}
+      {"apiVersion":"helm.toolkit.fluxcd.io/v2beta1","kind":"HelmRelease","metadata":{"labels":{"app.kubernetes.io/managed-by":"pulumi"},"name":"external-dns","namespace":"external-dns"},"spec":{"chart":{"spec":{"chart":"external-dns","reconcileStrategy":"ChartVersion","sourceRef":{"kind":"HelmRepository","name":"external-dns","namespace":"flux-system"},"version":"*"}},"interval":"24h","values":{"env":[{"name":"CF_API_EMAIL","valueFrom":{"secretKeyRef":{"key":"CF_API_EMAIL","name":"cloudflare-creds"}}},{"name":"CF_API_KEY","valueFrom":{"secretKeyRef":{"key":"CF_API_KEY","name":"cloudflare-creds"}}}],"logLevel":"debug","podAnnotations":{"operator.1password.io/item-name":"cloudflare-creds","operator.1password.io/item-path":"vaults/pbcloud/items/cloudflare"},"provider":"cloudflare"}}}
   labels:
     app.kubernetes.io/managed-by: pulumi
   name: external-dns
@@ -22,11 +22,17 @@ spec:
   values:
     env:
     - name: CF_API_EMAIL
-      value: piercebartine@gmail.com
+      valueFrom:
+        secretKeyRef:
+          key: CF_API_EMAIL
+          name: cloudflare-creds
     - name: CF_API_KEY
       valueFrom:
         secretKeyRef:
           key: CF_API_KEY
           name: cloudflare-creds
     logLevel: debug
+    podAnnotations:
+      operator.1password.io/item-name: cloudflare-creds
+      operator.1password.io/item-path: vaults/pbcloud/items/cloudflare
     provider: cloudflare

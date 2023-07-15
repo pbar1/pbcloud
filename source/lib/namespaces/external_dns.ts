@@ -1,7 +1,6 @@
 import * as fluxcd from "../crds/fluxcd";
 import * as pbcloud from "../pbcloud";
 import * as pulumi from "@pulumi/pulumi";
-import * as k8s from "@pulumi/kubernetes";
 
 export class Namespace extends pbcloud.RenderedKubeNamespace {
   constructor(namespace = "external-dns") {
@@ -25,10 +24,20 @@ export class Namespace extends pbcloud.RenderedKubeNamespace {
         values: {
           logLevel: "debug",
           provider: "cloudflare",
+          podAnnotations: {
+            "operator.1password.io/item-name": "cloudflare-creds",
+            "operator.1password.io/item-path":
+              "vaults/pbcloud/items/cloudflare",
+          },
           env: [
             {
               name: "CF_API_EMAIL",
-              value: "piercebartine@gmail.com",
+              valueFrom: {
+                secretKeyRef: {
+                  name: "cloudflare-creds",
+                  key: "CF_API_EMAIL",
+                },
+              },
             },
             {
               name: "CF_API_KEY",

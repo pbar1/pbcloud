@@ -4,9 +4,6 @@ import * as pbcloud from "../pbcloud";
 import * as k8s from "@pulumi/kubernetes";
 import * as pulumi from "@pulumi/pulumi";
 
-const CF_SECRET_NAME = "cloudflare-creds";
-const CF_API_KEY_ENV_VAR = "CF_API_KEY";
-
 // TODO: CRDs
 
 export class Namespace extends pbcloud.RenderedKubeNamespace {
@@ -42,16 +39,21 @@ export class Namespace extends pbcloud.RenderedKubeNamespace {
           replicaCount: 1,
           podDnsPolicy: "None",
           podDnsConfig: { nameservers: ["1.1.1.1", "9.9.9.9"] },
+          podAnnotations: {
+            "operator.1password.io/item-name": "cloudflare-creds",
+            "operator.1password.io/item-path":
+              "vaults/pbcloud/items/cloudflare",
+          },
         },
       },
     };
     new fluxcd.helm.v2beta1.HelmRelease(chartName, helmReleaseArgs, opts);
 
-    // newClusterIssuer(
-    //   "letsencrypt-production",
-    //   "https://acme-v02.api.letsencrypt.org/directory",
-    //   opts
-    // );
+    newClusterIssuer(
+      "letsencrypt-production",
+      "https://acme-v02.api.letsencrypt.org/directory",
+      opts
+    );
 
     // newClusterIssuer(
     //   "letsencrypt-staging",
@@ -80,8 +82,8 @@ function newClusterIssuer(
               cloudflare: {
                 email,
                 apiKeySecretRef: {
-                  name: CF_SECRET_NAME,
-                  key: CF_API_KEY_ENV_VAR,
+                  name: "cloudflare-creds",
+                  key: "CF_API_KEY",
                 },
               },
             },

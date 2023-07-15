@@ -140,7 +140,6 @@ export class Namespace extends pbcloud.RenderedKubeNamespace {
         { name: "HEALTH_VPN_DURATION_INITIAL", value: "120s" },
       ],
     };
-    // FIXME: secret/qbittorrent with Mullvad wireguard pk needs to be applied manually
     newGkHelmRelease(
       {
         namespace,
