@@ -156,6 +156,11 @@ export class Namespace extends pbcloud.RenderedKubeNamespace {
           })
           .withEnv({ QBT_TORRENTING_PORT: MULLVAD_PORT })
           .withAdditionalContainers({ gluetun: gluetunCtr })
+          .withPodAnnotations({
+            "operator.1password.io/item-name": "qbittorrent",
+            "operator.1password.io/item-path":
+              "vaults/pbcloud/items/qbittorrent",
+          })
           .build(),
       },
       opts
