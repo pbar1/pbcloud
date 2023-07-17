@@ -3,7 +3,7 @@ kind: HelmRelease
 metadata:
   annotations:
     kubectl.kubernetes.io/last-applied-configuration: |
-      {"apiVersion":"helm.toolkit.fluxcd.io/v2beta1","kind":"HelmRelease","metadata":{"labels":{"app.kubernetes.io/managed-by":"pulumi"},"name":"kube-prometheus-stack","namespace":"monitoring"},"spec":{"chart":{"spec":{"chart":"kube-prometheus-stack","reconcileStrategy":"ChartVersion","sourceRef":{"kind":"HelmRepository","name":"prometheus-community","namespace":"flux-system"},"version":"*"}},"interval":"24h","values":{"alertmanager":{"ingress":{"annotations":{"cert-manager.io/cluster-issuer":"letsencrypt-production","traefik.ingress.kubernetes.io/router.entrypoints":"websecure"},"enabled":true,"hosts":["alertmanager.xnauts.net"],"paths":["/"],"tls":[{"hosts":["alertmanager.xnauts.net"],"secretName":"alertmanager-tls"}]}},"grafana":{"adminPassword":"grafana","defaultDashboardsTimezone":"browser","ingress":{"annotations":{"cert-manager.io/cluster-issuer":"letsencrypt-production","traefik.ingress.kubernetes.io/router.entrypoints":"websecure"},"enabled":true,"hosts":["grafana.xnauts.net"],"paths":["/"],"tls":[{"hosts":["grafana.xnauts.net"],"secretName":"grafana-tls"}]},"persistence":{"enabled":true,"storageClassName":"local-path"}},"prometheus":{"ingress":{"annotations":{"cert-manager.io/cluster-issuer":"letsencrypt-production","traefik.ingress.kubernetes.io/router.entrypoints":"websecure"},"enabled":true,"hosts":["prometheus.xnauts.net"],"paths":["/"],"tls":[{"hosts":["prometheus.xnauts.net"],"secretName":"prometheus-tls"}]},"prometheusSpec":{"retention":"30d","storageSpec":{"volumeClaimTemplate":{"spec":{"accessModes":["ReadWriteOnce"],"resources":{"requests":{"storage":"5Gi"}},"storageClassName":"local-path"}}}}}}}}
+      {"apiVersion":"helm.toolkit.fluxcd.io/v2beta1","kind":"HelmRelease","metadata":{"labels":{"app.kubernetes.io/managed-by":"pulumi"},"name":"kube-prometheus-stack","namespace":"monitoring"},"spec":{"chart":{"spec":{"chart":"kube-prometheus-stack","reconcileStrategy":"ChartVersion","sourceRef":{"kind":"HelmRepository","name":"prometheus-community","namespace":"flux-system"},"version":"*"}},"interval":"24h","values":{"alertmanager":{"ingress":{"annotations":{"cert-manager.io/cluster-issuer":"letsencrypt-production","traefik.ingress.kubernetes.io/router.entrypoints":"websecure"},"enabled":true,"hosts":["alertmanager.xnauts.net"],"paths":["/"],"tls":[{"hosts":["alertmanager.xnauts.net"],"secretName":"alertmanager-tls"}]}},"grafana":{"adminPassword":"grafana","defaultDashboardsTimezone":"browser","ingress":{"annotations":{"cert-manager.io/cluster-issuer":"letsencrypt-production","traefik.ingress.kubernetes.io/router.entrypoints":"websecure"},"enabled":true,"hosts":["grafana.xnauts.net"],"paths":["/"],"tls":[{"hosts":["grafana.xnauts.net"],"secretName":"grafana-tls"}]},"persistence":{"enabled":true,"storageClassName":"local-path"}},"prometheus":{"ingress":{"annotations":{"cert-manager.io/cluster-issuer":"letsencrypt-production","traefik.ingress.kubernetes.io/router.entrypoints":"websecure"},"enabled":true,"hosts":["prometheus.xnauts.net"],"paths":["/"],"tls":[{"hosts":["prometheus.xnauts.net"],"secretName":"prometheus-tls"}]},"prometheusSpec":{"additionalScrapeConfigs":[{"job_name":"OpenWrt","static_configs":[{"targets":["192.168.0.1:9100"]}]}],"retention":"30d","storageSpec":{"volumeClaimTemplate":{"spec":{"accessModes":["ReadWriteOnce"],"resources":{"requests":{"storage":"5Gi"}},"storageClassName":"local-path"}}}}}}}}
   labels:
     app.kubernetes.io/managed-by: pulumi
   name: kube-prometheus-stack
@@ -68,6 +68,11 @@ spec:
           - prometheus.xnauts.net
           secretName: prometheus-tls
       prometheusSpec:
+        additionalScrapeConfigs:
+        - job_name: OpenWrt
+          static_configs:
+          - targets:
+            - 192.168.0.1:9100
         retention: 30d
         storageSpec:
           volumeClaimTemplate:

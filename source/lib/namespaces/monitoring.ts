@@ -50,6 +50,13 @@ export class Namespace extends pbcloud.RenderedKubeNamespace {
                   },
                 },
               },
+              additionalScrapeConfigs: [
+                // https://grafana.com/blog/2021/02/09/how-i-monitor-my-openwrt-router-with-grafana-cloud-and-prometheus/
+                {
+                  job_name: "OpenWrt",
+                  static_configs: [{ targets: ["192.168.0.1:9100"] }],
+                },
+              ],
             },
           },
         },
