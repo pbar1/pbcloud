@@ -14,16 +14,8 @@ export class Namespace extends pbcloud.RenderedKubeNamespace {
     // because the latter injects secrets as environment variables, which are
     // visible in cleartext from the K8s API.
     //
-    // Run the following after creating the namespace but before creating the
-    // Helm release:
-    // ```
-    // eval (op signin)
-    // cat ~/Downloads/1password-credentials.json | base64 --wrap=0 > 1password-credentials.json
-    // # For Connect
-    // kubectl create secret generic op-credentials --from-file=1password-credentials.json --namespace=1password
-    // # For operator
-    // kubectl create secret generic onepassword-token --from-literal=token=(op item get '1Password Secrets Automation: pbcloud' --fields=credential) --namespace=1password
-    // ```
+    // Once deployed, run `scripts/1password-init.sh` to give it the requisite
+    // secrets needed for accessing 1Password.
     const opConnectName = "connect";
     const opConnectArgs: fluxcd.helm.v2beta1.HelmReleaseArgs = {
       metadata: { name: opConnectName, namespace },
