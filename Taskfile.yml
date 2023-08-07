@@ -40,3 +40,9 @@ tasks:
     desc: Destroy Pulumi resources
     cmds:
     - pulumi destroy
+
+  1password:init:
+    aliases: ["1p"]
+    desc: Initialize 1Password on cluster
+    cmds:
+    - bash scripts/1password-init.sh
