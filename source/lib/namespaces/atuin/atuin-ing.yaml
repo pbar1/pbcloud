@@ -1,0 +1,28 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-production
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+  labels:
+    app.kubernetes.io/instance: atuin
+    app.kubernetes.io/name: atuin
+  name: atuin
+  namespace: atuin
+spec:
+  ingressClassName: traefik
+  rules:
+  - host: atuin.xnauts.net
+    http:
+      paths:
+      - backend:
+          service:
+            name: atuin
+            port:
+              number: 8888
+        path: /
+        pathType: Prefix
+  tls:
+  - hosts:
+    - atuin.xnauts.net
+    secretName: atuin-tls
