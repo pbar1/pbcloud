@@ -24,6 +24,9 @@ export class Namespace extends pbcloud.RenderedKubeNamespace {
         values: {
           envoy: {
             useHostPort: false,
+            service: {
+              ipFamilyPolicy: "RequireDualStack",
+            },
           },
         },
       },

@@ -16,4 +16,6 @@ spec:
   interval: 24h
   values:
     envoy:
+      service:
+        ipFamilyPolicy: RequireDualStack
       useHostPort: false
