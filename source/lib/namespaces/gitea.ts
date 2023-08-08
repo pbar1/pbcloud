@@ -30,7 +30,7 @@ export class Namespace extends pbcloud.RenderedKubeNamespace {
             enabled: true,
             annotations: {
               "cert-manager.io/cluster-issuer": "letsencrypt-production",
-              "traefik.ingress.kubernetes.io/router.entrypoints": "websecure",
+              "ingress.kubernetes.io/force-ssl-redirect": "true",
             },
             hosts: [
               {

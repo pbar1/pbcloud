@@ -3,14 +3,13 @@ kind: Ingress
 metadata:
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-production
-    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    ingress.kubernetes.io/force-ssl-redirect: "true"
   labels:
     app.kubernetes.io/instance: atuin
     app.kubernetes.io/name: atuin
   name: atuin
   namespace: atuin
 spec:
-  ingressClassName: traefik
   rules:
   - host: atuin.xnauts.net
     http:
