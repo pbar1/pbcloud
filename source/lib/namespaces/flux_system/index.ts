@@ -5,17 +5,18 @@ import * as k8s from "@pulumi/kubernetes";
 import * as path from "path";
 
 export const HELM_REPOS = {
+  "1password": "https://1password.github.io/connect-helm-charts",
   "amd-gpu": "https://radeonopencompute.github.io/k8s-device-plugin",
   "external-dns": "https://kubernetes-sigs.github.io/external-dns",
   "geek-cookbook": "https://geek-cookbook.github.io/charts",
   "prometheus-community": "https://prometheus-community.github.io/helm-charts",
+  bitnami: "https://charts.bitnami.com/bitnami",
   gitea: "https://dl.gitea.io/charts/",
   grafana: "https://grafana.github.io/helm-charts",
   hashicorp: "https://helm.releases.hashicorp.com",
   jetstack: "https://charts.jetstack.io",
   mvisonneau: "https://charts.visonneau.fr",
   weaveworks: "oci://ghcr.io/weaveworks/charts",
-  "1password": "https://1password.github.io/connect-helm-charts",
 };
 
 export class Namespace extends pbcloud.RenderedKubeNamespace {

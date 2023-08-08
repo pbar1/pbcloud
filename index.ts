@@ -1,6 +1,7 @@
 import * as namespaces from "./source/lib/namespaces";
 
 new namespaces.certManager.Namespace();
+new namespaces.contour.Namespace();
 new namespaces.externalDns.Namespace();
 new namespaces.fluxSystem.Namespace();
 new namespaces.gitea.Namespace();
