@@ -22,8 +22,13 @@ Here is the basic lifecycle of a Kubernetes config:
 - [OpenEBS ZFS][1] K8s StorageClass
 - [This guy][2] is using Calico/BGP/MetalLB to put pods on homenet, for Home
   Assistant support.
+- Scope out moving from Auth0 to [Authentik][3]
+- Fix 1Password Connect not bearer token issue
+- IaCify: Atuin, Cloudflare Operator
+- Reinvestigate deploying Knative but with only internal ingress, exposable via CF tunnel
 
 <!-- Links -->
 
 [1]: https://www.reddit.com/r/kubernetes/comments/q7sw24/a_local_maximum_on_bare_metal_k8s_storage_openebs/
 [2]: https://www.technowizardry.net/series/home-lab/
+[3]: https://goauthentik.io/
