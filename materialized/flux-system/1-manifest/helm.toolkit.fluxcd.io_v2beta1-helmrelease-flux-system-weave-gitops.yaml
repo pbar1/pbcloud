@@ -1,11 +1,6 @@
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
-  annotations:
-    kubectl.kubernetes.io/last-applied-configuration: |
-      {"apiVersion":"helm.toolkit.fluxcd.io/v2beta1","kind":"HelmRelease","metadata":{"labels":{"app.kubernetes.io/managed-by":"pulumi"},"name":"weave-gitops","namespace":"flux-system"},"spec":{"chart":{"spec":{"chart":"weave-gitops","sourceRef":{"kind":"HelmRepository","name":"weaveworks"}}},"interval":"24h","values":{"adminUser":{"create":true,"passwordHash":"$2a$10$HPvsbsbVWfB37dHTpL1k0eDlPqWitfmz168cQlI/PWpBLmxyNOKRW","username":"admin"},"ingress":{"annotations":{"cert-manager.io/cluster-issuer":"letsencrypt-production","traefik.ingress.kubernetes.io/router.entrypoints":"websecure"},"enabled":true,"hosts":[{"host":"gitops.xnauts.net","paths":[{"path":"/","pathType":"Prefix"}]}],"tls":[{"hosts":["gitops.xnauts.net"],"secretName":"gitops-tls"}]},"podAnnotations":{"operator.1password.io/item-name":"oidc-auth","operator.1password.io/item-path":"vaults/pbcloud/items/auth0"}}}}
-  labels:
-    app.kubernetes.io/managed-by: pulumi
   name: weave-gitops
   namespace: flux-system
 spec:
@@ -24,7 +19,7 @@ spec:
     ingress:
       annotations:
         cert-manager.io/cluster-issuer: letsencrypt-production
-        traefik.ingress.kubernetes.io/router.entrypoints: websecure
+        ingress.kubernetes.io/force-ssl-redirect: "true"
       enabled: true
       hosts:
       - host: gitops.xnauts.net
