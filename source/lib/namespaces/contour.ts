@@ -24,11 +24,6 @@ export class Namespace extends pbcloud.RenderedKubeNamespace {
         values: {
           envoy: {
             useHostPort: false,
-            // Set Envoy service to NodePort and expose to internet via firewall
-            service: {
-              type: "NodePort",
-              nodePorts: { http: "30438", https: "30439" },
-            },
           },
         },
       },

@@ -16,9 +16,4 @@ spec:
   interval: 24h
   values:
     envoy:
-      service:
-        nodePorts:
-          http: "30438"
-          https: "30439"
-        type: NodePort
       useHostPort: false
