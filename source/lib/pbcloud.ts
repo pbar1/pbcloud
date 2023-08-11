@@ -25,6 +25,7 @@ export class RenderedKubeNamespace extends pulumi.ComponentResource {
     newKustomization(name, renderDir, resourceOpts);
   }
 }
+
 function newKustomization(
   name: string,
   renderDir: string,
@@ -45,4 +46,22 @@ function newKustomization(
   };
 
   return new fluxcd.kustomize.v1beta2.Kustomization(name, args, opts);
+}
+
+export function chart(
+  repo: string,
+  chart: string,
+  sourceRefKind: string = "HelmRepository",
+  sourceRefNamespace: string = "flux-system"
+): fluxcd.types.input.helm.v2beta1.HelmReleaseSpecChartArgs {
+  return {
+    spec: {
+      chart: chart,
+      sourceRef: {
+        kind: sourceRefKind,
+        name: repo,
+        namespace: sourceRefNamespace,
+      },
+    },
+  };
 }

@@ -11,16 +11,7 @@ export class Namespace extends pbcloud.RenderedKubeNamespace {
       metadata: { namespace, name: "contour" },
       spec: {
         interval: "24h",
-        chart: {
-          spec: {
-            chart: "contour",
-            sourceRef: {
-              kind: "HelmRepository",
-              name: "bitnami",
-              namespace: "flux-system",
-            },
-          },
-        },
+        chart: pbcloud.chart("bitnami", "contour"),
         values: {
           envoy: {
             useHostPort: false,
