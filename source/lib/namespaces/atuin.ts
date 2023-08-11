@@ -15,6 +15,11 @@ export class Namespace extends pbcloud.RenderedKubeNamespace {
     const pgSockDir = "/pgsocket";
     const sockMount = { name: "pgsocket", mountPath: pgSockDir };
 
+    // Ship the Atuin server and Postgres together as sidecars in a single pod.
+    // Since we don't really care about scaling the server, we can do this and
+    // not have to worry about managing secrets or exposing the database on the
+    // network; instead it's exposed via a Unix domain socket with blind trust
+    // auth
     const deployArgs: k8s.apps.v1.DeploymentArgs = {
       metadata: { namespace, name, labels },
       spec: {
@@ -29,10 +34,13 @@ export class Namespace extends pbcloud.RenderedKubeNamespace {
                 image: "ghcr.io/atuinsh/atuin:main",
                 args: ["server", "start"],
                 env: [
+                  // Connect to Postgres over Unix domain socket
                   {
                     name: "ATUIN_DB_URI",
                     value: `postgresql:///${pgDatabase}?host=${pgSockDir}`,
                   },
+                  // Unfortunately it seems Atuin requires both host and port
+                  // to be specified explicitly
                   { name: "ATUIN_HOST", value: "0.0.0.0" },
                   { name: "ATUIN_PORT", value: `${atuinPort}` },
                   { name: "ATUIN_OPEN_REGISTRATION", value: "true" },
@@ -44,12 +52,20 @@ export class Namespace extends pbcloud.RenderedKubeNamespace {
                 name: "postgres",
                 image: "postgres:latest",
                 args: [
+                  // Disable listen address so Postgres is only exposed over
+                  // Unix domain socket
                   "-clisten_addresses=",
+                  // Override socket directory to the emptyDir mount so it can
+                  // be shared with the Atuin container
                   `-cunix_socket_directories=${pgSockDir}`,
                 ],
                 env: [
                   { name: "POSTGRES_DB", value: pgDatabase },
+                  // With Unix domain socket, incoming db user will be the
+                  // Unix user
                   { name: "POSTGRES_USER", value: "atuin" },
+                  // Equivalent to no auth, which is fine since we're basically
+                  // using Postgres as SQLite
                   { name: "POSTGRES_HOST_AUTH_METHOD", value: "trust" },
                 ],
                 volumeMounts: [
@@ -78,6 +94,7 @@ export class Namespace extends pbcloud.RenderedKubeNamespace {
       },
     };
 
+    // Expose the Atuin server on the internet via a Cloudflare Tunnel
     const tbArgs: cf.networking.v1alpha1.TunnelBindingArgs = {
       metadata: { namespace, name, labels },
       subjects: [{ name }],
