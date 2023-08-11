@@ -84,7 +84,7 @@ export function helmRelease(
     metadata: { namespace, name },
     spec: {
       interval,
-      chart: helmChart(repo, chart),
+      chart: helmChart(repo, chart, sourceRefKind, sourceRefNamespace),
       values,
     },
   };

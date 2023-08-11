@@ -1,0 +1,15 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    app.kubernetes.io/name: knative-operator
+    app.kubernetes.io/version: 1.11.0
+  name: knative-serving-operator-aggregated-stable
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: knative-serving-operator-aggregated-stable
+subjects:
+- kind: ServiceAccount
+  name: knative-operator
+  namespace: knative-operator

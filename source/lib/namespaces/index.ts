@@ -6,6 +6,7 @@ export * as externalDns from "./external_dns";
 export * as fluxSystem from "./flux_system";
 export * as gitea from "./gitea";
 export * as homeAssistant from "./home_assistant";
+export * as knative from "./knative";
 export * as kubeSystem from "./kube_system";
 export * as media from "./media";
 export * as monitoring from "./monitoring";
