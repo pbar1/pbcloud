@@ -1,3 +1,4 @@
+export * as atuin from "./atuin";
 export * as certManager from "./cert_manager";
 export * as contour from "./contour";
 export * as externalDns from "./external_dns";
