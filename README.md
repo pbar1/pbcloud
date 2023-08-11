@@ -38,6 +38,8 @@ Here is the basic lifecycle of a Kubernetes config:
     disaster recovery bringup. Downsides are that one has to do the initial
     apply of the Flux Kustomization; this is an opportunity for future
     improvement in CD/CD.
+- [Underlying machine config](https://github.com/pbar1/dotfiles/blob/main/nixos-tec/default.nix)
+  is in Nix in a separate repo, currently.
 
 ## TODOs
 
