@@ -14,6 +14,31 @@ configs are committed to version control.
 Here is the basic lifecycle of a Kubernetes config:
 ![pbcloud config flow](assets/config_flow.png)
 
+## Basic Facts
+
+- All live infrastructure code is in [`source/lib/namespaces`](source/lib/namespaces).
+  It's broken down by K8s namespace, and in most cases the namespace is created
+  automatically by the `pbcloud.RenderedKubeNamespace` class.
+  - The exception being if the namespace is created via a raw manifest that we
+    import; while this could be overridden via a Pulumi transformation, we have
+    not looked into that yet.
+- CRDs are imported into Pulumi and useable in TypeScript as modules available
+  under [`source/lib/crds`](source/lib/crds). The import pipelne is a bit
+  convoluted, but any YAML CRD in the [`.import`](source/lib/crds/.import)
+  directory are scrubbed and converted into Pulumi TypeScript modules via the
+  Taskfile target `task crds`.
+  - CRDs in the import directory are committed as well, as they are the source
+    of truth for all the downstream CRD code.
+- Live infra in the [`materialized`](materialized) directory is deployed via
+  `kubectl apply` initially. After this, the Flux `Kustomization` that was
+  created this way keeps the cluster up to date with what's in the repo on a
+  periodic basis.
+  - This allows us to not have to be beholden to Flux when quickly iterating,
+    allowing dual use of Flux and `kubectl apply`. This also helps for
+    disaster recovery bringup. Downsides are that one has to do the initial
+    apply of the Flux Kustomization; this is an opportunity for future
+    improvement in CD/CD.
+
 ## TODOs
 
 - Materialized configs are not initially applied automatically by Flux. This
@@ -23,9 +48,9 @@ Here is the basic lifecycle of a Kubernetes config:
 - [This guy][2] is using Calico/BGP/MetalLB to put pods on homenet, for Home
   Assistant support.
 - Scope out moving from Auth0 to [Authentik][3]
-- Fix 1Password Connect not bearer token issue
-- IaCify: Cloudflare Operator
 - Reinvestigate deploying Knative but with only internal ingress, exposable via CF tunnel
+- Break things up into cells/layers that depend on each other. For example,
+  most things can't be deployed until Flux or 1Password have been installed
 
 <!-- Links -->
 
