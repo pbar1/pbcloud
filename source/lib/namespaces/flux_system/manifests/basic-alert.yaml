@@ -2,6 +2,7 @@ apiVersion: onepassword.com/v1
 kind: OnePasswordItem
 metadata:
   name: discord-url
+  namespace: flux-system
 spec:
   itemPath: vaults/pbcloud/items/discord-flux
 ---
