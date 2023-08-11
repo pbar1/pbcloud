@@ -48,7 +48,7 @@ function newKustomization(
   return new fluxcd.kustomize.v1beta2.Kustomization(name, args, opts);
 }
 
-export function chart(
+export function helmChart(
   repo: string,
   chart: string,
   sourceRefKind: string = "HelmRepository",
@@ -62,6 +62,26 @@ export function chart(
         name: repo,
         namespace: sourceRefNamespace,
       },
+    },
+  };
+}
+
+export function helmRelease(
+  namespace: string,
+  name: string,
+  repo: string,
+  chart: string,
+  values: { [key: string]: any },
+  sourceRefKind: string = "HelmRepository",
+  sourceRefNamespace: string = "flux-system",
+  interval: string = "24h"
+): fluxcd.helm.v2beta1.HelmReleaseArgs {
+  return {
+    metadata: { namespace, name },
+    spec: {
+      interval,
+      chart: helmChart(repo, chart),
+      values,
     },
   };
 }

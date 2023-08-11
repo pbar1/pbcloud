@@ -7,21 +7,22 @@ export class Namespace extends pbcloud.RenderedKubeNamespace {
     super(namespace);
     const opts: pulumi.CustomResourceOptions = { parent: this };
 
-    const helmReleaseArgs: fluxcd.helm.v2beta1.HelmReleaseArgs = {
-      metadata: { namespace, name: "contour" },
-      spec: {
-        interval: "24h",
-        chart: pbcloud.chart("bitnami", "contour"),
-        values: {
-          envoy: {
-            useHostPort: false,
-            service: {
-              ipFamilyPolicy: "RequireDualStack",
-            },
-          },
+    const name = namespace;
+    const values = {
+      envoy: {
+        useHostPort: false,
+        service: {
+          ipFamilyPolicy: "RequireDualStack",
         },
       },
     };
-    new fluxcd.helm.v2beta1.HelmRelease("contour", helmReleaseArgs, opts);
+    const hrArgs = pbcloud.helmRelease(
+      namespace,
+      name,
+      "bitnami",
+      "contour",
+      values
+    );
+    new fluxcd.helm.v2beta1.HelmRelease(name, hrArgs, opts);
   }
 }

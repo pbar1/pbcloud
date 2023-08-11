@@ -17,22 +17,22 @@ export class Namespace extends pbcloud.RenderedKubeNamespace {
     // Once deployed, run `scripts/1password-init.sh` to give it the requisite
     // secrets needed for accessing 1Password.
     const name = "connect";
-    const hrArgs: fluxcd.helm.v2beta1.HelmReleaseArgs = {
-      metadata: { namespace, name },
-      spec: {
-        interval: "24h",
-        chart: pbcloud.chart("1password", "connect"),
-        values: {
-          connect: {
-            serviceType: "ClusterIP",
-          },
-          operator: {
-            create: true,
-            autoRestart: true,
-          },
-        },
+    const values = {
+      connect: {
+        serviceType: "ClusterIP",
+      },
+      operator: {
+        create: true,
+        autoRestart: true,
       },
     };
+    const hrArgs = pbcloud.helmRelease(
+      namespace,
+      name,
+      "1password",
+      "connect",
+      values
+    );
 
     new fluxcd.helm.v2beta1.HelmRelease(name, hrArgs, opts);
   }
