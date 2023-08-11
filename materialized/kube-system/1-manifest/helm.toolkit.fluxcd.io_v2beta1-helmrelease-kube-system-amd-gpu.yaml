@@ -1,11 +1,6 @@
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
-  annotations:
-    kubectl.kubernetes.io/last-applied-configuration: |
-      {"apiVersion":"helm.toolkit.fluxcd.io/v2beta1","kind":"HelmRelease","metadata":{"labels":{"app.kubernetes.io/managed-by":"pulumi"},"name":"amd-gpu","namespace":"kube-system"},"spec":{"chart":{"spec":{"chart":"amd-gpu","reconcileStrategy":"ChartVersion","sourceRef":{"kind":"HelmRepository","name":"amd-gpu","namespace":"flux-system"},"version":"*"}},"interval":"24h","values":{"dp":{"image":{"tag":"1.18.0"}},"labeller":{"enabled":true}}}}
-  labels:
-    app.kubernetes.io/managed-by: pulumi
   name: amd-gpu
   namespace: kube-system
 spec:

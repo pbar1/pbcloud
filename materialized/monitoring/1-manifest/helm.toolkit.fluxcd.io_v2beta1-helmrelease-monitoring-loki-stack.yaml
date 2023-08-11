@@ -1,11 +1,6 @@
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
-  annotations:
-    kubectl.kubernetes.io/last-applied-configuration: |
-      {"apiVersion":"helm.toolkit.fluxcd.io/v2beta1","kind":"HelmRelease","metadata":{"labels":{"app.kubernetes.io/managed-by":"pulumi"},"name":"loki-stack","namespace":"monitoring"},"spec":{"chart":{"spec":{"chart":"loki-stack","reconcileStrategy":"ChartVersion","sourceRef":{"kind":"HelmRepository","name":"grafana","namespace":"flux-system"},"version":"*"}},"interval":"24h","values":{"loki":{"config":{"limits_config":{"retention_period":"168h"}},"persistence":{"accessModes":["ReadWriteOnce"],"enabled":true,"size":"10Gi","storageClassName":"local-path"}},"promtail":{"pipelineStages":[{"cri":{}}]}}}}
-  labels:
-    app.kubernetes.io/managed-by: pulumi
   name: loki-stack
   namespace: monitoring
 spec:

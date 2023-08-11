@@ -1,11 +1,6 @@
 apiVersion: notification.toolkit.fluxcd.io/v1beta1
 kind: Provider
 metadata:
-  annotations:
-    kubectl.kubernetes.io/last-applied-configuration: |
-      {"apiVersion":"notification.toolkit.fluxcd.io/v1beta1","kind":"Provider","metadata":{"labels":{"app.kubernetes.io/managed-by":"pulumi"},"name":"discord","namespace":"flux-system"},"spec":{"channel":"tec-infra","secretRef":{"name":"discord-url"},"type":"discord"}}
-  labels:
-    app.kubernetes.io/managed-by: pulumi
   name: discord
   namespace: flux-system
 spec:

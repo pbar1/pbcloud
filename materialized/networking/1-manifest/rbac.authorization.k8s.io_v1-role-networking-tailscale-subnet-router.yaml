@@ -1,11 +1,6 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  annotations:
-    kubectl.kubernetes.io/last-applied-configuration: |
-      {"apiVersion":"rbac.authorization.k8s.io/v1","kind":"Role","metadata":{"labels":{"app.kubernetes.io/managed-by":"pulumi"},"name":"tailscale-subnet-router","namespace":"networking"},"rules":[{"apiGroups":[""],"resources":["secrets"],"verbs":["create"]},{"apiGroups":[""],"resourceNames":["tailscale-auth"],"resources":["secrets"],"verbs":["get","update","patch"]}]}
-  labels:
-    app.kubernetes.io/managed-by: pulumi
   name: tailscale-subnet-router
   namespace: networking
 rules:

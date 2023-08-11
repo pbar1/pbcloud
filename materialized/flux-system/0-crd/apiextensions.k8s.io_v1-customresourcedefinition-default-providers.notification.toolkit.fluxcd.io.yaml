@@ -6,7 +6,6 @@ metadata:
   labels:
     app.kubernetes.io/component: notification-controller
     app.kubernetes.io/instance: flux-system
-    app.kubernetes.io/managed-by: pulumi
     app.kubernetes.io/part-of: flux
     app.kubernetes.io/version: v0.37.0
   name: providers.notification.toolkit.fluxcd.io
