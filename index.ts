@@ -8,7 +8,7 @@ new namespaces.externalDns.Namespace();
 new namespaces.fluxSystem.Namespace();
 new namespaces.gitea.Namespace();
 new namespaces.homeAssistant.Namespace();
-new namespaces.knative.Namespace();
+new namespaces.knativeOperator.Namespace();
 new namespaces.kubeSystem.Namespace();
 new namespaces.media.Namespace();
 new namespaces.monitoring.Namespace();

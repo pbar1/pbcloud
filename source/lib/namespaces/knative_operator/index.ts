@@ -4,11 +4,15 @@ import * as k8s from "@pulumi/kubernetes";
 import * as path from "path";
 
 // NOTE: Knative has a lot of components; here RenderedKubeNamespace is being
-// used to provision all of the components in their own namespaces, rather than
-// one singular "knative" namespace.
+// used to provision the base `knative-operator` namespace, but there are a few
+// other namespaces that are also created by these manifests:
+// - knative-serving
+// - knative-eventing
+// - contour-internal
+// - contour-external
 export class Namespace extends pbcloud.RenderedKubeNamespace {
-  constructor(namespace = "knative") {
-    super(namespace, false);
+  constructor(namespace = "knative-operator") {
+    super(namespace);
     const opts: pulumi.CustomResourceOptions = { parent: this };
 
     const name = namespace;
