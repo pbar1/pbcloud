@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: atuin
+  name: atuin
+  namespace: atuin
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: atuin
+  template:
+    metadata:
+      labels:
+        app: atuin
+    spec:
+      containers:
+      - args:
+        - server
+        - start
+        env:
+        - name: ATUIN_DB_URI
+          value: postgresql:///postgres?host=/pgsocket
+        - name: ATUIN_HOST
+          value: 0.0.0.0
+        - name: ATUIN_PORT
+          value: "8888"
+        - name: ATUIN_OPEN_REGISTRATION
+          value: "true"
+        image: ghcr.io/atuinsh/atuin:main
+        name: atuin
+        ports:
+        - containerPort: 8888
+        volumeMounts:
+        - mountPath: /pgsocket
+          name: pgsocket
+      - args:
+        - -clisten_addresses=
+        - -cunix_socket_directories=/pgsocket
+        env:
+        - name: POSTGRES_DB
+          value: postgres
+        - name: POSTGRES_USER
+          value: atuin
+        - name: POSTGRES_HOST_AUTH_METHOD
+          value: trust
+        image: postgres:latest
+        name: postgres
+        volumeMounts:
+        - mountPath: /pgsocket
+          name: pgsocket
+        - mountPath: /var/lib/postgresql/data
+          name: database
+      volumes:
+      - emptyDir: {}
+        name: pgsocket
+      - hostPath:
+          path: /zssd/general/atuin-pg
+          type: Directory
+        name: database
