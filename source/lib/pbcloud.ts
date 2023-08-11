@@ -2,6 +2,10 @@ import * as k8s from "@pulumi/kubernetes";
 import * as pulumi from "@pulumi/pulumi";
 import * as fluxcd from "./crds/fluxcd";
 
+export const EMAIL = "piercebartine@gmail.com";
+export const DOMAIN = "xnauts.net";
+export const CF_ACCOUNT_ID = "17d824c0799bab4158f3b78200dc4322";
+
 export class RenderedKubeNamespace extends pulumi.ComponentResource {
   constructor(name: string, createNamespace = true) {
     const type = "pbcloud:RenderedKubeNamespace";

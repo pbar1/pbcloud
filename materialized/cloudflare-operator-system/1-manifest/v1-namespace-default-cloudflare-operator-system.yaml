@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    control-plane: controller-manager
+    kubernetes.io/metadata.name: cloudflare-operator-system
+  name: cloudflare-operator-system
+spec:
+  finalizers:
+  - kubernetes
