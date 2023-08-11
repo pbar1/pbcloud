@@ -24,7 +24,7 @@ Here is the basic lifecycle of a Kubernetes config:
   Assistant support.
 - Scope out moving from Auth0 to [Authentik][3]
 - Fix 1Password Connect not bearer token issue
-- IaCify: Atuin, Cloudflare Operator
+- IaCify: Cloudflare Operator
 - Reinvestigate deploying Knative but with only internal ingress, exposable via CF tunnel
 
 <!-- Links -->
