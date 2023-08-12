@@ -34,8 +34,8 @@ function newKustomization(
   name: string,
   renderDir: string,
   opts: pulumi.CustomResourceOptions
-): fluxcd.kustomize.v1beta2.Kustomization {
-  const args: fluxcd.kustomize.v1beta2.KustomizationArgs = {
+): fluxcd.kustomize.v1.Kustomization {
+  const args: fluxcd.kustomize.v1.KustomizationArgs = {
     metadata: { name, namespace: name },
     spec: {
       interval: "24h",
@@ -49,7 +49,7 @@ function newKustomization(
     },
   };
 
-  return new fluxcd.kustomize.v1beta2.Kustomization(name, args, opts);
+  return new fluxcd.kustomize.v1.Kustomization(name, args, opts);
 }
 
 export function helmChart(

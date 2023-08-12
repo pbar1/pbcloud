@@ -19,6 +19,7 @@ export const HELM_REPOS = {
   weaveworks: "oci://ghcr.io/weaveworks/charts",
 };
 
+// FIXME: NetworkPolicy was blocking Flux from working, deleted them
 export class Namespace extends pbcloud.RenderedKubeNamespace {
   constructor(namespace = "flux-system") {
     super(namespace, false); // TODO: No create namespace with Flux bootstrap resources

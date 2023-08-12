@@ -5,7 +5,7 @@ metadata:
     app.kubernetes.io/component: source-controller
     app.kubernetes.io/instance: flux-system
     app.kubernetes.io/part-of: flux
-    app.kubernetes.io/version: v0.37.0
+    app.kubernetes.io/version: v2.0.1
     control-plane: controller
   name: source-controller
   namespace: flux-system
@@ -40,7 +40,7 @@ spec:
               fieldPath: metadata.namespace
         - name: TUF_ROOT
           value: /tmp/.sigstore
-        image: ghcr.io/fluxcd/source-controller:v0.32.1
+        image: ghcr.io/fluxcd/source-controller:v1.0.1
         imagePullPolicy: IfNotPresent
         livenessProbe:
           httpGet:
@@ -84,6 +84,7 @@ spec:
           name: tmp
       nodeSelector:
         kubernetes.io/os: linux
+      priorityClassName: system-cluster-critical
       securityContext:
         fsGroup: 1337
       serviceAccountName: source-controller

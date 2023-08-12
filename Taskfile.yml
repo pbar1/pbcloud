@@ -13,7 +13,7 @@ tasks:
   sync:
     desc: Sync Flux with this Git repo
     cmds:
-    - ./flux reconcile source git flux-system
+    - lux reconcile source git flux-system
 
   pulumi:crds:
     aliases: ["crds"]

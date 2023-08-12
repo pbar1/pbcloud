@@ -2,12 +2,12 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.8.0
+    controller-gen.kubebuilder.io/version: v0.12.0
   labels:
     app.kubernetes.io/component: source-controller
     app.kubernetes.io/instance: flux-system
     app.kubernetes.io/part-of: flux
-    app.kubernetes.io/version: v0.37.0
+    app.kubernetes.io/version: v2.0.1
   name: helmrepositories.source.toolkit.fluxcd.io
 spec:
   group: source.toolkit.fluxcd.io
@@ -95,7 +95,7 @@ spec:
                 description: The name of the secret containing authentication credentials
                   for the Helm repository. For HTTP/S basic auth the secret must contain
                   username and password fields. For TLS the secret must contain a
-                  certFile and keyFile, and/or caCert fields.
+                  certFile and keyFile, and/or caFile fields.
                 properties:
                   name:
                     description: Name of the referent.
@@ -328,7 +328,7 @@ spec:
                 description: SecretRef specifies the Secret containing authentication
                   credentials for the HelmRepository. For HTTP/S basic auth the secret
                   must contain 'username' and 'password' fields. For TLS the secret
-                  must contain a 'certFile' and 'keyFile', and/or 'caCert' fields.
+                  must contain a 'certFile' and 'keyFile', and/or 'caFile' fields.
                 properties:
                   name:
                     description: Name of the referent.
@@ -371,8 +371,9 @@ spec:
                 description: Artifact represents the last successful HelmRepository
                   reconciliation.
                 properties:
-                  checksum:
-                    description: Checksum is the SHA256 checksum of the Artifact file.
+                  digest:
+                    description: Digest is the digest of the file in the form of '<algorithm>:<checksum>'.
+                    pattern: ^[a-z0-9]+(?:[.+_-][a-z0-9]+)*:[a-zA-Z0-9=_-]+$
                     type: string
                   lastUpdateTime:
                     description: LastUpdateTime is the timestamp corresponding to
@@ -405,7 +406,9 @@ spec:
                       the Artifact contents.
                     type: string
                 required:
+                - lastUpdateTime
                 - path
+                - revision
                 - url
                 type: object
               conditions:

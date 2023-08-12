@@ -22,7 +22,7 @@ export namespace helm {
             /**
              * DependsOn may contain a meta.NamespacedObjectReference slice with references to HelmRelease resources that must be ready before this HelmRelease can be reconciled.
              */
-            dependsOn?: pulumi.Input<pulumi.Input<inputs.helm.v2beta1.HelmReleaseSpecDependsonArgs>[]>;
+            dependsOn?: pulumi.Input<pulumi.Input<inputs.helm.v2beta1.HelmReleaseSpecDependsOnArgs>[]>;
             /**
              * Install holds the configuration for Helm install actions for this HelmRelease.
              */
@@ -34,15 +34,21 @@ export namespace helm {
             /**
              * KubeConfig for reconciling the HelmRelease on a remote cluster. When used in combination with HelmReleaseSpec.ServiceAccountName, forces the controller to act on behalf of that Service Account at the target cluster. If the --default-service-account flag is set, its value will be used as a controller level fallback for when HelmReleaseSpec.ServiceAccountName is empty.
              */
-            kubeConfig?: pulumi.Input<inputs.helm.v2beta1.HelmReleaseSpecKubeconfigArgs>;
+            kubeConfig?: pulumi.Input<inputs.helm.v2beta1.HelmReleaseSpecKubeConfigArgs>;
             /**
              * MaxHistory is the number of revisions saved by Helm for this HelmRelease. Use '0' for an unlimited number of revisions; defaults to '10'.
              */
             maxHistory?: pulumi.Input<number>;
             /**
+             * PersistentClient tells the controller to use a persistent Kubernetes client for this release. When enabled, the client will be reused for the duration of the reconciliation, instead of being created and destroyed for each (step of a) Helm action. 
+             *  This can improve performance, but may cause issues with some Helm charts that for example do create Custom Resource Definitions during installation outside Helm's CRD lifecycle hooks, which are then not observed to be available by e.g. post-install hooks. 
+             *  If not set, it defaults to true.
+             */
+            persistentClient?: pulumi.Input<boolean>;
+            /**
              * PostRenderers holds an array of Helm PostRenderers, which will be applied in order of their definition.
              */
-            postRenderers?: pulumi.Input<pulumi.Input<inputs.helm.v2beta1.HelmReleaseSpecPostrenderersArgs>[]>;
+            postRenderers?: pulumi.Input<pulumi.Input<inputs.helm.v2beta1.HelmReleaseSpecPostRenderersArgs>[]>;
             /**
              * ReleaseName used for the Helm release. Defaults to a composition of '[TargetNamespace-]Name'.
              */
@@ -90,7 +96,7 @@ export namespace helm {
             /**
              * ValuesFrom holds references to resources containing Helm values for this HelmRelease, and information about how they should be merged.
              */
-            valuesFrom?: pulumi.Input<pulumi.Input<inputs.helm.v2beta1.HelmReleaseSpecValuesfromArgs>[]>;
+            valuesFrom?: pulumi.Input<pulumi.Input<inputs.helm.v2beta1.HelmReleaseSpecValuesFromArgs>[]>;
         }
         /**
          * helmReleaseSpecArgsProvideDefaults sets the appropriate defaults for HelmReleaseSpecArgs
@@ -99,6 +105,7 @@ export namespace helm {
             return {
                 ...val,
                 chart: pulumi.output(val.chart).apply(inputs.helm.v2beta1.helmReleaseSpecChartArgsProvideDefaults),
+                uninstall: (val.uninstall ? pulumi.output(val.uninstall).apply(inputs.helm.v2beta1.helmReleaseSpecUninstallArgsProvideDefaults) : undefined),
             };
         }
 
@@ -106,6 +113,10 @@ export namespace helm {
          * Chart defines the template of the v1beta2.HelmChart that should be created for this HelmRelease.
          */
         export interface HelmReleaseSpecChartArgs {
+            /**
+             * ObjectMeta holds the template for metadata like labels and annotations.
+             */
+            metadata?: pulumi.Input<inputs.helm.v2beta1.HelmReleaseSpecChartMetadataArgs>;
             /**
              * Spec holds the template for the v1beta2.HelmChartSpec for this HelmRelease.
              */
@@ -119,6 +130,20 @@ export namespace helm {
                 ...val,
                 spec: pulumi.output(val.spec).apply(inputs.helm.v2beta1.helmReleaseSpecChartSpecArgsProvideDefaults),
             };
+        }
+
+        /**
+         * ObjectMeta holds the template for metadata like labels and annotations.
+         */
+        export interface HelmReleaseSpecChartMetadataArgs {
+            /**
+             * Annotations is an unstructured key value map stored with a resource that may be set by external tools to store and retrieve arbitrary metadata. They are not queryable and should be preserved when modifying objects. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+             */
+            annotations?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+            /**
+             * Map of string keys and values that can be used to organize and categorize (scope and select) objects. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
+             */
+            labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
         }
 
         /**
@@ -140,7 +165,7 @@ export namespace helm {
             /**
              * The name and namespace of the v1beta2.Source the chart is available at.
              */
-            sourceRef: pulumi.Input<inputs.helm.v2beta1.HelmReleaseSpecChartSpecSourcerefArgs>;
+            sourceRef: pulumi.Input<inputs.helm.v2beta1.HelmReleaseSpecChartSpecSourceRefArgs>;
             /**
              * Alternative values file to use as the default chart values, expected to be a relative path in the SourceRef. Deprecated in favor of ValuesFiles, for backwards compatibility the file defined here is merged before the ValuesFiles items. Ignored when omitted.
              */
@@ -173,7 +198,7 @@ export namespace helm {
         /**
          * The name and namespace of the v1beta2.Source the chart is available at.
          */
-        export interface HelmReleaseSpecChartSpecSourcerefArgs {
+        export interface HelmReleaseSpecChartSpecSourceRefArgs {
             /**
              * APIVersion of the referent.
              */
@@ -203,7 +228,7 @@ export namespace helm {
             /**
              * SecretRef specifies the Kubernetes Secret containing the trusted public keys.
              */
-            secretRef?: pulumi.Input<inputs.helm.v2beta1.HelmReleaseSpecChartSpecVerifySecretrefArgs>;
+            secretRef?: pulumi.Input<inputs.helm.v2beta1.HelmReleaseSpecChartSpecVerifySecretRefArgs>;
         }
         /**
          * helmReleaseSpecChartSpecVerifyArgsProvideDefaults sets the appropriate defaults for HelmReleaseSpecChartSpecVerifyArgs
@@ -218,7 +243,7 @@ export namespace helm {
         /**
          * SecretRef specifies the Kubernetes Secret containing the trusted public keys.
          */
-        export interface HelmReleaseSpecChartSpecVerifySecretrefArgs {
+        export interface HelmReleaseSpecChartSpecVerifySecretRefArgs {
             /**
              * Name of the referent.
              */
@@ -228,7 +253,7 @@ export namespace helm {
         /**
          * NamespacedObjectReference contains enough information to locate the referenced Kubernetes resource object in any namespace.
          */
-        export interface HelmReleaseSpecDependsonArgs {
+        export interface HelmReleaseSpecDependsOnArgs {
             /**
              * Name of the referent.
              */
@@ -311,17 +336,17 @@ export namespace helm {
         /**
          * KubeConfig for reconciling the HelmRelease on a remote cluster. When used in combination with HelmReleaseSpec.ServiceAccountName, forces the controller to act on behalf of that Service Account at the target cluster. If the --default-service-account flag is set, its value will be used as a controller level fallback for when HelmReleaseSpec.ServiceAccountName is empty.
          */
-        export interface HelmReleaseSpecKubeconfigArgs {
+        export interface HelmReleaseSpecKubeConfigArgs {
             /**
-             * SecretRef holds the name to a secret that contains a key with the kubeconfig file as the value. If no key is specified the key will default to 'value'. The secret must be in the same namespace as the HelmRelease. It is recommended that the kubeconfig is self-contained, and the secret is regularly updated if credentials such as a cloud-access-token expire. Cloud specific `cmd-path` auth helpers will not function without adding binaries and credentials to the Pod that is responsible for reconciling the HelmRelease.
+             * SecretRef holds the name of a secret that contains a key with the kubeconfig file as the value. If no key is set, the key will default to 'value'. It is recommended that the kubeconfig is self-contained, and the secret is regularly updated if credentials such as a cloud-access-token expire. Cloud specific `cmd-path` auth helpers will not function without adding binaries and credentials to the Pod that is responsible for reconciling Kubernetes resources.
              */
-            secretRef?: pulumi.Input<inputs.helm.v2beta1.HelmReleaseSpecKubeconfigSecretrefArgs>;
+            secretRef: pulumi.Input<inputs.helm.v2beta1.HelmReleaseSpecKubeConfigSecretRefArgs>;
         }
 
         /**
-         * SecretRef holds the name to a secret that contains a key with the kubeconfig file as the value. If no key is specified the key will default to 'value'. The secret must be in the same namespace as the HelmRelease. It is recommended that the kubeconfig is self-contained, and the secret is regularly updated if credentials such as a cloud-access-token expire. Cloud specific `cmd-path` auth helpers will not function without adding binaries and credentials to the Pod that is responsible for reconciling the HelmRelease.
+         * SecretRef holds the name of a secret that contains a key with the kubeconfig file as the value. If no key is set, the key will default to 'value'. It is recommended that the kubeconfig is self-contained, and the secret is regularly updated if credentials such as a cloud-access-token expire. Cloud specific `cmd-path` auth helpers will not function without adding binaries and credentials to the Pod that is responsible for reconciling Kubernetes resources.
          */
-        export interface HelmReleaseSpecKubeconfigSecretrefArgs {
+        export interface HelmReleaseSpecKubeConfigSecretRefArgs {
             /**
              * Key in the Secret, when not specified an implementation-specific default key is used.
              */
@@ -335,29 +360,29 @@ export namespace helm {
         /**
          * PostRenderer contains a Helm PostRenderer specification.
          */
-        export interface HelmReleaseSpecPostrenderersArgs {
+        export interface HelmReleaseSpecPostRenderersArgs {
             /**
              * Kustomization to apply as PostRenderer.
              */
-            kustomize?: pulumi.Input<inputs.helm.v2beta1.HelmReleaseSpecPostrenderersKustomizeArgs>;
+            kustomize?: pulumi.Input<inputs.helm.v2beta1.HelmReleaseSpecPostRenderersKustomizeArgs>;
         }
 
         /**
          * Kustomization to apply as PostRenderer.
          */
-        export interface HelmReleaseSpecPostrenderersKustomizeArgs {
+        export interface HelmReleaseSpecPostRenderersKustomizeArgs {
             /**
              * Images is a list of (image name, new name, new tag or digest) for changing image names, tags or digests. This can also be achieved with a patch, but this operator is simpler to specify.
              */
-            images?: pulumi.Input<pulumi.Input<inputs.helm.v2beta1.HelmReleaseSpecPostrenderersKustomizeImagesArgs>[]>;
+            images?: pulumi.Input<pulumi.Input<inputs.helm.v2beta1.HelmReleaseSpecPostRenderersKustomizeImagesArgs>[]>;
             /**
              * Strategic merge and JSON patches, defined as inline YAML objects, capable of targeting objects based on kind, label and annotation selectors.
              */
-            patches?: pulumi.Input<pulumi.Input<inputs.helm.v2beta1.HelmReleaseSpecPostrenderersKustomizePatchesArgs>[]>;
+            patches?: pulumi.Input<pulumi.Input<inputs.helm.v2beta1.HelmReleaseSpecPostRenderersKustomizePatchesArgs>[]>;
             /**
              * JSON 6902 patches, defined as inline YAML objects.
              */
-            patchesJson6902?: pulumi.Input<pulumi.Input<inputs.helm.v2beta1.HelmReleaseSpecPostrenderersKustomizePatchesjson6902Args>[]>;
+            patchesJson6902?: pulumi.Input<pulumi.Input<inputs.helm.v2beta1.HelmReleaseSpecPostRenderersKustomizePatchesJson6902Args>[]>;
             /**
              * Strategic merge patches, defined as inline YAML objects.
              */
@@ -367,7 +392,7 @@ export namespace helm {
         /**
          * Image contains an image name, a new name, a new tag or digest, which will replace the original name and tag.
          */
-        export interface HelmReleaseSpecPostrenderersKustomizeImagesArgs {
+        export interface HelmReleaseSpecPostRenderersKustomizeImagesArgs {
             /**
              * Digest is the value used to replace the original image tag. If digest is present NewTag value is ignored.
              */
@@ -389,21 +414,57 @@ export namespace helm {
         /**
          * Patch contains an inline StrategicMerge or JSON6902 patch, and the target the patch should be applied to.
          */
-        export interface HelmReleaseSpecPostrenderersKustomizePatchesArgs {
+        export interface HelmReleaseSpecPostRenderersKustomizePatchesArgs {
             /**
              * Patch contains an inline StrategicMerge patch or an inline JSON6902 patch with an array of operation objects.
              */
-            patch?: pulumi.Input<string>;
+            patch: pulumi.Input<string>;
             /**
              * Target points to the resources that the patch document should be applied to.
              */
-            target?: pulumi.Input<inputs.helm.v2beta1.HelmReleaseSpecPostrenderersKustomizePatchesTargetArgs>;
+            target?: pulumi.Input<inputs.helm.v2beta1.HelmReleaseSpecPostRenderersKustomizePatchesTargetArgs>;
+        }
+
+        /**
+         * JSON6902Patch contains a JSON6902 patch and the target the patch should be applied to.
+         */
+        export interface HelmReleaseSpecPostRenderersKustomizePatchesJson6902Args {
+            /**
+             * Patch contains the JSON6902 patch document with an array of operation objects.
+             */
+            patch: pulumi.Input<pulumi.Input<inputs.helm.v2beta1.HelmReleaseSpecPostRenderersKustomizePatchesJson6902PatchArgs>[]>;
+            /**
+             * Target points to the resources that the patch document should be applied to.
+             */
+            target: pulumi.Input<inputs.helm.v2beta1.HelmReleaseSpecPostRenderersKustomizePatchesJson6902TargetArgs>;
+        }
+
+        /**
+         * JSON6902 is a JSON6902 operation object. https://datatracker.ietf.org/doc/html/rfc6902#section-4
+         */
+        export interface HelmReleaseSpecPostRenderersKustomizePatchesJson6902PatchArgs {
+            /**
+             * From contains a JSON-pointer value that references a location within the target document where the operation is performed. The meaning of the value depends on the value of Op, and is NOT taken into account by all operations.
+             */
+            from?: pulumi.Input<string>;
+            /**
+             * Op indicates the operation to perform. Its value MUST be one of "add", "remove", "replace", "move", "copy", or "test". https://datatracker.ietf.org/doc/html/rfc6902#section-4
+             */
+            op: pulumi.Input<string>;
+            /**
+             * Path contains the JSON-pointer value that references a location within the target document where the operation is performed. The meaning of the value depends on the value of Op.
+             */
+            path: pulumi.Input<string>;
+            /**
+             * Value contains a valid JSON structure. The meaning of the value depends on the value of Op, and is NOT taken into account by all operations.
+             */
+            value?: pulumi.Input<{[key: string]: any}>;
         }
 
         /**
          * Target points to the resources that the patch document should be applied to.
          */
-        export interface HelmReleaseSpecPostrenderersKustomizePatchesTargetArgs {
+        export interface HelmReleaseSpecPostRenderersKustomizePatchesJson6902TargetArgs {
             /**
              * AnnotationSelector is a string that follows the label selection expression https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/#api It matches with the resource annotations.
              */
@@ -435,45 +496,9 @@ export namespace helm {
         }
 
         /**
-         * JSON6902Patch contains a JSON6902 patch and the target the patch should be applied to.
-         */
-        export interface HelmReleaseSpecPostrenderersKustomizePatchesjson6902Args {
-            /**
-             * Patch contains the JSON6902 patch document with an array of operation objects.
-             */
-            patch: pulumi.Input<pulumi.Input<inputs.helm.v2beta1.HelmReleaseSpecPostrenderersKustomizePatchesjson6902PatchArgs>[]>;
-            /**
-             * Target points to the resources that the patch document should be applied to.
-             */
-            target: pulumi.Input<inputs.helm.v2beta1.HelmReleaseSpecPostrenderersKustomizePatchesjson6902TargetArgs>;
-        }
-
-        /**
-         * JSON6902 is a JSON6902 operation object. https://datatracker.ietf.org/doc/html/rfc6902#section-4
-         */
-        export interface HelmReleaseSpecPostrenderersKustomizePatchesjson6902PatchArgs {
-            /**
-             * From contains a JSON-pointer value that references a location within the target document where the operation is performed. The meaning of the value depends on the value of Op, and is NOT taken into account by all operations.
-             */
-            from?: pulumi.Input<string>;
-            /**
-             * Op indicates the operation to perform. Its value MUST be one of "add", "remove", "replace", "move", "copy", or "test". https://datatracker.ietf.org/doc/html/rfc6902#section-4
-             */
-            op: pulumi.Input<string>;
-            /**
-             * Path contains the JSON-pointer value that references a location within the target document where the operation is performed. The meaning of the value depends on the value of Op.
-             */
-            path: pulumi.Input<string>;
-            /**
-             * Value contains a valid JSON structure. The meaning of the value depends on the value of Op, and is NOT taken into account by all operations.
-             */
-            value?: pulumi.Input<{[key: string]: any}>;
-        }
-
-        /**
          * Target points to the resources that the patch document should be applied to.
          */
-        export interface HelmReleaseSpecPostrenderersKustomizePatchesjson6902TargetArgs {
+        export interface HelmReleaseSpecPostRenderersKustomizePatchesTargetArgs {
             /**
              * AnnotationSelector is a string that follows the label selection expression https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/#api It matches with the resource annotations.
              */
@@ -561,6 +586,10 @@ export namespace helm {
          */
         export interface HelmReleaseSpecUninstallArgs {
             /**
+             * DeletionPropagation specifies the deletion propagation policy when a Helm uninstall is performed.
+             */
+            deletionPropagation?: pulumi.Input<string>;
+            /**
              * DisableHooks prevents hooks from running during the Helm rollback action.
              */
             disableHooks?: pulumi.Input<boolean>;
@@ -576,6 +605,15 @@ export namespace helm {
              * Timeout is the time to wait for any individual Kubernetes operation (like Jobs for hooks) during the performance of a Helm uninstall action. Defaults to 'HelmReleaseSpec.Timeout'.
              */
             timeout?: pulumi.Input<string>;
+        }
+        /**
+         * helmReleaseSpecUninstallArgsProvideDefaults sets the appropriate defaults for HelmReleaseSpecUninstallArgs
+         */
+        export function helmReleaseSpecUninstallArgsProvideDefaults(val: HelmReleaseSpecUninstallArgs): HelmReleaseSpecUninstallArgs {
+            return {
+                ...val,
+                deletionPropagation: (val.deletionPropagation) ?? "background",
+            };
         }
 
         /**
@@ -653,7 +691,7 @@ export namespace helm {
         /**
          * ValuesReference contains a reference to a resource containing Helm values, and optionally the key they can be found at.
          */
-        export interface HelmReleaseSpecValuesfromArgs {
+        export interface HelmReleaseSpecValuesFromArgs {
             /**
              * Kind of the values referent, valid values are ('Secret', 'ConfigMap').
              */
@@ -761,19 +799,27 @@ export namespace helm {
 }
 
 export namespace kustomize {
-    export namespace v1beta1 {
+    export namespace v1 {
         /**
-         * KustomizationSpec defines the desired state of a kustomization.
+         * KustomizationSpec defines the configuration to calculate the desired state from a Source using Kustomize.
          */
         export interface KustomizationSpecArgs {
             /**
+             * CommonMetadata specifies the common labels and annotations that are applied to all resources. Any existing label or annotation will be overridden if its key matches a common one.
+             */
+            commonMetadata?: pulumi.Input<inputs.kustomize.v1.KustomizationSpecCommonMetadataArgs>;
+            /**
+             * Components specifies relative paths to specifications of other Components.
+             */
+            components?: pulumi.Input<pulumi.Input<string>[]>;
+            /**
              * Decrypt Kubernetes secrets before applying them on the cluster.
              */
-            decryption?: pulumi.Input<inputs.kustomize.v1beta1.KustomizationSpecDecryptionArgs>;
+            decryption?: pulumi.Input<inputs.kustomize.v1.KustomizationSpecDecryptionArgs>;
             /**
              * DependsOn may contain a meta.NamespacedObjectReference slice with references to Kustomization resources that must be ready before this Kustomization can be reconciled.
              */
-            dependsOn?: pulumi.Input<pulumi.Input<inputs.kustomize.v1beta1.KustomizationSpecDependsonArgs>[]>;
+            dependsOn?: pulumi.Input<pulumi.Input<inputs.kustomize.v1.KustomizationSpecDependsOnArgs>[]>;
             /**
              * Force instructs the controller to recreate resources when patching fails due to an immutable field change.
              */
@@ -781,31 +827,23 @@ export namespace kustomize {
             /**
              * A list of resources to be included in the health assessment.
              */
-            healthChecks?: pulumi.Input<pulumi.Input<inputs.kustomize.v1beta1.KustomizationSpecHealthchecksArgs>[]>;
+            healthChecks?: pulumi.Input<pulumi.Input<inputs.kustomize.v1.KustomizationSpecHealthChecksArgs>[]>;
             /**
              * Images is a list of (image name, new name, new tag or digest) for changing image names, tags or digests. This can also be achieved with a patch, but this operator is simpler to specify.
              */
-            images?: pulumi.Input<pulumi.Input<inputs.kustomize.v1beta1.KustomizationSpecImagesArgs>[]>;
+            images?: pulumi.Input<pulumi.Input<inputs.kustomize.v1.KustomizationSpecImagesArgs>[]>;
             /**
              * The interval at which to reconcile the Kustomization.
              */
             interval: pulumi.Input<string>;
             /**
-             * The KubeConfig for reconciling the Kustomization on a remote cluster. When specified, KubeConfig takes precedence over ServiceAccountName.
+             * The KubeConfig for reconciling the Kustomization on a remote cluster. When used in combination with KustomizationSpec.ServiceAccountName, forces the controller to act on behalf of that Service Account at the target cluster. If the --default-service-account flag is set, its value will be used as a controller level fallback for when KustomizationSpec.ServiceAccountName is empty.
              */
-            kubeConfig?: pulumi.Input<inputs.kustomize.v1beta1.KustomizationSpecKubeconfigArgs>;
+            kubeConfig?: pulumi.Input<inputs.kustomize.v1.KustomizationSpecKubeConfigArgs>;
             /**
              * Strategic merge and JSON patches, defined as inline YAML objects, capable of targeting objects based on kind, label and annotation selectors.
              */
-            patches?: pulumi.Input<pulumi.Input<inputs.kustomize.v1beta1.KustomizationSpecPatchesArgs>[]>;
-            /**
-             * JSON 6902 patches, defined as inline YAML objects.
-             */
-            patchesJson6902?: pulumi.Input<pulumi.Input<inputs.kustomize.v1beta1.KustomizationSpecPatchesjson6902Args>[]>;
-            /**
-             * Strategic merge patches, defined as inline YAML objects.
-             */
-            patchesStrategicMerge?: pulumi.Input<pulumi.Input<{[key: string]: any}>[]>;
+            patches?: pulumi.Input<pulumi.Input<inputs.kustomize.v1.KustomizationSpecPatchesArgs>[]>;
             /**
              * Path to the directory containing the kustomization.yaml file, or the set of plain YAMLs a kustomization.yaml should be generated for. Defaults to 'None', which translates to the root path of the SourceRef.
              */
@@ -813,7 +851,7 @@ export namespace kustomize {
             /**
              * PostBuild describes which actions to perform on the YAML manifest generated by building the kustomize overlay.
              */
-            postBuild?: pulumi.Input<inputs.kustomize.v1beta1.KustomizationSpecPostbuildArgs>;
+            postBuild?: pulumi.Input<inputs.kustomize.v1.KustomizationSpecPostBuildArgs>;
             /**
              * Prune enables garbage collection.
              */
@@ -829,7 +867,418 @@ export namespace kustomize {
             /**
              * Reference of the source where the kustomization file is.
              */
-            sourceRef: pulumi.Input<inputs.kustomize.v1beta1.KustomizationSpecSourcerefArgs>;
+            sourceRef: pulumi.Input<inputs.kustomize.v1.KustomizationSpecSourceRefArgs>;
+            /**
+             * This flag tells the controller to suspend subsequent kustomize executions, it does not apply to already started executions. Defaults to false.
+             */
+            suspend?: pulumi.Input<boolean>;
+            /**
+             * TargetNamespace sets or overrides the namespace in the kustomization.yaml file.
+             */
+            targetNamespace?: pulumi.Input<string>;
+            /**
+             * Timeout for validation, apply and health checking operations. Defaults to 'Interval' duration.
+             */
+            timeout?: pulumi.Input<string>;
+            /**
+             * Wait instructs the controller to check the health of all the reconciled resources. When enabled, the HealthChecks are ignored. Defaults to false.
+             */
+            wait?: pulumi.Input<boolean>;
+        }
+        /**
+         * kustomizationSpecArgsProvideDefaults sets the appropriate defaults for KustomizationSpecArgs
+         */
+        export function kustomizationSpecArgsProvideDefaults(val: KustomizationSpecArgs): KustomizationSpecArgs {
+            return {
+                ...val,
+                force: (val.force) ?? false,
+            };
+        }
+
+        /**
+         * CommonMetadata specifies the common labels and annotations that are applied to all resources. Any existing label or annotation will be overridden if its key matches a common one.
+         */
+        export interface KustomizationSpecCommonMetadataArgs {
+            /**
+             * Annotations to be added to the object's metadata.
+             */
+            annotations?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+            /**
+             * Labels to be added to the object's metadata.
+             */
+            labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+        }
+
+        /**
+         * Decrypt Kubernetes secrets before applying them on the cluster.
+         */
+        export interface KustomizationSpecDecryptionArgs {
+            /**
+             * Provider is the name of the decryption engine.
+             */
+            provider: pulumi.Input<string>;
+            /**
+             * The secret name containing the private OpenPGP keys used for decryption.
+             */
+            secretRef?: pulumi.Input<inputs.kustomize.v1.KustomizationSpecDecryptionSecretRefArgs>;
+        }
+
+        /**
+         * The secret name containing the private OpenPGP keys used for decryption.
+         */
+        export interface KustomizationSpecDecryptionSecretRefArgs {
+            /**
+             * Name of the referent.
+             */
+            name: pulumi.Input<string>;
+        }
+
+        /**
+         * NamespacedObjectReference contains enough information to locate the referenced Kubernetes resource object in any namespace.
+         */
+        export interface KustomizationSpecDependsOnArgs {
+            /**
+             * Name of the referent.
+             */
+            name: pulumi.Input<string>;
+            /**
+             * Namespace of the referent, when not specified it acts as LocalObjectReference.
+             */
+            namespace?: pulumi.Input<string>;
+        }
+
+        /**
+         * NamespacedObjectKindReference contains enough information to locate the typed referenced Kubernetes resource object in any namespace.
+         */
+        export interface KustomizationSpecHealthChecksArgs {
+            /**
+             * API version of the referent, if not specified the Kubernetes preferred version will be used.
+             */
+            apiVersion?: pulumi.Input<string>;
+            /**
+             * Kind of the referent.
+             */
+            kind: pulumi.Input<string>;
+            /**
+             * Name of the referent.
+             */
+            name: pulumi.Input<string>;
+            /**
+             * Namespace of the referent, when not specified it acts as LocalObjectReference.
+             */
+            namespace?: pulumi.Input<string>;
+        }
+
+        /**
+         * Image contains an image name, a new name, a new tag or digest, which will replace the original name and tag.
+         */
+        export interface KustomizationSpecImagesArgs {
+            /**
+             * Digest is the value used to replace the original image tag. If digest is present NewTag value is ignored.
+             */
+            digest?: pulumi.Input<string>;
+            /**
+             * Name is a tag-less image name.
+             */
+            name: pulumi.Input<string>;
+            /**
+             * NewName is the value used to replace the original name.
+             */
+            newName?: pulumi.Input<string>;
+            /**
+             * NewTag is the value used to replace the original tag.
+             */
+            newTag?: pulumi.Input<string>;
+        }
+
+        /**
+         * The KubeConfig for reconciling the Kustomization on a remote cluster. When used in combination with KustomizationSpec.ServiceAccountName, forces the controller to act on behalf of that Service Account at the target cluster. If the --default-service-account flag is set, its value will be used as a controller level fallback for when KustomizationSpec.ServiceAccountName is empty.
+         */
+        export interface KustomizationSpecKubeConfigArgs {
+            /**
+             * SecretRef holds the name of a secret that contains a key with the kubeconfig file as the value. If no key is set, the key will default to 'value'. It is recommended that the kubeconfig is self-contained, and the secret is regularly updated if credentials such as a cloud-access-token expire. Cloud specific `cmd-path` auth helpers will not function without adding binaries and credentials to the Pod that is responsible for reconciling Kubernetes resources.
+             */
+            secretRef: pulumi.Input<inputs.kustomize.v1.KustomizationSpecKubeConfigSecretRefArgs>;
+        }
+
+        /**
+         * SecretRef holds the name of a secret that contains a key with the kubeconfig file as the value. If no key is set, the key will default to 'value'. It is recommended that the kubeconfig is self-contained, and the secret is regularly updated if credentials such as a cloud-access-token expire. Cloud specific `cmd-path` auth helpers will not function without adding binaries and credentials to the Pod that is responsible for reconciling Kubernetes resources.
+         */
+        export interface KustomizationSpecKubeConfigSecretRefArgs {
+            /**
+             * Key in the Secret, when not specified an implementation-specific default key is used.
+             */
+            key?: pulumi.Input<string>;
+            /**
+             * Name of the Secret.
+             */
+            name: pulumi.Input<string>;
+        }
+
+        /**
+         * Patch contains an inline StrategicMerge or JSON6902 patch, and the target the patch should be applied to.
+         */
+        export interface KustomizationSpecPatchesArgs {
+            /**
+             * Patch contains an inline StrategicMerge patch or an inline JSON6902 patch with an array of operation objects.
+             */
+            patch: pulumi.Input<string>;
+            /**
+             * Target points to the resources that the patch document should be applied to.
+             */
+            target?: pulumi.Input<inputs.kustomize.v1.KustomizationSpecPatchesTargetArgs>;
+        }
+
+        /**
+         * Target points to the resources that the patch document should be applied to.
+         */
+        export interface KustomizationSpecPatchesTargetArgs {
+            /**
+             * AnnotationSelector is a string that follows the label selection expression https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/#api It matches with the resource annotations.
+             */
+            annotationSelector?: pulumi.Input<string>;
+            /**
+             * Group is the API group to select resources from. Together with Version and Kind it is capable of unambiguously identifying and/or selecting resources. https://github.com/kubernetes/community/blob/master/contributors/design-proposals/api-machinery/api-group.md
+             */
+            group?: pulumi.Input<string>;
+            /**
+             * Kind of the API Group to select resources from. Together with Group and Version it is capable of unambiguously identifying and/or selecting resources. https://github.com/kubernetes/community/blob/master/contributors/design-proposals/api-machinery/api-group.md
+             */
+            kind?: pulumi.Input<string>;
+            /**
+             * LabelSelector is a string that follows the label selection expression https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/#api It matches with the resource labels.
+             */
+            labelSelector?: pulumi.Input<string>;
+            /**
+             * Name to match resources with.
+             */
+            name?: pulumi.Input<string>;
+            /**
+             * Namespace to select resources from.
+             */
+            namespace?: pulumi.Input<string>;
+            /**
+             * Version of the API Group to select resources from. Together with Group and Kind it is capable of unambiguously identifying and/or selecting resources. https://github.com/kubernetes/community/blob/master/contributors/design-proposals/api-machinery/api-group.md
+             */
+            version?: pulumi.Input<string>;
+        }
+
+        /**
+         * PostBuild describes which actions to perform on the YAML manifest generated by building the kustomize overlay.
+         */
+        export interface KustomizationSpecPostBuildArgs {
+            /**
+             * Substitute holds a map of key/value pairs. The variables defined in your YAML manifests that match any of the keys defined in the map will be substituted with the set value. Includes support for bash string replacement functions e.g. ${var:=default}, ${var:position} and ${var/substring/replacement}.
+             */
+            substitute?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+            /**
+             * SubstituteFrom holds references to ConfigMaps and Secrets containing the variables and their values to be substituted in the YAML manifests. The ConfigMap and the Secret data keys represent the var names, and they must match the vars declared in the manifests for the substitution to happen.
+             */
+            substituteFrom?: pulumi.Input<pulumi.Input<inputs.kustomize.v1.KustomizationSpecPostBuildSubstituteFromArgs>[]>;
+        }
+
+        /**
+         * SubstituteReference contains a reference to a resource containing the variables name and value.
+         */
+        export interface KustomizationSpecPostBuildSubstituteFromArgs {
+            /**
+             * Kind of the values referent, valid values are ('Secret', 'ConfigMap').
+             */
+            kind: pulumi.Input<string>;
+            /**
+             * Name of the values referent. Should reside in the same namespace as the referring resource.
+             */
+            name: pulumi.Input<string>;
+            /**
+             * Optional indicates whether the referenced resource must exist, or whether to tolerate its absence. If true and the referenced resource is absent, proceed as if the resource was present but empty, without any variables defined.
+             */
+            optional?: pulumi.Input<boolean>;
+        }
+        /**
+         * kustomizationSpecPostBuildSubstituteFromArgsProvideDefaults sets the appropriate defaults for KustomizationSpecPostBuildSubstituteFromArgs
+         */
+        export function kustomizationSpecPostBuildSubstituteFromArgsProvideDefaults(val: KustomizationSpecPostBuildSubstituteFromArgs): KustomizationSpecPostBuildSubstituteFromArgs {
+            return {
+                ...val,
+                optional: (val.optional) ?? false,
+            };
+        }
+
+        /**
+         * Reference of the source where the kustomization file is.
+         */
+        export interface KustomizationSpecSourceRefArgs {
+            /**
+             * API version of the referent.
+             */
+            apiVersion?: pulumi.Input<string>;
+            /**
+             * Kind of the referent.
+             */
+            kind: pulumi.Input<string>;
+            /**
+             * Name of the referent.
+             */
+            name: pulumi.Input<string>;
+            /**
+             * Namespace of the referent, defaults to the namespace of the Kubernetes resource object that contains the reference.
+             */
+            namespace?: pulumi.Input<string>;
+        }
+
+        /**
+         * KustomizationStatus defines the observed state of a kustomization.
+         */
+        export interface KustomizationStatusArgs {
+            conditions?: pulumi.Input<pulumi.Input<inputs.kustomize.v1.KustomizationStatusConditionsArgs>[]>;
+            /**
+             * Inventory contains the list of Kubernetes resource object references that have been successfully applied.
+             */
+            inventory?: pulumi.Input<inputs.kustomize.v1.KustomizationStatusInventoryArgs>;
+            /**
+             * The last successfully applied revision. Equals the Revision of the applied Artifact from the referenced Source.
+             */
+            lastAppliedRevision?: pulumi.Input<string>;
+            /**
+             * LastAttemptedRevision is the revision of the last reconciliation attempt.
+             */
+            lastAttemptedRevision?: pulumi.Input<string>;
+            /**
+             * LastHandledReconcileAt holds the value of the most recent reconcile request value, so a change of the annotation value can be detected.
+             */
+            lastHandledReconcileAt?: pulumi.Input<string>;
+            /**
+             * ObservedGeneration is the last reconciled generation.
+             */
+            observedGeneration?: pulumi.Input<number>;
+        }
+
+        /**
+         * Condition contains details for one aspect of the current state of this API Resource. --- This struct is intended for direct use as an array at the field path .status.conditions.  For example, 
+         *  type FooStatus struct{ // Represents the observations of a foo's current state. // Known .status.conditions.type are: "Available", "Progressing", and "Degraded" // +patchMergeKey=type // +patchStrategy=merge // +listType=map // +listMapKey=type Conditions []metav1.Condition `json:"conditions,omitempty" patchStrategy:"merge" patchMergeKey:"type" protobuf:"bytes,1,rep,name=conditions"` 
+         *  // other fields }
+         */
+        export interface KustomizationStatusConditionsArgs {
+            /**
+             * lastTransitionTime is the last time the condition transitioned from one status to another. This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+             */
+            lastTransitionTime: pulumi.Input<string>;
+            /**
+             * message is a human readable message indicating details about the transition. This may be an empty string.
+             */
+            message: pulumi.Input<string>;
+            /**
+             * observedGeneration represents the .metadata.generation that the condition was set based upon. For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date with respect to the current state of the instance.
+             */
+            observedGeneration?: pulumi.Input<number>;
+            /**
+             * reason contains a programmatic identifier indicating the reason for the condition's last transition. Producers of specific condition types may define expected values and meanings for this field, and whether the values are considered a guaranteed API. The value should be a CamelCase string. This field may not be empty.
+             */
+            reason: pulumi.Input<string>;
+            /**
+             * status of the condition, one of True, False, Unknown.
+             */
+            status: pulumi.Input<string>;
+            /**
+             * type of condition in CamelCase or in foo.example.com/CamelCase. --- Many .condition.type values are consistent across resources like Available, but because arbitrary conditions can be useful (see .node.status.conditions), the ability to deconflict is important. The regex it matches is (dns1123SubdomainFmt/)?(qualifiedNameFmt)
+             */
+            type: pulumi.Input<string>;
+        }
+
+        /**
+         * Inventory contains the list of Kubernetes resource object references that have been successfully applied.
+         */
+        export interface KustomizationStatusInventoryArgs {
+            /**
+             * Entries of Kubernetes resource object references.
+             */
+            entries: pulumi.Input<pulumi.Input<inputs.kustomize.v1.KustomizationStatusInventoryEntriesArgs>[]>;
+        }
+
+        /**
+         * ResourceRef contains the information necessary to locate a resource within a cluster.
+         */
+        export interface KustomizationStatusInventoryEntriesArgs {
+            /**
+             * ID is the string representation of the Kubernetes resource object's metadata, in the format '<namespace>_<name>_<group>_<kind>'.
+             */
+            id: pulumi.Input<string>;
+            /**
+             * Version is the API version of the Kubernetes resource object's kind.
+             */
+            v: pulumi.Input<string>;
+        }
+    }
+
+    export namespace v1beta1 {
+        /**
+         * KustomizationSpec defines the desired state of a kustomization.
+         */
+        export interface KustomizationSpecArgs {
+            /**
+             * Decrypt Kubernetes secrets before applying them on the cluster.
+             */
+            decryption?: pulumi.Input<inputs.kustomize.v1beta1.KustomizationSpecDecryptionArgs>;
+            /**
+             * DependsOn may contain a meta.NamespacedObjectReference slice with references to Kustomization resources that must be ready before this Kustomization can be reconciled.
+             */
+            dependsOn?: pulumi.Input<pulumi.Input<inputs.kustomize.v1beta1.KustomizationSpecDependsOnArgs>[]>;
+            /**
+             * Force instructs the controller to recreate resources when patching fails due to an immutable field change.
+             */
+            force?: pulumi.Input<boolean>;
+            /**
+             * A list of resources to be included in the health assessment.
+             */
+            healthChecks?: pulumi.Input<pulumi.Input<inputs.kustomize.v1beta1.KustomizationSpecHealthChecksArgs>[]>;
+            /**
+             * Images is a list of (image name, new name, new tag or digest) for changing image names, tags or digests. This can also be achieved with a patch, but this operator is simpler to specify.
+             */
+            images?: pulumi.Input<pulumi.Input<inputs.kustomize.v1beta1.KustomizationSpecImagesArgs>[]>;
+            /**
+             * The interval at which to reconcile the Kustomization.
+             */
+            interval: pulumi.Input<string>;
+            /**
+             * The KubeConfig for reconciling the Kustomization on a remote cluster. When specified, KubeConfig takes precedence over ServiceAccountName.
+             */
+            kubeConfig?: pulumi.Input<inputs.kustomize.v1beta1.KustomizationSpecKubeConfigArgs>;
+            /**
+             * Strategic merge and JSON patches, defined as inline YAML objects, capable of targeting objects based on kind, label and annotation selectors.
+             */
+            patches?: pulumi.Input<pulumi.Input<inputs.kustomize.v1beta1.KustomizationSpecPatchesArgs>[]>;
+            /**
+             * JSON 6902 patches, defined as inline YAML objects.
+             */
+            patchesJson6902?: pulumi.Input<pulumi.Input<inputs.kustomize.v1beta1.KustomizationSpecPatchesJson6902Args>[]>;
+            /**
+             * Strategic merge patches, defined as inline YAML objects.
+             */
+            patchesStrategicMerge?: pulumi.Input<pulumi.Input<{[key: string]: any}>[]>;
+            /**
+             * Path to the directory containing the kustomization.yaml file, or the set of plain YAMLs a kustomization.yaml should be generated for. Defaults to 'None', which translates to the root path of the SourceRef.
+             */
+            path?: pulumi.Input<string>;
+            /**
+             * PostBuild describes which actions to perform on the YAML manifest generated by building the kustomize overlay.
+             */
+            postBuild?: pulumi.Input<inputs.kustomize.v1beta1.KustomizationSpecPostBuildArgs>;
+            /**
+             * Prune enables garbage collection.
+             */
+            prune: pulumi.Input<boolean>;
+            /**
+             * The interval at which to retry a previously failed reconciliation. When not specified, the controller uses the KustomizationSpec.Interval value to retry failures.
+             */
+            retryInterval?: pulumi.Input<string>;
+            /**
+             * The name of the Kubernetes service account to impersonate when reconciling this Kustomization.
+             */
+            serviceAccountName?: pulumi.Input<string>;
+            /**
+             * Reference of the source where the kustomization file is.
+             */
+            sourceRef: pulumi.Input<inputs.kustomize.v1beta1.KustomizationSpecSourceRefArgs>;
             /**
              * This flag tells the controller to suspend subsequent kustomize executions, it does not apply to already started executions. Defaults to false.
              */
@@ -868,13 +1317,13 @@ export namespace kustomize {
             /**
              * The secret name containing the private OpenPGP keys used for decryption.
              */
-            secretRef?: pulumi.Input<inputs.kustomize.v1beta1.KustomizationSpecDecryptionSecretrefArgs>;
+            secretRef?: pulumi.Input<inputs.kustomize.v1beta1.KustomizationSpecDecryptionSecretRefArgs>;
         }
 
         /**
          * The secret name containing the private OpenPGP keys used for decryption.
          */
-        export interface KustomizationSpecDecryptionSecretrefArgs {
+        export interface KustomizationSpecDecryptionSecretRefArgs {
             /**
              * Name of the referent.
              */
@@ -884,7 +1333,7 @@ export namespace kustomize {
         /**
          * NamespacedObjectReference contains enough information to locate the referenced Kubernetes resource object in any namespace.
          */
-        export interface KustomizationSpecDependsonArgs {
+        export interface KustomizationSpecDependsOnArgs {
             /**
              * Name of the referent.
              */
@@ -898,7 +1347,7 @@ export namespace kustomize {
         /**
          * NamespacedObjectKindReference contains enough information to locate the typed referenced Kubernetes resource object in any namespace.
          */
-        export interface KustomizationSpecHealthchecksArgs {
+        export interface KustomizationSpecHealthChecksArgs {
             /**
              * API version of the referent, if not specified the Kubernetes preferred version will be used.
              */
@@ -942,17 +1391,17 @@ export namespace kustomize {
         /**
          * The KubeConfig for reconciling the Kustomization on a remote cluster. When specified, KubeConfig takes precedence over ServiceAccountName.
          */
-        export interface KustomizationSpecKubeconfigArgs {
+        export interface KustomizationSpecKubeConfigArgs {
             /**
              * SecretRef holds the name to a secret that contains a 'value' key with the kubeconfig file as the value. It must be in the same namespace as the Kustomization. It is recommended that the kubeconfig is self-contained, and the secret is regularly updated if credentials such as a cloud-access-token expire. Cloud specific `cmd-path` auth helpers will not function without adding binaries and credentials to the Pod that is responsible for reconciling the Kustomization.
              */
-            secretRef?: pulumi.Input<inputs.kustomize.v1beta1.KustomizationSpecKubeconfigSecretrefArgs>;
+            secretRef?: pulumi.Input<inputs.kustomize.v1beta1.KustomizationSpecKubeConfigSecretRefArgs>;
         }
 
         /**
          * SecretRef holds the name to a secret that contains a 'value' key with the kubeconfig file as the value. It must be in the same namespace as the Kustomization. It is recommended that the kubeconfig is self-contained, and the secret is regularly updated if credentials such as a cloud-access-token expire. Cloud specific `cmd-path` auth helpers will not function without adding binaries and credentials to the Pod that is responsible for reconciling the Kustomization.
          */
-        export interface KustomizationSpecKubeconfigSecretrefArgs {
+        export interface KustomizationSpecKubeConfigSecretRefArgs {
             /**
              * Name of the referent.
              */
@@ -966,11 +1415,81 @@ export namespace kustomize {
             /**
              * Patch contains an inline StrategicMerge patch or an inline JSON6902 patch with an array of operation objects.
              */
-            patch?: pulumi.Input<string>;
+            patch: pulumi.Input<string>;
             /**
              * Target points to the resources that the patch document should be applied to.
              */
             target?: pulumi.Input<inputs.kustomize.v1beta1.KustomizationSpecPatchesTargetArgs>;
+        }
+
+        /**
+         * JSON6902Patch contains a JSON6902 patch and the target the patch should be applied to.
+         */
+        export interface KustomizationSpecPatchesJson6902Args {
+            /**
+             * Patch contains the JSON6902 patch document with an array of operation objects.
+             */
+            patch: pulumi.Input<pulumi.Input<inputs.kustomize.v1beta1.KustomizationSpecPatchesJson6902PatchArgs>[]>;
+            /**
+             * Target points to the resources that the patch document should be applied to.
+             */
+            target: pulumi.Input<inputs.kustomize.v1beta1.KustomizationSpecPatchesJson6902TargetArgs>;
+        }
+
+        /**
+         * JSON6902 is a JSON6902 operation object. https://datatracker.ietf.org/doc/html/rfc6902#section-4
+         */
+        export interface KustomizationSpecPatchesJson6902PatchArgs {
+            /**
+             * From contains a JSON-pointer value that references a location within the target document where the operation is performed. The meaning of the value depends on the value of Op, and is NOT taken into account by all operations.
+             */
+            from?: pulumi.Input<string>;
+            /**
+             * Op indicates the operation to perform. Its value MUST be one of "add", "remove", "replace", "move", "copy", or "test". https://datatracker.ietf.org/doc/html/rfc6902#section-4
+             */
+            op: pulumi.Input<string>;
+            /**
+             * Path contains the JSON-pointer value that references a location within the target document where the operation is performed. The meaning of the value depends on the value of Op.
+             */
+            path: pulumi.Input<string>;
+            /**
+             * Value contains a valid JSON structure. The meaning of the value depends on the value of Op, and is NOT taken into account by all operations.
+             */
+            value?: pulumi.Input<{[key: string]: any}>;
+        }
+
+        /**
+         * Target points to the resources that the patch document should be applied to.
+         */
+        export interface KustomizationSpecPatchesJson6902TargetArgs {
+            /**
+             * AnnotationSelector is a string that follows the label selection expression https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/#api It matches with the resource annotations.
+             */
+            annotationSelector?: pulumi.Input<string>;
+            /**
+             * Group is the API group to select resources from. Together with Version and Kind it is capable of unambiguously identifying and/or selecting resources. https://github.com/kubernetes/community/blob/master/contributors/design-proposals/api-machinery/api-group.md
+             */
+            group?: pulumi.Input<string>;
+            /**
+             * Kind of the API Group to select resources from. Together with Group and Version it is capable of unambiguously identifying and/or selecting resources. https://github.com/kubernetes/community/blob/master/contributors/design-proposals/api-machinery/api-group.md
+             */
+            kind?: pulumi.Input<string>;
+            /**
+             * LabelSelector is a string that follows the label selection expression https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/#api It matches with the resource labels.
+             */
+            labelSelector?: pulumi.Input<string>;
+            /**
+             * Name to match resources with.
+             */
+            name?: pulumi.Input<string>;
+            /**
+             * Namespace to select resources from.
+             */
+            namespace?: pulumi.Input<string>;
+            /**
+             * Version of the API Group to select resources from. Together with Group and Kind it is capable of unambiguously identifying and/or selecting resources. https://github.com/kubernetes/community/blob/master/contributors/design-proposals/api-machinery/api-group.md
+             */
+            version?: pulumi.Input<string>;
         }
 
         /**
@@ -1008,93 +1527,23 @@ export namespace kustomize {
         }
 
         /**
-         * JSON6902Patch contains a JSON6902 patch and the target the patch should be applied to.
-         */
-        export interface KustomizationSpecPatchesjson6902Args {
-            /**
-             * Patch contains the JSON6902 patch document with an array of operation objects.
-             */
-            patch: pulumi.Input<pulumi.Input<inputs.kustomize.v1beta1.KustomizationSpecPatchesjson6902PatchArgs>[]>;
-            /**
-             * Target points to the resources that the patch document should be applied to.
-             */
-            target: pulumi.Input<inputs.kustomize.v1beta1.KustomizationSpecPatchesjson6902TargetArgs>;
-        }
-
-        /**
-         * JSON6902 is a JSON6902 operation object. https://datatracker.ietf.org/doc/html/rfc6902#section-4
-         */
-        export interface KustomizationSpecPatchesjson6902PatchArgs {
-            /**
-             * From contains a JSON-pointer value that references a location within the target document where the operation is performed. The meaning of the value depends on the value of Op, and is NOT taken into account by all operations.
-             */
-            from?: pulumi.Input<string>;
-            /**
-             * Op indicates the operation to perform. Its value MUST be one of "add", "remove", "replace", "move", "copy", or "test". https://datatracker.ietf.org/doc/html/rfc6902#section-4
-             */
-            op: pulumi.Input<string>;
-            /**
-             * Path contains the JSON-pointer value that references a location within the target document where the operation is performed. The meaning of the value depends on the value of Op.
-             */
-            path: pulumi.Input<string>;
-            /**
-             * Value contains a valid JSON structure. The meaning of the value depends on the value of Op, and is NOT taken into account by all operations.
-             */
-            value?: pulumi.Input<{[key: string]: any}>;
-        }
-
-        /**
-         * Target points to the resources that the patch document should be applied to.
-         */
-        export interface KustomizationSpecPatchesjson6902TargetArgs {
-            /**
-             * AnnotationSelector is a string that follows the label selection expression https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/#api It matches with the resource annotations.
-             */
-            annotationSelector?: pulumi.Input<string>;
-            /**
-             * Group is the API group to select resources from. Together with Version and Kind it is capable of unambiguously identifying and/or selecting resources. https://github.com/kubernetes/community/blob/master/contributors/design-proposals/api-machinery/api-group.md
-             */
-            group?: pulumi.Input<string>;
-            /**
-             * Kind of the API Group to select resources from. Together with Group and Version it is capable of unambiguously identifying and/or selecting resources. https://github.com/kubernetes/community/blob/master/contributors/design-proposals/api-machinery/api-group.md
-             */
-            kind?: pulumi.Input<string>;
-            /**
-             * LabelSelector is a string that follows the label selection expression https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/#api It matches with the resource labels.
-             */
-            labelSelector?: pulumi.Input<string>;
-            /**
-             * Name to match resources with.
-             */
-            name?: pulumi.Input<string>;
-            /**
-             * Namespace to select resources from.
-             */
-            namespace?: pulumi.Input<string>;
-            /**
-             * Version of the API Group to select resources from. Together with Group and Kind it is capable of unambiguously identifying and/or selecting resources. https://github.com/kubernetes/community/blob/master/contributors/design-proposals/api-machinery/api-group.md
-             */
-            version?: pulumi.Input<string>;
-        }
-
-        /**
          * PostBuild describes which actions to perform on the YAML manifest generated by building the kustomize overlay.
          */
-        export interface KustomizationSpecPostbuildArgs {
+        export interface KustomizationSpecPostBuildArgs {
             /**
-             * Substitute holds a map of key/value pairs. The variables defined in your YAML manifests that match any of the keys defined in the map will be substituted with the set value. Includes support for bash string replacement functions e.g. default, and .
+             * Substitute holds a map of key/value pairs. The variables defined in your YAML manifests that match any of the keys defined in the map will be substituted with the set value. Includes support for bash string replacement functions e.g. ${var:=default}, ${var:position} and ${var/substring/replacement}.
              */
             substitute?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
             /**
              * SubstituteFrom holds references to ConfigMaps and Secrets containing the variables and their values to be substituted in the YAML manifests. The ConfigMap and the Secret data keys represent the var names and they must match the vars declared in the manifests for the substitution to happen.
              */
-            substituteFrom?: pulumi.Input<pulumi.Input<inputs.kustomize.v1beta1.KustomizationSpecPostbuildSubstitutefromArgs>[]>;
+            substituteFrom?: pulumi.Input<pulumi.Input<inputs.kustomize.v1beta1.KustomizationSpecPostBuildSubstituteFromArgs>[]>;
         }
 
         /**
          * SubstituteReference contains a reference to a resource containing the variables name and value.
          */
-        export interface KustomizationSpecPostbuildSubstitutefromArgs {
+        export interface KustomizationSpecPostBuildSubstituteFromArgs {
             /**
              * Kind of the values referent, valid values are ('Secret', 'ConfigMap').
              */
@@ -1108,7 +1557,7 @@ export namespace kustomize {
         /**
          * Reference of the source where the kustomization file is.
          */
-        export interface KustomizationSpecSourcerefArgs {
+        export interface KustomizationSpecSourceRefArgs {
             /**
              * API version of the referent
              */
@@ -1222,13 +1671,21 @@ export namespace kustomize {
          */
         export interface KustomizationSpecArgs {
             /**
+             * CommonMetadata specifies the common labels and annotations that are applied to all resources. Any existing label or annotation will be overridden if its key matches a common one.
+             */
+            commonMetadata?: pulumi.Input<inputs.kustomize.v1beta2.KustomizationSpecCommonMetadataArgs>;
+            /**
+             * Components specifies relative paths to specifications of other Components.
+             */
+            components?: pulumi.Input<pulumi.Input<string>[]>;
+            /**
              * Decrypt Kubernetes secrets before applying them on the cluster.
              */
             decryption?: pulumi.Input<inputs.kustomize.v1beta2.KustomizationSpecDecryptionArgs>;
             /**
              * DependsOn may contain a meta.NamespacedObjectReference slice with references to Kustomization resources that must be ready before this Kustomization can be reconciled.
              */
-            dependsOn?: pulumi.Input<pulumi.Input<inputs.kustomize.v1beta2.KustomizationSpecDependsonArgs>[]>;
+            dependsOn?: pulumi.Input<pulumi.Input<inputs.kustomize.v1beta2.KustomizationSpecDependsOnArgs>[]>;
             /**
              * Force instructs the controller to recreate resources when patching fails due to an immutable field change.
              */
@@ -1236,7 +1693,7 @@ export namespace kustomize {
             /**
              * A list of resources to be included in the health assessment.
              */
-            healthChecks?: pulumi.Input<pulumi.Input<inputs.kustomize.v1beta2.KustomizationSpecHealthchecksArgs>[]>;
+            healthChecks?: pulumi.Input<pulumi.Input<inputs.kustomize.v1beta2.KustomizationSpecHealthChecksArgs>[]>;
             /**
              * Images is a list of (image name, new name, new tag or digest) for changing image names, tags or digests. This can also be achieved with a patch, but this operator is simpler to specify.
              */
@@ -1248,7 +1705,7 @@ export namespace kustomize {
             /**
              * The KubeConfig for reconciling the Kustomization on a remote cluster. When used in combination with KustomizationSpec.ServiceAccountName, forces the controller to act on behalf of that Service Account at the target cluster. If the --default-service-account flag is set, its value will be used as a controller level fallback for when KustomizationSpec.ServiceAccountName is empty.
              */
-            kubeConfig?: pulumi.Input<inputs.kustomize.v1beta2.KustomizationSpecKubeconfigArgs>;
+            kubeConfig?: pulumi.Input<inputs.kustomize.v1beta2.KustomizationSpecKubeConfigArgs>;
             /**
              * Strategic merge and JSON patches, defined as inline YAML objects, capable of targeting objects based on kind, label and annotation selectors.
              */
@@ -1256,7 +1713,7 @@ export namespace kustomize {
             /**
              * JSON 6902 patches, defined as inline YAML objects. Deprecated: Use Patches instead.
              */
-            patchesJson6902?: pulumi.Input<pulumi.Input<inputs.kustomize.v1beta2.KustomizationSpecPatchesjson6902Args>[]>;
+            patchesJson6902?: pulumi.Input<pulumi.Input<inputs.kustomize.v1beta2.KustomizationSpecPatchesJson6902Args>[]>;
             /**
              * Strategic merge patches, defined as inline YAML objects. Deprecated: Use Patches instead.
              */
@@ -1268,7 +1725,7 @@ export namespace kustomize {
             /**
              * PostBuild describes which actions to perform on the YAML manifest generated by building the kustomize overlay.
              */
-            postBuild?: pulumi.Input<inputs.kustomize.v1beta2.KustomizationSpecPostbuildArgs>;
+            postBuild?: pulumi.Input<inputs.kustomize.v1beta2.KustomizationSpecPostBuildArgs>;
             /**
              * Prune enables garbage collection.
              */
@@ -1284,7 +1741,7 @@ export namespace kustomize {
             /**
              * Reference of the source where the kustomization file is.
              */
-            sourceRef: pulumi.Input<inputs.kustomize.v1beta2.KustomizationSpecSourcerefArgs>;
+            sourceRef: pulumi.Input<inputs.kustomize.v1beta2.KustomizationSpecSourceRefArgs>;
             /**
              * This flag tells the controller to suspend subsequent kustomize executions, it does not apply to already started executions. Defaults to false.
              */
@@ -1317,6 +1774,20 @@ export namespace kustomize {
         }
 
         /**
+         * CommonMetadata specifies the common labels and annotations that are applied to all resources. Any existing label or annotation will be overridden if its key matches a common one.
+         */
+        export interface KustomizationSpecCommonMetadataArgs {
+            /**
+             * Annotations to be added to the object's metadata.
+             */
+            annotations?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+            /**
+             * Labels to be added to the object's metadata.
+             */
+            labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+        }
+
+        /**
          * Decrypt Kubernetes secrets before applying them on the cluster.
          */
         export interface KustomizationSpecDecryptionArgs {
@@ -1327,13 +1798,13 @@ export namespace kustomize {
             /**
              * The secret name containing the private OpenPGP keys used for decryption.
              */
-            secretRef?: pulumi.Input<inputs.kustomize.v1beta2.KustomizationSpecDecryptionSecretrefArgs>;
+            secretRef?: pulumi.Input<inputs.kustomize.v1beta2.KustomizationSpecDecryptionSecretRefArgs>;
         }
 
         /**
          * The secret name containing the private OpenPGP keys used for decryption.
          */
-        export interface KustomizationSpecDecryptionSecretrefArgs {
+        export interface KustomizationSpecDecryptionSecretRefArgs {
             /**
              * Name of the referent.
              */
@@ -1343,7 +1814,7 @@ export namespace kustomize {
         /**
          * NamespacedObjectReference contains enough information to locate the referenced Kubernetes resource object in any namespace.
          */
-        export interface KustomizationSpecDependsonArgs {
+        export interface KustomizationSpecDependsOnArgs {
             /**
              * Name of the referent.
              */
@@ -1357,7 +1828,7 @@ export namespace kustomize {
         /**
          * NamespacedObjectKindReference contains enough information to locate the typed referenced Kubernetes resource object in any namespace.
          */
-        export interface KustomizationSpecHealthchecksArgs {
+        export interface KustomizationSpecHealthChecksArgs {
             /**
              * API version of the referent, if not specified the Kubernetes preferred version will be used.
              */
@@ -1401,17 +1872,17 @@ export namespace kustomize {
         /**
          * The KubeConfig for reconciling the Kustomization on a remote cluster. When used in combination with KustomizationSpec.ServiceAccountName, forces the controller to act on behalf of that Service Account at the target cluster. If the --default-service-account flag is set, its value will be used as a controller level fallback for when KustomizationSpec.ServiceAccountName is empty.
          */
-        export interface KustomizationSpecKubeconfigArgs {
+        export interface KustomizationSpecKubeConfigArgs {
             /**
              * SecretRef holds the name of a secret that contains a key with the kubeconfig file as the value. If no key is set, the key will default to 'value'. It is recommended that the kubeconfig is self-contained, and the secret is regularly updated if credentials such as a cloud-access-token expire. Cloud specific `cmd-path` auth helpers will not function without adding binaries and credentials to the Pod that is responsible for reconciling Kubernetes resources.
              */
-            secretRef: pulumi.Input<inputs.kustomize.v1beta2.KustomizationSpecKubeconfigSecretrefArgs>;
+            secretRef: pulumi.Input<inputs.kustomize.v1beta2.KustomizationSpecKubeConfigSecretRefArgs>;
         }
 
         /**
          * SecretRef holds the name of a secret that contains a key with the kubeconfig file as the value. If no key is set, the key will default to 'value'. It is recommended that the kubeconfig is self-contained, and the secret is regularly updated if credentials such as a cloud-access-token expire. Cloud specific `cmd-path` auth helpers will not function without adding binaries and credentials to the Pod that is responsible for reconciling Kubernetes resources.
          */
-        export interface KustomizationSpecKubeconfigSecretrefArgs {
+        export interface KustomizationSpecKubeConfigSecretRefArgs {
             /**
              * Key in the Secret, when not specified an implementation-specific default key is used.
              */
@@ -1429,11 +1900,81 @@ export namespace kustomize {
             /**
              * Patch contains an inline StrategicMerge patch or an inline JSON6902 patch with an array of operation objects.
              */
-            patch?: pulumi.Input<string>;
+            patch: pulumi.Input<string>;
             /**
              * Target points to the resources that the patch document should be applied to.
              */
             target?: pulumi.Input<inputs.kustomize.v1beta2.KustomizationSpecPatchesTargetArgs>;
+        }
+
+        /**
+         * JSON6902Patch contains a JSON6902 patch and the target the patch should be applied to.
+         */
+        export interface KustomizationSpecPatchesJson6902Args {
+            /**
+             * Patch contains the JSON6902 patch document with an array of operation objects.
+             */
+            patch: pulumi.Input<pulumi.Input<inputs.kustomize.v1beta2.KustomizationSpecPatchesJson6902PatchArgs>[]>;
+            /**
+             * Target points to the resources that the patch document should be applied to.
+             */
+            target: pulumi.Input<inputs.kustomize.v1beta2.KustomizationSpecPatchesJson6902TargetArgs>;
+        }
+
+        /**
+         * JSON6902 is a JSON6902 operation object. https://datatracker.ietf.org/doc/html/rfc6902#section-4
+         */
+        export interface KustomizationSpecPatchesJson6902PatchArgs {
+            /**
+             * From contains a JSON-pointer value that references a location within the target document where the operation is performed. The meaning of the value depends on the value of Op, and is NOT taken into account by all operations.
+             */
+            from?: pulumi.Input<string>;
+            /**
+             * Op indicates the operation to perform. Its value MUST be one of "add", "remove", "replace", "move", "copy", or "test". https://datatracker.ietf.org/doc/html/rfc6902#section-4
+             */
+            op: pulumi.Input<string>;
+            /**
+             * Path contains the JSON-pointer value that references a location within the target document where the operation is performed. The meaning of the value depends on the value of Op.
+             */
+            path: pulumi.Input<string>;
+            /**
+             * Value contains a valid JSON structure. The meaning of the value depends on the value of Op, and is NOT taken into account by all operations.
+             */
+            value?: pulumi.Input<{[key: string]: any}>;
+        }
+
+        /**
+         * Target points to the resources that the patch document should be applied to.
+         */
+        export interface KustomizationSpecPatchesJson6902TargetArgs {
+            /**
+             * AnnotationSelector is a string that follows the label selection expression https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/#api It matches with the resource annotations.
+             */
+            annotationSelector?: pulumi.Input<string>;
+            /**
+             * Group is the API group to select resources from. Together with Version and Kind it is capable of unambiguously identifying and/or selecting resources. https://github.com/kubernetes/community/blob/master/contributors/design-proposals/api-machinery/api-group.md
+             */
+            group?: pulumi.Input<string>;
+            /**
+             * Kind of the API Group to select resources from. Together with Group and Version it is capable of unambiguously identifying and/or selecting resources. https://github.com/kubernetes/community/blob/master/contributors/design-proposals/api-machinery/api-group.md
+             */
+            kind?: pulumi.Input<string>;
+            /**
+             * LabelSelector is a string that follows the label selection expression https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/#api It matches with the resource labels.
+             */
+            labelSelector?: pulumi.Input<string>;
+            /**
+             * Name to match resources with.
+             */
+            name?: pulumi.Input<string>;
+            /**
+             * Namespace to select resources from.
+             */
+            namespace?: pulumi.Input<string>;
+            /**
+             * Version of the API Group to select resources from. Together with Group and Kind it is capable of unambiguously identifying and/or selecting resources. https://github.com/kubernetes/community/blob/master/contributors/design-proposals/api-machinery/api-group.md
+             */
+            version?: pulumi.Input<string>;
         }
 
         /**
@@ -1471,93 +2012,23 @@ export namespace kustomize {
         }
 
         /**
-         * JSON6902Patch contains a JSON6902 patch and the target the patch should be applied to.
-         */
-        export interface KustomizationSpecPatchesjson6902Args {
-            /**
-             * Patch contains the JSON6902 patch document with an array of operation objects.
-             */
-            patch: pulumi.Input<pulumi.Input<inputs.kustomize.v1beta2.KustomizationSpecPatchesjson6902PatchArgs>[]>;
-            /**
-             * Target points to the resources that the patch document should be applied to.
-             */
-            target: pulumi.Input<inputs.kustomize.v1beta2.KustomizationSpecPatchesjson6902TargetArgs>;
-        }
-
-        /**
-         * JSON6902 is a JSON6902 operation object. https://datatracker.ietf.org/doc/html/rfc6902#section-4
-         */
-        export interface KustomizationSpecPatchesjson6902PatchArgs {
-            /**
-             * From contains a JSON-pointer value that references a location within the target document where the operation is performed. The meaning of the value depends on the value of Op, and is NOT taken into account by all operations.
-             */
-            from?: pulumi.Input<string>;
-            /**
-             * Op indicates the operation to perform. Its value MUST be one of "add", "remove", "replace", "move", "copy", or "test". https://datatracker.ietf.org/doc/html/rfc6902#section-4
-             */
-            op: pulumi.Input<string>;
-            /**
-             * Path contains the JSON-pointer value that references a location within the target document where the operation is performed. The meaning of the value depends on the value of Op.
-             */
-            path: pulumi.Input<string>;
-            /**
-             * Value contains a valid JSON structure. The meaning of the value depends on the value of Op, and is NOT taken into account by all operations.
-             */
-            value?: pulumi.Input<{[key: string]: any}>;
-        }
-
-        /**
-         * Target points to the resources that the patch document should be applied to.
-         */
-        export interface KustomizationSpecPatchesjson6902TargetArgs {
-            /**
-             * AnnotationSelector is a string that follows the label selection expression https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/#api It matches with the resource annotations.
-             */
-            annotationSelector?: pulumi.Input<string>;
-            /**
-             * Group is the API group to select resources from. Together with Version and Kind it is capable of unambiguously identifying and/or selecting resources. https://github.com/kubernetes/community/blob/master/contributors/design-proposals/api-machinery/api-group.md
-             */
-            group?: pulumi.Input<string>;
-            /**
-             * Kind of the API Group to select resources from. Together with Group and Version it is capable of unambiguously identifying and/or selecting resources. https://github.com/kubernetes/community/blob/master/contributors/design-proposals/api-machinery/api-group.md
-             */
-            kind?: pulumi.Input<string>;
-            /**
-             * LabelSelector is a string that follows the label selection expression https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/#api It matches with the resource labels.
-             */
-            labelSelector?: pulumi.Input<string>;
-            /**
-             * Name to match resources with.
-             */
-            name?: pulumi.Input<string>;
-            /**
-             * Namespace to select resources from.
-             */
-            namespace?: pulumi.Input<string>;
-            /**
-             * Version of the API Group to select resources from. Together with Group and Kind it is capable of unambiguously identifying and/or selecting resources. https://github.com/kubernetes/community/blob/master/contributors/design-proposals/api-machinery/api-group.md
-             */
-            version?: pulumi.Input<string>;
-        }
-
-        /**
          * PostBuild describes which actions to perform on the YAML manifest generated by building the kustomize overlay.
          */
-        export interface KustomizationSpecPostbuildArgs {
+        export interface KustomizationSpecPostBuildArgs {
             /**
-             * Substitute holds a map of key/value pairs. The variables defined in your YAML manifests that match any of the keys defined in the map will be substituted with the set value. Includes support for bash string replacement functions e.g. default, and .
+             * Substitute holds a map of key/value pairs. The variables defined in your YAML manifests that match any of the keys defined in the map will be substituted with the set value. Includes support for bash string replacement functions e.g. ${var:=default}, ${var:position} and ${var/substring/replacement}.
              */
             substitute?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
             /**
              * SubstituteFrom holds references to ConfigMaps and Secrets containing the variables and their values to be substituted in the YAML manifests. The ConfigMap and the Secret data keys represent the var names and they must match the vars declared in the manifests for the substitution to happen.
              */
-            substituteFrom?: pulumi.Input<pulumi.Input<inputs.kustomize.v1beta2.KustomizationSpecPostbuildSubstitutefromArgs>[]>;
+            substituteFrom?: pulumi.Input<pulumi.Input<inputs.kustomize.v1beta2.KustomizationSpecPostBuildSubstituteFromArgs>[]>;
         }
 
         /**
          * SubstituteReference contains a reference to a resource containing the variables name and value.
          */
-        export interface KustomizationSpecPostbuildSubstitutefromArgs {
+        export interface KustomizationSpecPostBuildSubstituteFromArgs {
             /**
              * Kind of the values referent, valid values are ('Secret', 'ConfigMap').
              */
@@ -1572,9 +2043,9 @@ export namespace kustomize {
             optional?: pulumi.Input<boolean>;
         }
         /**
-         * kustomizationSpecPostbuildSubstitutefromArgsProvideDefaults sets the appropriate defaults for KustomizationSpecPostbuildSubstitutefromArgs
+         * kustomizationSpecPostBuildSubstituteFromArgsProvideDefaults sets the appropriate defaults for KustomizationSpecPostBuildSubstituteFromArgs
          */
-        export function kustomizationSpecPostbuildSubstitutefromArgsProvideDefaults(val: KustomizationSpecPostbuildSubstitutefromArgs): KustomizationSpecPostbuildSubstitutefromArgs {
+        export function kustomizationSpecPostBuildSubstituteFromArgsProvideDefaults(val: KustomizationSpecPostBuildSubstituteFromArgs): KustomizationSpecPostBuildSubstituteFromArgs {
             return {
                 ...val,
                 optional: (val.optional) ?? false,
@@ -1584,7 +2055,7 @@ export namespace kustomize {
         /**
          * Reference of the source where the kustomization file is.
          */
-        export interface KustomizationSpecSourcerefArgs {
+        export interface KustomizationSpecSourceRefArgs {
             /**
              * API version of the referent.
              */
@@ -1613,7 +2084,7 @@ export namespace kustomize {
              */
             inventory?: pulumi.Input<inputs.kustomize.v1beta2.KustomizationStatusInventoryArgs>;
             /**
-             * The last successfully applied revision. The revision format for Git sources is <branch|tag>/<commit-sha>.
+             * The last successfully applied revision. Equals the Revision of the applied Artifact from the referenced Source.
              */
             lastAppliedRevision?: pulumi.Input<string>;
             /**
@@ -1689,6 +2160,137 @@ export namespace kustomize {
 }
 
 export namespace notification {
+    export namespace v1 {
+        /**
+         * ReceiverSpec defines the desired state of the Receiver.
+         */
+        export interface ReceiverSpecArgs {
+            /**
+             * Events specifies the list of event types to handle, e.g. 'push' for GitHub or 'Push Hook' for GitLab.
+             */
+            events?: pulumi.Input<pulumi.Input<string>[]>;
+            /**
+             * Interval at which to reconcile the Receiver with its Secret references.
+             */
+            interval?: pulumi.Input<string>;
+            /**
+             * A list of resources to be notified about changes.
+             */
+            resources: pulumi.Input<pulumi.Input<inputs.notification.v1.ReceiverSpecResourcesArgs>[]>;
+            /**
+             * SecretRef specifies the Secret containing the token used to validate the payload authenticity.
+             */
+            secretRef: pulumi.Input<inputs.notification.v1.ReceiverSpecSecretRefArgs>;
+            /**
+             * Suspend tells the controller to suspend subsequent events handling for this receiver.
+             */
+            suspend?: pulumi.Input<boolean>;
+            /**
+             * Type of webhook sender, used to determine the validation procedure and payload deserialization.
+             */
+            type: pulumi.Input<string>;
+        }
+        /**
+         * receiverSpecArgsProvideDefaults sets the appropriate defaults for ReceiverSpecArgs
+         */
+        export function receiverSpecArgsProvideDefaults(val: ReceiverSpecArgs): ReceiverSpecArgs {
+            return {
+                ...val,
+                interval: (val.interval) ?? "10m",
+            };
+        }
+
+        /**
+         * CrossNamespaceObjectReference contains enough information to let you locate the typed referenced object at cluster level
+         */
+        export interface ReceiverSpecResourcesArgs {
+            /**
+             * API version of the referent
+             */
+            apiVersion?: pulumi.Input<string>;
+            /**
+             * Kind of the referent
+             */
+            kind: pulumi.Input<string>;
+            /**
+             * MatchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed. MatchLabels requires the name to be set to `*`.
+             */
+            matchLabels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+            /**
+             * Name of the referent If multiple resources are targeted `*` may be set.
+             */
+            name: pulumi.Input<string>;
+            /**
+             * Namespace of the referent
+             */
+            namespace?: pulumi.Input<string>;
+        }
+
+        /**
+         * SecretRef specifies the Secret containing the token used to validate the payload authenticity.
+         */
+        export interface ReceiverSpecSecretRefArgs {
+            /**
+             * Name of the referent.
+             */
+            name: pulumi.Input<string>;
+        }
+
+        /**
+         * ReceiverStatus defines the observed state of the Receiver.
+         */
+        export interface ReceiverStatusArgs {
+            /**
+             * Conditions holds the conditions for the Receiver.
+             */
+            conditions?: pulumi.Input<pulumi.Input<inputs.notification.v1.ReceiverStatusConditionsArgs>[]>;
+            /**
+             * LastHandledReconcileAt holds the value of the most recent reconcile request value, so a change of the annotation value can be detected.
+             */
+            lastHandledReconcileAt?: pulumi.Input<string>;
+            /**
+             * ObservedGeneration is the last observed generation of the Receiver object.
+             */
+            observedGeneration?: pulumi.Input<number>;
+            /**
+             * WebhookPath is the generated incoming webhook address in the format of '/hook/sha256sum(token+name+namespace)'.
+             */
+            webhookPath?: pulumi.Input<string>;
+        }
+
+        /**
+         * Condition contains details for one aspect of the current state of this API Resource. --- This struct is intended for direct use as an array at the field path .status.conditions.  For example, 
+         *  type FooStatus struct{ // Represents the observations of a foo's current state. // Known .status.conditions.type are: "Available", "Progressing", and "Degraded" // +patchMergeKey=type // +patchStrategy=merge // +listType=map // +listMapKey=type Conditions []metav1.Condition `json:"conditions,omitempty" patchStrategy:"merge" patchMergeKey:"type" protobuf:"bytes,1,rep,name=conditions"` 
+         *  // other fields }
+         */
+        export interface ReceiverStatusConditionsArgs {
+            /**
+             * lastTransitionTime is the last time the condition transitioned from one status to another. This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+             */
+            lastTransitionTime: pulumi.Input<string>;
+            /**
+             * message is a human readable message indicating details about the transition. This may be an empty string.
+             */
+            message: pulumi.Input<string>;
+            /**
+             * observedGeneration represents the .metadata.generation that the condition was set based upon. For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date with respect to the current state of the instance.
+             */
+            observedGeneration?: pulumi.Input<number>;
+            /**
+             * reason contains a programmatic identifier indicating the reason for the condition's last transition. Producers of specific condition types may define expected values and meanings for this field, and whether the values are considered a guaranteed API. The value should be a CamelCase string. This field may not be empty.
+             */
+            reason: pulumi.Input<string>;
+            /**
+             * status of the condition, one of True, False, Unknown.
+             */
+            status: pulumi.Input<string>;
+            /**
+             * type of condition in CamelCase or in foo.example.com/CamelCase. --- Many .condition.type values are consistent across resources like Available, but because arbitrary conditions can be useful (see .node.status.conditions), the ability to deconflict is important. The regex it matches is (dns1123SubdomainFmt/)?(qualifiedNameFmt)
+             */
+            type: pulumi.Input<string>;
+        }
+    }
+
     export namespace v1beta1 {
         /**
          * AlertSpec defines an alerting rule for events involving a list of objects
@@ -1701,7 +2303,7 @@ export namespace notification {
             /**
              * Filter events based on the involved objects.
              */
-            eventSources: pulumi.Input<pulumi.Input<inputs.notification.v1beta1.AlertSpecEventsourcesArgs>[]>;
+            eventSources: pulumi.Input<pulumi.Input<inputs.notification.v1beta1.AlertSpecEventSourcesArgs>[]>;
             /**
              * A list of Golang regular expressions to be used for excluding messages.
              */
@@ -1709,7 +2311,7 @@ export namespace notification {
             /**
              * Send events using this provider.
              */
-            providerRef: pulumi.Input<inputs.notification.v1beta1.AlertSpecProviderrefArgs>;
+            providerRef: pulumi.Input<inputs.notification.v1beta1.AlertSpecProviderRefArgs>;
             /**
              * Short description of the impact and affected cluster.
              */
@@ -1732,7 +2334,7 @@ export namespace notification {
         /**
          * CrossNamespaceObjectReference contains enough information to let you locate the typed referenced object at cluster level
          */
-        export interface AlertSpecEventsourcesArgs {
+        export interface AlertSpecEventSourcesArgs {
             /**
              * API version of the referent
              */
@@ -1758,7 +2360,7 @@ export namespace notification {
         /**
          * Send events using this provider.
          */
-        export interface AlertSpecProviderrefArgs {
+        export interface AlertSpecProviderRefArgs {
             /**
              * Name of the referent.
              */
@@ -1819,7 +2421,7 @@ export namespace notification {
             /**
              * CertSecretRef can be given the name of a secret containing a PEM-encoded CA certificate (`caFile`)
              */
-            certSecretRef?: pulumi.Input<inputs.notification.v1beta1.ProviderSpecCertsecretrefArgs>;
+            certSecretRef?: pulumi.Input<inputs.notification.v1beta1.ProviderSpecCertSecretRefArgs>;
             /**
              * Alert channel for this provider
              */
@@ -1831,7 +2433,7 @@ export namespace notification {
             /**
              * Secret reference containing the provider webhook URL using "address" as data key
              */
-            secretRef?: pulumi.Input<inputs.notification.v1beta1.ProviderSpecSecretrefArgs>;
+            secretRef?: pulumi.Input<inputs.notification.v1beta1.ProviderSpecSecretRefArgs>;
             /**
              * This flag tells the controller to suspend subsequent events handling. Defaults to false.
              */
@@ -1853,7 +2455,7 @@ export namespace notification {
         /**
          * CertSecretRef can be given the name of a secret containing a PEM-encoded CA certificate (`caFile`)
          */
-        export interface ProviderSpecCertsecretrefArgs {
+        export interface ProviderSpecCertSecretRefArgs {
             /**
              * Name of the referent.
              */
@@ -1863,7 +2465,7 @@ export namespace notification {
         /**
          * Secret reference containing the provider webhook URL using "address" as data key
          */
-        export interface ProviderSpecSecretrefArgs {
+        export interface ProviderSpecSecretRefArgs {
             /**
              * Name of the referent.
              */
@@ -1928,7 +2530,7 @@ export namespace notification {
             /**
              * Secret reference containing the token used to validate the payload authenticity
              */
-            secretRef?: pulumi.Input<inputs.notification.v1beta1.ReceiverSpecSecretrefArgs>;
+            secretRef?: pulumi.Input<inputs.notification.v1beta1.ReceiverSpecSecretRefArgs>;
             /**
              * This flag tells the controller to suspend subsequent events handling. Defaults to false.
              */
@@ -1968,7 +2570,7 @@ export namespace notification {
         /**
          * Secret reference containing the token used to validate the payload authenticity
          */
-        export interface ReceiverSpecSecretrefArgs {
+        export interface ReceiverSpecSecretRefArgs {
             /**
              * Name of the referent.
              */
@@ -2022,9 +2624,697 @@ export namespace notification {
             type: pulumi.Input<string>;
         }
     }
+
+    export namespace v1beta2 {
+        /**
+         * AlertSpec defines an alerting rule for events involving a list of objects.
+         */
+        export interface AlertSpecArgs {
+            /**
+             * EventMetadata is an optional field for adding metadata to events dispatched by the controller. This can be used for enhancing the context of the event. If a field would override one already present on the original event as generated by the emitter, then the override doesn't happen, i.e. the original value is preserved, and an info log is printed.
+             */
+            eventMetadata?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+            /**
+             * EventSeverity specifies how to filter events based on severity. If set to 'info' no events will be filtered.
+             */
+            eventSeverity?: pulumi.Input<string>;
+            /**
+             * EventSources specifies how to filter events based on the involved object kind, name and namespace.
+             */
+            eventSources: pulumi.Input<pulumi.Input<inputs.notification.v1beta2.AlertSpecEventSourcesArgs>[]>;
+            /**
+             * ExclusionList specifies a list of Golang regular expressions to be used for excluding messages.
+             */
+            exclusionList?: pulumi.Input<pulumi.Input<string>[]>;
+            /**
+             * InclusionList specifies a list of Golang regular expressions to be used for including messages.
+             */
+            inclusionList?: pulumi.Input<pulumi.Input<string>[]>;
+            /**
+             * ProviderRef specifies which Provider this Alert should use.
+             */
+            providerRef: pulumi.Input<inputs.notification.v1beta2.AlertSpecProviderRefArgs>;
+            /**
+             * Summary holds a short description of the impact and affected cluster.
+             */
+            summary?: pulumi.Input<string>;
+            /**
+             * Suspend tells the controller to suspend subsequent events handling for this Alert.
+             */
+            suspend?: pulumi.Input<boolean>;
+        }
+        /**
+         * alertSpecArgsProvideDefaults sets the appropriate defaults for AlertSpecArgs
+         */
+        export function alertSpecArgsProvideDefaults(val: AlertSpecArgs): AlertSpecArgs {
+            return {
+                ...val,
+                eventSeverity: (val.eventSeverity) ?? "info",
+            };
+        }
+
+        /**
+         * CrossNamespaceObjectReference contains enough information to let you locate the typed referenced object at cluster level
+         */
+        export interface AlertSpecEventSourcesArgs {
+            /**
+             * API version of the referent
+             */
+            apiVersion?: pulumi.Input<string>;
+            /**
+             * Kind of the referent
+             */
+            kind: pulumi.Input<string>;
+            /**
+             * MatchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed. MatchLabels requires the name to be set to `*`.
+             */
+            matchLabels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+            /**
+             * Name of the referent If multiple resources are targeted `*` may be set.
+             */
+            name: pulumi.Input<string>;
+            /**
+             * Namespace of the referent
+             */
+            namespace?: pulumi.Input<string>;
+        }
+
+        /**
+         * ProviderRef specifies which Provider this Alert should use.
+         */
+        export interface AlertSpecProviderRefArgs {
+            /**
+             * Name of the referent.
+             */
+            name: pulumi.Input<string>;
+        }
+
+        /**
+         * AlertStatus defines the observed state of the Alert.
+         */
+        export interface AlertStatusArgs {
+            /**
+             * Conditions holds the conditions for the Alert.
+             */
+            conditions?: pulumi.Input<pulumi.Input<inputs.notification.v1beta2.AlertStatusConditionsArgs>[]>;
+            /**
+             * LastHandledReconcileAt holds the value of the most recent reconcile request value, so a change of the annotation value can be detected.
+             */
+            lastHandledReconcileAt?: pulumi.Input<string>;
+            /**
+             * ObservedGeneration is the last observed generation.
+             */
+            observedGeneration?: pulumi.Input<number>;
+        }
+
+        /**
+         * Condition contains details for one aspect of the current state of this API Resource. --- This struct is intended for direct use as an array at the field path .status.conditions.  For example, 
+         *  type FooStatus struct{ // Represents the observations of a foo's current state. // Known .status.conditions.type are: "Available", "Progressing", and "Degraded" // +patchMergeKey=type // +patchStrategy=merge // +listType=map // +listMapKey=type Conditions []metav1.Condition `json:"conditions,omitempty" patchStrategy:"merge" patchMergeKey:"type" protobuf:"bytes,1,rep,name=conditions"` 
+         *  // other fields }
+         */
+        export interface AlertStatusConditionsArgs {
+            /**
+             * lastTransitionTime is the last time the condition transitioned from one status to another. This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+             */
+            lastTransitionTime: pulumi.Input<string>;
+            /**
+             * message is a human readable message indicating details about the transition. This may be an empty string.
+             */
+            message: pulumi.Input<string>;
+            /**
+             * observedGeneration represents the .metadata.generation that the condition was set based upon. For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date with respect to the current state of the instance.
+             */
+            observedGeneration?: pulumi.Input<number>;
+            /**
+             * reason contains a programmatic identifier indicating the reason for the condition's last transition. Producers of specific condition types may define expected values and meanings for this field, and whether the values are considered a guaranteed API. The value should be a CamelCase string. This field may not be empty.
+             */
+            reason: pulumi.Input<string>;
+            /**
+             * status of the condition, one of True, False, Unknown.
+             */
+            status: pulumi.Input<string>;
+            /**
+             * type of condition in CamelCase or in foo.example.com/CamelCase. --- Many .condition.type values are consistent across resources like Available, but because arbitrary conditions can be useful (see .node.status.conditions), the ability to deconflict is important. The regex it matches is (dns1123SubdomainFmt/)?(qualifiedNameFmt)
+             */
+            type: pulumi.Input<string>;
+        }
+
+        /**
+         * ProviderSpec defines the desired state of the Provider.
+         */
+        export interface ProviderSpecArgs {
+            /**
+             * Address specifies the endpoint, in a generic sense, to where alerts are sent. What kind of endpoint depends on the specific Provider type being used. For the generic Provider, for example, this is an HTTP/S address. For other Provider types this could be a project ID or a namespace.
+             */
+            address?: pulumi.Input<string>;
+            /**
+             * CertSecretRef specifies the Secret containing a PEM-encoded CA certificate (`caFile`).
+             */
+            certSecretRef?: pulumi.Input<inputs.notification.v1beta2.ProviderSpecCertSecretRefArgs>;
+            /**
+             * Channel specifies the destination channel where events should be posted.
+             */
+            channel?: pulumi.Input<string>;
+            /**
+             * Interval at which to reconcile the Provider with its Secret references.
+             */
+            interval?: pulumi.Input<string>;
+            /**
+             * Proxy the HTTP/S address of the proxy server.
+             */
+            proxy?: pulumi.Input<string>;
+            /**
+             * SecretRef specifies the Secret containing the authentication credentials for this Provider.
+             */
+            secretRef?: pulumi.Input<inputs.notification.v1beta2.ProviderSpecSecretRefArgs>;
+            /**
+             * Suspend tells the controller to suspend subsequent events handling for this Provider.
+             */
+            suspend?: pulumi.Input<boolean>;
+            /**
+             * Timeout for sending alerts to the Provider.
+             */
+            timeout?: pulumi.Input<string>;
+            /**
+             * Type specifies which Provider implementation to use.
+             */
+            type: pulumi.Input<string>;
+            /**
+             * Username specifies the name under which events are posted.
+             */
+            username?: pulumi.Input<string>;
+        }
+
+        /**
+         * CertSecretRef specifies the Secret containing a PEM-encoded CA certificate (`caFile`).
+         */
+        export interface ProviderSpecCertSecretRefArgs {
+            /**
+             * Name of the referent.
+             */
+            name: pulumi.Input<string>;
+        }
+
+        /**
+         * SecretRef specifies the Secret containing the authentication credentials for this Provider.
+         */
+        export interface ProviderSpecSecretRefArgs {
+            /**
+             * Name of the referent.
+             */
+            name: pulumi.Input<string>;
+        }
+
+        /**
+         * ProviderStatus defines the observed state of the Provider.
+         */
+        export interface ProviderStatusArgs {
+            /**
+             * Conditions holds the conditions for the Provider.
+             */
+            conditions?: pulumi.Input<pulumi.Input<inputs.notification.v1beta2.ProviderStatusConditionsArgs>[]>;
+            /**
+             * LastHandledReconcileAt holds the value of the most recent reconcile request value, so a change of the annotation value can be detected.
+             */
+            lastHandledReconcileAt?: pulumi.Input<string>;
+            /**
+             * ObservedGeneration is the last reconciled generation.
+             */
+            observedGeneration?: pulumi.Input<number>;
+        }
+
+        /**
+         * Condition contains details for one aspect of the current state of this API Resource. --- This struct is intended for direct use as an array at the field path .status.conditions.  For example, 
+         *  type FooStatus struct{ // Represents the observations of a foo's current state. // Known .status.conditions.type are: "Available", "Progressing", and "Degraded" // +patchMergeKey=type // +patchStrategy=merge // +listType=map // +listMapKey=type Conditions []metav1.Condition `json:"conditions,omitempty" patchStrategy:"merge" patchMergeKey:"type" protobuf:"bytes,1,rep,name=conditions"` 
+         *  // other fields }
+         */
+        export interface ProviderStatusConditionsArgs {
+            /**
+             * lastTransitionTime is the last time the condition transitioned from one status to another. This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+             */
+            lastTransitionTime: pulumi.Input<string>;
+            /**
+             * message is a human readable message indicating details about the transition. This may be an empty string.
+             */
+            message: pulumi.Input<string>;
+            /**
+             * observedGeneration represents the .metadata.generation that the condition was set based upon. For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date with respect to the current state of the instance.
+             */
+            observedGeneration?: pulumi.Input<number>;
+            /**
+             * reason contains a programmatic identifier indicating the reason for the condition's last transition. Producers of specific condition types may define expected values and meanings for this field, and whether the values are considered a guaranteed API. The value should be a CamelCase string. This field may not be empty.
+             */
+            reason: pulumi.Input<string>;
+            /**
+             * status of the condition, one of True, False, Unknown.
+             */
+            status: pulumi.Input<string>;
+            /**
+             * type of condition in CamelCase or in foo.example.com/CamelCase. --- Many .condition.type values are consistent across resources like Available, but because arbitrary conditions can be useful (see .node.status.conditions), the ability to deconflict is important. The regex it matches is (dns1123SubdomainFmt/)?(qualifiedNameFmt)
+             */
+            type: pulumi.Input<string>;
+        }
+
+        /**
+         * ReceiverSpec defines the desired state of the Receiver.
+         */
+        export interface ReceiverSpecArgs {
+            /**
+             * Events specifies the list of event types to handle, e.g. 'push' for GitHub or 'Push Hook' for GitLab.
+             */
+            events?: pulumi.Input<pulumi.Input<string>[]>;
+            /**
+             * Interval at which to reconcile the Receiver with its Secret references.
+             */
+            interval?: pulumi.Input<string>;
+            /**
+             * A list of resources to be notified about changes.
+             */
+            resources: pulumi.Input<pulumi.Input<inputs.notification.v1beta2.ReceiverSpecResourcesArgs>[]>;
+            /**
+             * SecretRef specifies the Secret containing the token used to validate the payload authenticity.
+             */
+            secretRef?: pulumi.Input<inputs.notification.v1beta2.ReceiverSpecSecretRefArgs>;
+            /**
+             * Suspend tells the controller to suspend subsequent events handling for this receiver.
+             */
+            suspend?: pulumi.Input<boolean>;
+            /**
+             * Type of webhook sender, used to determine the validation procedure and payload deserialization.
+             */
+            type: pulumi.Input<string>;
+        }
+
+        /**
+         * CrossNamespaceObjectReference contains enough information to let you locate the typed referenced object at cluster level
+         */
+        export interface ReceiverSpecResourcesArgs {
+            /**
+             * API version of the referent
+             */
+            apiVersion?: pulumi.Input<string>;
+            /**
+             * Kind of the referent
+             */
+            kind: pulumi.Input<string>;
+            /**
+             * MatchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed. MatchLabels requires the name to be set to `*`.
+             */
+            matchLabels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+            /**
+             * Name of the referent If multiple resources are targeted `*` may be set.
+             */
+            name: pulumi.Input<string>;
+            /**
+             * Namespace of the referent
+             */
+            namespace?: pulumi.Input<string>;
+        }
+
+        /**
+         * SecretRef specifies the Secret containing the token used to validate the payload authenticity.
+         */
+        export interface ReceiverSpecSecretRefArgs {
+            /**
+             * Name of the referent.
+             */
+            name: pulumi.Input<string>;
+        }
+
+        /**
+         * ReceiverStatus defines the observed state of the Receiver.
+         */
+        export interface ReceiverStatusArgs {
+            /**
+             * Conditions holds the conditions for the Receiver.
+             */
+            conditions?: pulumi.Input<pulumi.Input<inputs.notification.v1beta2.ReceiverStatusConditionsArgs>[]>;
+            /**
+             * LastHandledReconcileAt holds the value of the most recent reconcile request value, so a change of the annotation value can be detected.
+             */
+            lastHandledReconcileAt?: pulumi.Input<string>;
+            /**
+             * ObservedGeneration is the last observed generation of the Receiver object.
+             */
+            observedGeneration?: pulumi.Input<number>;
+            /**
+             * URL is the generated incoming webhook address in the format of '/hook/sha256sum(token+name+namespace)'. Deprecated: Replaced by WebhookPath.
+             */
+            url?: pulumi.Input<string>;
+            /**
+             * WebhookPath is the generated incoming webhook address in the format of '/hook/sha256sum(token+name+namespace)'.
+             */
+            webhookPath?: pulumi.Input<string>;
+        }
+
+        /**
+         * Condition contains details for one aspect of the current state of this API Resource. --- This struct is intended for direct use as an array at the field path .status.conditions.  For example, 
+         *  type FooStatus struct{ // Represents the observations of a foo's current state. // Known .status.conditions.type are: "Available", "Progressing", and "Degraded" // +patchMergeKey=type // +patchStrategy=merge // +listType=map // +listMapKey=type Conditions []metav1.Condition `json:"conditions,omitempty" patchStrategy:"merge" patchMergeKey:"type" protobuf:"bytes,1,rep,name=conditions"` 
+         *  // other fields }
+         */
+        export interface ReceiverStatusConditionsArgs {
+            /**
+             * lastTransitionTime is the last time the condition transitioned from one status to another. This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+             */
+            lastTransitionTime: pulumi.Input<string>;
+            /**
+             * message is a human readable message indicating details about the transition. This may be an empty string.
+             */
+            message: pulumi.Input<string>;
+            /**
+             * observedGeneration represents the .metadata.generation that the condition was set based upon. For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date with respect to the current state of the instance.
+             */
+            observedGeneration?: pulumi.Input<number>;
+            /**
+             * reason contains a programmatic identifier indicating the reason for the condition's last transition. Producers of specific condition types may define expected values and meanings for this field, and whether the values are considered a guaranteed API. The value should be a CamelCase string. This field may not be empty.
+             */
+            reason: pulumi.Input<string>;
+            /**
+             * status of the condition, one of True, False, Unknown.
+             */
+            status: pulumi.Input<string>;
+            /**
+             * type of condition in CamelCase or in foo.example.com/CamelCase. --- Many .condition.type values are consistent across resources like Available, but because arbitrary conditions can be useful (see .node.status.conditions), the ability to deconflict is important. The regex it matches is (dns1123SubdomainFmt/)?(qualifiedNameFmt)
+             */
+            type: pulumi.Input<string>;
+        }
+    }
 }
 
 export namespace source {
+    export namespace v1 {
+        /**
+         * GitRepositorySpec specifies the required configuration to produce an Artifact for a Git repository.
+         */
+        export interface GitRepositorySpecArgs {
+            /**
+             * Ignore overrides the set of excluded patterns in the .sourceignore format (which is the same as .gitignore). If not provided, a default will be used, consult the documentation for your version to find out what those are.
+             */
+            ignore?: pulumi.Input<string>;
+            /**
+             * Include specifies a list of GitRepository resources which Artifacts should be included in the Artifact produced for this GitRepository.
+             */
+            include?: pulumi.Input<pulumi.Input<inputs.source.v1.GitRepositorySpecIncludeArgs>[]>;
+            /**
+             * Interval at which to check the GitRepository for updates.
+             */
+            interval: pulumi.Input<string>;
+            /**
+             * RecurseSubmodules enables the initialization of all submodules within the GitRepository as cloned from the URL, using their default settings.
+             */
+            recurseSubmodules?: pulumi.Input<boolean>;
+            /**
+             * Reference specifies the Git reference to resolve and monitor for changes, defaults to the 'master' branch.
+             */
+            ref?: pulumi.Input<inputs.source.v1.GitRepositorySpecRefArgs>;
+            /**
+             * SecretRef specifies the Secret containing authentication credentials for the GitRepository. For HTTPS repositories the Secret must contain 'username' and 'password' fields for basic auth or 'bearerToken' field for token auth. For SSH repositories the Secret must contain 'identity' and 'known_hosts' fields.
+             */
+            secretRef?: pulumi.Input<inputs.source.v1.GitRepositorySpecSecretRefArgs>;
+            /**
+             * Suspend tells the controller to suspend the reconciliation of this GitRepository.
+             */
+            suspend?: pulumi.Input<boolean>;
+            /**
+             * Timeout for Git operations like cloning, defaults to 60s.
+             */
+            timeout?: pulumi.Input<string>;
+            /**
+             * URL specifies the Git repository URL, it can be an HTTP/S or SSH address.
+             */
+            url: pulumi.Input<string>;
+            /**
+             * Verification specifies the configuration to verify the Git commit signature(s).
+             */
+            verify?: pulumi.Input<inputs.source.v1.GitRepositorySpecVerifyArgs>;
+        }
+        /**
+         * gitRepositorySpecArgsProvideDefaults sets the appropriate defaults for GitRepositorySpecArgs
+         */
+        export function gitRepositorySpecArgsProvideDefaults(val: GitRepositorySpecArgs): GitRepositorySpecArgs {
+            return {
+                ...val,
+                timeout: (val.timeout) ?? "60s",
+            };
+        }
+
+        /**
+         * GitRepositoryInclude specifies a local reference to a GitRepository which Artifact (sub-)contents must be included, and where they should be placed.
+         */
+        export interface GitRepositorySpecIncludeArgs {
+            /**
+             * FromPath specifies the path to copy contents from, defaults to the root of the Artifact.
+             */
+            fromPath?: pulumi.Input<string>;
+            /**
+             * GitRepositoryRef specifies the GitRepository which Artifact contents must be included.
+             */
+            repository: pulumi.Input<inputs.source.v1.GitRepositorySpecIncludeRepositoryArgs>;
+            /**
+             * ToPath specifies the path to copy contents to, defaults to the name of the GitRepositoryRef.
+             */
+            toPath?: pulumi.Input<string>;
+        }
+
+        /**
+         * GitRepositoryRef specifies the GitRepository which Artifact contents must be included.
+         */
+        export interface GitRepositorySpecIncludeRepositoryArgs {
+            /**
+             * Name of the referent.
+             */
+            name: pulumi.Input<string>;
+        }
+
+        /**
+         * Reference specifies the Git reference to resolve and monitor for changes, defaults to the 'master' branch.
+         */
+        export interface GitRepositorySpecRefArgs {
+            /**
+             * Branch to check out, defaults to 'master' if no other field is defined.
+             */
+            branch?: pulumi.Input<string>;
+            /**
+             * Commit SHA to check out, takes precedence over all reference fields. 
+             *  This can be combined with Branch to shallow clone the branch, in which the commit is expected to exist.
+             */
+            commit?: pulumi.Input<string>;
+            /**
+             * Name of the reference to check out; takes precedence over Branch, Tag and SemVer. 
+             *  It must be a valid Git reference: https://git-scm.com/docs/git-check-ref-format#_description Examples: "refs/heads/main", "refs/tags/v0.1.0", "refs/pull/420/head", "refs/merge-requests/1/head"
+             */
+            name?: pulumi.Input<string>;
+            /**
+             * SemVer tag expression to check out, takes precedence over Tag.
+             */
+            semver?: pulumi.Input<string>;
+            /**
+             * Tag to check out, takes precedence over Branch.
+             */
+            tag?: pulumi.Input<string>;
+        }
+
+        /**
+         * SecretRef specifies the Secret containing authentication credentials for the GitRepository. For HTTPS repositories the Secret must contain 'username' and 'password' fields for basic auth or 'bearerToken' field for token auth. For SSH repositories the Secret must contain 'identity' and 'known_hosts' fields.
+         */
+        export interface GitRepositorySpecSecretRefArgs {
+            /**
+             * Name of the referent.
+             */
+            name: pulumi.Input<string>;
+        }
+
+        /**
+         * Verification specifies the configuration to verify the Git commit signature(s).
+         */
+        export interface GitRepositorySpecVerifyArgs {
+            /**
+             * Mode specifies what Git object should be verified, currently ('head').
+             */
+            mode: pulumi.Input<string>;
+            /**
+             * SecretRef specifies the Secret containing the public keys of trusted Git authors.
+             */
+            secretRef: pulumi.Input<inputs.source.v1.GitRepositorySpecVerifySecretRefArgs>;
+        }
+
+        /**
+         * SecretRef specifies the Secret containing the public keys of trusted Git authors.
+         */
+        export interface GitRepositorySpecVerifySecretRefArgs {
+            /**
+             * Name of the referent.
+             */
+            name: pulumi.Input<string>;
+        }
+
+        /**
+         * GitRepositoryStatus records the observed state of a Git repository.
+         */
+        export interface GitRepositoryStatusArgs {
+            /**
+             * Artifact represents the last successful GitRepository reconciliation.
+             */
+            artifact?: pulumi.Input<inputs.source.v1.GitRepositoryStatusArtifactArgs>;
+            /**
+             * Conditions holds the conditions for the GitRepository.
+             */
+            conditions?: pulumi.Input<pulumi.Input<inputs.source.v1.GitRepositoryStatusConditionsArgs>[]>;
+            /**
+             * IncludedArtifacts contains a list of the last successfully included Artifacts as instructed by GitRepositorySpec.Include.
+             */
+            includedArtifacts?: pulumi.Input<pulumi.Input<inputs.source.v1.GitRepositoryStatusIncludedArtifactsArgs>[]>;
+            /**
+             * LastHandledReconcileAt holds the value of the most recent reconcile request value, so a change of the annotation value can be detected.
+             */
+            lastHandledReconcileAt?: pulumi.Input<string>;
+            /**
+             * ObservedGeneration is the last observed generation of the GitRepository object.
+             */
+            observedGeneration?: pulumi.Input<number>;
+            /**
+             * ObservedIgnore is the observed exclusion patterns used for constructing the source artifact.
+             */
+            observedIgnore?: pulumi.Input<string>;
+            /**
+             * ObservedInclude is the observed list of GitRepository resources used to produce the current Artifact.
+             */
+            observedInclude?: pulumi.Input<pulumi.Input<inputs.source.v1.GitRepositoryStatusObservedIncludeArgs>[]>;
+            /**
+             * ObservedRecurseSubmodules is the observed resource submodules configuration used to produce the current Artifact.
+             */
+            observedRecurseSubmodules?: pulumi.Input<boolean>;
+        }
+
+        /**
+         * Artifact represents the last successful GitRepository reconciliation.
+         */
+        export interface GitRepositoryStatusArtifactArgs {
+            /**
+             * Digest is the digest of the file in the form of '<algorithm>:<checksum>'.
+             */
+            digest?: pulumi.Input<string>;
+            /**
+             * LastUpdateTime is the timestamp corresponding to the last update of the Artifact.
+             */
+            lastUpdateTime: pulumi.Input<string>;
+            /**
+             * Metadata holds upstream information such as OCI annotations.
+             */
+            metadata?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+            /**
+             * Path is the relative file path of the Artifact. It can be used to locate the file in the root of the Artifact storage on the local file system of the controller managing the Source.
+             */
+            path: pulumi.Input<string>;
+            /**
+             * Revision is a human-readable identifier traceable in the origin source system. It can be a Git commit SHA, Git tag, a Helm chart version, etc.
+             */
+            revision: pulumi.Input<string>;
+            /**
+             * Size is the number of bytes in the file.
+             */
+            size?: pulumi.Input<number>;
+            /**
+             * URL is the HTTP address of the Artifact as exposed by the controller managing the Source. It can be used to retrieve the Artifact for consumption, e.g. by another controller applying the Artifact contents.
+             */
+            url: pulumi.Input<string>;
+        }
+
+        /**
+         * Condition contains details for one aspect of the current state of this API Resource. --- This struct is intended for direct use as an array at the field path .status.conditions.  For example, 
+         *  type FooStatus struct{ // Represents the observations of a foo's current state. // Known .status.conditions.type are: "Available", "Progressing", and "Degraded" // +patchMergeKey=type // +patchStrategy=merge // +listType=map // +listMapKey=type Conditions []metav1.Condition `json:"conditions,omitempty" patchStrategy:"merge" patchMergeKey:"type" protobuf:"bytes,1,rep,name=conditions"` 
+         *  // other fields }
+         */
+        export interface GitRepositoryStatusConditionsArgs {
+            /**
+             * lastTransitionTime is the last time the condition transitioned from one status to another. This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+             */
+            lastTransitionTime: pulumi.Input<string>;
+            /**
+             * message is a human readable message indicating details about the transition. This may be an empty string.
+             */
+            message: pulumi.Input<string>;
+            /**
+             * observedGeneration represents the .metadata.generation that the condition was set based upon. For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date with respect to the current state of the instance.
+             */
+            observedGeneration?: pulumi.Input<number>;
+            /**
+             * reason contains a programmatic identifier indicating the reason for the condition's last transition. Producers of specific condition types may define expected values and meanings for this field, and whether the values are considered a guaranteed API. The value should be a CamelCase string. This field may not be empty.
+             */
+            reason: pulumi.Input<string>;
+            /**
+             * status of the condition, one of True, False, Unknown.
+             */
+            status: pulumi.Input<string>;
+            /**
+             * type of condition in CamelCase or in foo.example.com/CamelCase. --- Many .condition.type values are consistent across resources like Available, but because arbitrary conditions can be useful (see .node.status.conditions), the ability to deconflict is important. The regex it matches is (dns1123SubdomainFmt/)?(qualifiedNameFmt)
+             */
+            type: pulumi.Input<string>;
+        }
+
+        /**
+         * Artifact represents the output of a Source reconciliation.
+         */
+        export interface GitRepositoryStatusIncludedArtifactsArgs {
+            /**
+             * Digest is the digest of the file in the form of '<algorithm>:<checksum>'.
+             */
+            digest?: pulumi.Input<string>;
+            /**
+             * LastUpdateTime is the timestamp corresponding to the last update of the Artifact.
+             */
+            lastUpdateTime: pulumi.Input<string>;
+            /**
+             * Metadata holds upstream information such as OCI annotations.
+             */
+            metadata?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+            /**
+             * Path is the relative file path of the Artifact. It can be used to locate the file in the root of the Artifact storage on the local file system of the controller managing the Source.
+             */
+            path: pulumi.Input<string>;
+            /**
+             * Revision is a human-readable identifier traceable in the origin source system. It can be a Git commit SHA, Git tag, a Helm chart version, etc.
+             */
+            revision: pulumi.Input<string>;
+            /**
+             * Size is the number of bytes in the file.
+             */
+            size?: pulumi.Input<number>;
+            /**
+             * URL is the HTTP address of the Artifact as exposed by the controller managing the Source. It can be used to retrieve the Artifact for consumption, e.g. by another controller applying the Artifact contents.
+             */
+            url: pulumi.Input<string>;
+        }
+
+        /**
+         * GitRepositoryInclude specifies a local reference to a GitRepository which Artifact (sub-)contents must be included, and where they should be placed.
+         */
+        export interface GitRepositoryStatusObservedIncludeArgs {
+            /**
+             * FromPath specifies the path to copy contents from, defaults to the root of the Artifact.
+             */
+            fromPath?: pulumi.Input<string>;
+            /**
+             * GitRepositoryRef specifies the GitRepository which Artifact contents must be included.
+             */
+            repository: pulumi.Input<inputs.source.v1.GitRepositoryStatusObservedIncludeRepositoryArgs>;
+            /**
+             * ToPath specifies the path to copy contents to, defaults to the name of the GitRepositoryRef.
+             */
+            toPath?: pulumi.Input<string>;
+        }
+
+        /**
+         * GitRepositoryRef specifies the GitRepository which Artifact contents must be included.
+         */
+        export interface GitRepositoryStatusObservedIncludeRepositoryArgs {
+            /**
+             * Name of the referent.
+             */
+            name: pulumi.Input<string>;
+        }
+    }
+
     export namespace v1beta1 {
         /**
          * BucketSpec defines the desired state of an S3 compatible bucket
@@ -2033,7 +3323,7 @@ export namespace source {
             /**
              * AccessFrom defines an Access Control List for allowing cross-namespace references to this object.
              */
-            accessFrom?: pulumi.Input<inputs.source.v1beta1.BucketSpecAccessfromArgs>;
+            accessFrom?: pulumi.Input<inputs.source.v1beta1.BucketSpecAccessFromArgs>;
             /**
              * The bucket name.
              */
@@ -2065,7 +3355,7 @@ export namespace source {
             /**
              * The name of the secret containing authentication credentials for the Bucket.
              */
-            secretRef?: pulumi.Input<inputs.source.v1beta1.BucketSpecSecretrefArgs>;
+            secretRef?: pulumi.Input<inputs.source.v1beta1.BucketSpecSecretRefArgs>;
             /**
              * This flag tells the controller to suspend the reconciliation of this source.
              */
@@ -2089,17 +3379,17 @@ export namespace source {
         /**
          * AccessFrom defines an Access Control List for allowing cross-namespace references to this object.
          */
-        export interface BucketSpecAccessfromArgs {
+        export interface BucketSpecAccessFromArgs {
             /**
              * NamespaceSelectors is the list of namespace selectors to which this ACL applies. Items in this list are evaluated using a logical OR operation.
              */
-            namespaceSelectors: pulumi.Input<pulumi.Input<inputs.source.v1beta1.BucketSpecAccessfromNamespaceselectorsArgs>[]>;
+            namespaceSelectors: pulumi.Input<pulumi.Input<inputs.source.v1beta1.BucketSpecAccessFromNamespaceSelectorsArgs>[]>;
         }
 
         /**
          * NamespaceSelector selects the namespaces to which this ACL applies. An empty map of MatchLabels matches all namespaces in a cluster.
          */
-        export interface BucketSpecAccessfromNamespaceselectorsArgs {
+        export interface BucketSpecAccessFromNamespaceSelectorsArgs {
             /**
              * MatchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
              */
@@ -2109,7 +3399,7 @@ export namespace source {
         /**
          * The name of the secret containing authentication credentials for the Bucket.
          */
-        export interface BucketSpecSecretrefArgs {
+        export interface BucketSpecSecretRefArgs {
             /**
              * Name of the referent.
              */
@@ -2207,7 +3497,7 @@ export namespace source {
             /**
              * AccessFrom defines an Access Control List for allowing cross-namespace references to this object.
              */
-            accessFrom?: pulumi.Input<inputs.source.v1beta1.GitRepositorySpecAccessfromArgs>;
+            accessFrom?: pulumi.Input<inputs.source.v1beta1.GitRepositorySpecAccessFromArgs>;
             /**
              * Determines which git client library to use. Defaults to go-git, valid values are ('go-git', 'libgit2').
              */
@@ -2235,7 +3525,7 @@ export namespace source {
             /**
              * The secret name containing the Git credentials. For HTTPS repositories the secret must contain username and password fields. For SSH repositories the secret must contain identity and known_hosts fields.
              */
-            secretRef?: pulumi.Input<inputs.source.v1beta1.GitRepositorySpecSecretrefArgs>;
+            secretRef?: pulumi.Input<inputs.source.v1beta1.GitRepositorySpecSecretRefArgs>;
             /**
              * This flag tells the controller to suspend the reconciliation of this source.
              */
@@ -2267,17 +3557,17 @@ export namespace source {
         /**
          * AccessFrom defines an Access Control List for allowing cross-namespace references to this object.
          */
-        export interface GitRepositorySpecAccessfromArgs {
+        export interface GitRepositorySpecAccessFromArgs {
             /**
              * NamespaceSelectors is the list of namespace selectors to which this ACL applies. Items in this list are evaluated using a logical OR operation.
              */
-            namespaceSelectors: pulumi.Input<pulumi.Input<inputs.source.v1beta1.GitRepositorySpecAccessfromNamespaceselectorsArgs>[]>;
+            namespaceSelectors: pulumi.Input<pulumi.Input<inputs.source.v1beta1.GitRepositorySpecAccessFromNamespaceSelectorsArgs>[]>;
         }
 
         /**
          * NamespaceSelector selects the namespaces to which this ACL applies. An empty map of MatchLabels matches all namespaces in a cluster.
          */
-        export interface GitRepositorySpecAccessfromNamespaceselectorsArgs {
+        export interface GitRepositorySpecAccessFromNamespaceSelectorsArgs {
             /**
              * MatchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
              */
@@ -2337,7 +3627,7 @@ export namespace source {
         /**
          * The secret name containing the Git credentials. For HTTPS repositories the secret must contain username and password fields. For SSH repositories the secret must contain identity and known_hosts fields.
          */
-        export interface GitRepositorySpecSecretrefArgs {
+        export interface GitRepositorySpecSecretRefArgs {
             /**
              * Name of the referent.
              */
@@ -2355,13 +3645,13 @@ export namespace source {
             /**
              * The secret name containing the public keys of all trusted Git authors.
              */
-            secretRef?: pulumi.Input<inputs.source.v1beta1.GitRepositorySpecVerifySecretrefArgs>;
+            secretRef?: pulumi.Input<inputs.source.v1beta1.GitRepositorySpecVerifySecretRefArgs>;
         }
 
         /**
          * The secret name containing the public keys of all trusted Git authors.
          */
-        export interface GitRepositorySpecVerifySecretrefArgs {
+        export interface GitRepositorySpecVerifySecretRefArgs {
             /**
              * Name of the referent.
              */
@@ -2383,7 +3673,7 @@ export namespace source {
             /**
              * IncludedArtifacts represents the included artifacts from the last successful repository sync.
              */
-            includedArtifacts?: pulumi.Input<pulumi.Input<inputs.source.v1beta1.GitRepositoryStatusIncludedartifactsArgs>[]>;
+            includedArtifacts?: pulumi.Input<pulumi.Input<inputs.source.v1beta1.GitRepositoryStatusIncludedArtifactsArgs>[]>;
             /**
              * LastHandledReconcileAt holds the value of the most recent reconcile request value, so a change of the annotation value can be detected.
              */
@@ -2459,7 +3749,7 @@ export namespace source {
         /**
          * Artifact represents the output of a source synchronisation.
          */
-        export interface GitRepositoryStatusIncludedartifactsArgs {
+        export interface GitRepositoryStatusIncludedArtifactsArgs {
             /**
              * Checksum is the SHA256 checksum of the artifact.
              */
@@ -2489,7 +3779,7 @@ export namespace source {
             /**
              * AccessFrom defines an Access Control List for allowing cross-namespace references to this object.
              */
-            accessFrom?: pulumi.Input<inputs.source.v1beta1.HelmChartSpecAccessfromArgs>;
+            accessFrom?: pulumi.Input<inputs.source.v1beta1.HelmChartSpecAccessFromArgs>;
             /**
              * The name or path the Helm chart is available at in the SourceRef.
              */
@@ -2505,7 +3795,7 @@ export namespace source {
             /**
              * The reference to the Source the chart is available at.
              */
-            sourceRef: pulumi.Input<inputs.source.v1beta1.HelmChartSpecSourcerefArgs>;
+            sourceRef: pulumi.Input<inputs.source.v1beta1.HelmChartSpecSourceRefArgs>;
             /**
              * This flag tells the controller to suspend the reconciliation of this source.
              */
@@ -2537,17 +3827,17 @@ export namespace source {
         /**
          * AccessFrom defines an Access Control List for allowing cross-namespace references to this object.
          */
-        export interface HelmChartSpecAccessfromArgs {
+        export interface HelmChartSpecAccessFromArgs {
             /**
              * NamespaceSelectors is the list of namespace selectors to which this ACL applies. Items in this list are evaluated using a logical OR operation.
              */
-            namespaceSelectors: pulumi.Input<pulumi.Input<inputs.source.v1beta1.HelmChartSpecAccessfromNamespaceselectorsArgs>[]>;
+            namespaceSelectors: pulumi.Input<pulumi.Input<inputs.source.v1beta1.HelmChartSpecAccessFromNamespaceSelectorsArgs>[]>;
         }
 
         /**
          * NamespaceSelector selects the namespaces to which this ACL applies. An empty map of MatchLabels matches all namespaces in a cluster.
          */
-        export interface HelmChartSpecAccessfromNamespaceselectorsArgs {
+        export interface HelmChartSpecAccessFromNamespaceSelectorsArgs {
             /**
              * MatchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
              */
@@ -2557,7 +3847,7 @@ export namespace source {
         /**
          * The reference to the Source the chart is available at.
          */
-        export interface HelmChartSpecSourcerefArgs {
+        export interface HelmChartSpecSourceRefArgs {
             /**
              * APIVersion of the referent.
              */
@@ -2663,7 +3953,7 @@ export namespace source {
             /**
              * AccessFrom defines an Access Control List for allowing cross-namespace references to this object.
              */
-            accessFrom?: pulumi.Input<inputs.source.v1beta1.HelmRepositorySpecAccessfromArgs>;
+            accessFrom?: pulumi.Input<inputs.source.v1beta1.HelmRepositorySpecAccessFromArgs>;
             /**
              * The interval at which to check the upstream for updates.
              */
@@ -2673,9 +3963,9 @@ export namespace source {
              */
             passCredentials?: pulumi.Input<boolean>;
             /**
-             * The name of the secret containing authentication credentials for the Helm repository. For HTTP/S basic auth the secret must contain username and password fields. For TLS the secret must contain a certFile and keyFile, and/or caCert fields.
+             * The name of the secret containing authentication credentials for the Helm repository. For HTTP/S basic auth the secret must contain username and password fields. For TLS the secret must contain a certFile and keyFile, and/or caFile fields.
              */
-            secretRef?: pulumi.Input<inputs.source.v1beta1.HelmRepositorySpecSecretrefArgs>;
+            secretRef?: pulumi.Input<inputs.source.v1beta1.HelmRepositorySpecSecretRefArgs>;
             /**
              * This flag tells the controller to suspend the reconciliation of this source.
              */
@@ -2702,17 +3992,17 @@ export namespace source {
         /**
          * AccessFrom defines an Access Control List for allowing cross-namespace references to this object.
          */
-        export interface HelmRepositorySpecAccessfromArgs {
+        export interface HelmRepositorySpecAccessFromArgs {
             /**
              * NamespaceSelectors is the list of namespace selectors to which this ACL applies. Items in this list are evaluated using a logical OR operation.
              */
-            namespaceSelectors: pulumi.Input<pulumi.Input<inputs.source.v1beta1.HelmRepositorySpecAccessfromNamespaceselectorsArgs>[]>;
+            namespaceSelectors: pulumi.Input<pulumi.Input<inputs.source.v1beta1.HelmRepositorySpecAccessFromNamespaceSelectorsArgs>[]>;
         }
 
         /**
          * NamespaceSelector selects the namespaces to which this ACL applies. An empty map of MatchLabels matches all namespaces in a cluster.
          */
-        export interface HelmRepositorySpecAccessfromNamespaceselectorsArgs {
+        export interface HelmRepositorySpecAccessFromNamespaceSelectorsArgs {
             /**
              * MatchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
              */
@@ -2720,9 +4010,9 @@ export namespace source {
         }
 
         /**
-         * The name of the secret containing authentication credentials for the Helm repository. For HTTP/S basic auth the secret must contain username and password fields. For TLS the secret must contain a certFile and keyFile, and/or caCert fields.
+         * The name of the secret containing authentication credentials for the Helm repository. For HTTP/S basic auth the secret must contain username and password fields. For TLS the secret must contain a certFile and keyFile, and/or caFile fields.
          */
-        export interface HelmRepositorySpecSecretrefArgs {
+        export interface HelmRepositorySpecSecretRefArgs {
             /**
              * Name of the referent.
              */
@@ -2822,7 +4112,7 @@ export namespace source {
             /**
              * AccessFrom specifies an Access Control List for allowing cross-namespace references to this object. NOTE: Not implemented, provisional as of https://github.com/fluxcd/flux2/pull/2092
              */
-            accessFrom?: pulumi.Input<inputs.source.v1beta2.BucketSpecAccessfromArgs>;
+            accessFrom?: pulumi.Input<inputs.source.v1beta2.BucketSpecAccessFromArgs>;
             /**
              * BucketName is the name of the object storage bucket.
              */
@@ -2854,7 +4144,7 @@ export namespace source {
             /**
              * SecretRef specifies the Secret containing authentication credentials for the Bucket.
              */
-            secretRef?: pulumi.Input<inputs.source.v1beta2.BucketSpecSecretrefArgs>;
+            secretRef?: pulumi.Input<inputs.source.v1beta2.BucketSpecSecretRefArgs>;
             /**
              * Suspend tells the controller to suspend the reconciliation of this Bucket.
              */
@@ -2878,17 +4168,17 @@ export namespace source {
         /**
          * AccessFrom specifies an Access Control List for allowing cross-namespace references to this object. NOTE: Not implemented, provisional as of https://github.com/fluxcd/flux2/pull/2092
          */
-        export interface BucketSpecAccessfromArgs {
+        export interface BucketSpecAccessFromArgs {
             /**
              * NamespaceSelectors is the list of namespace selectors to which this ACL applies. Items in this list are evaluated using a logical OR operation.
              */
-            namespaceSelectors: pulumi.Input<pulumi.Input<inputs.source.v1beta2.BucketSpecAccessfromNamespaceselectorsArgs>[]>;
+            namespaceSelectors: pulumi.Input<pulumi.Input<inputs.source.v1beta2.BucketSpecAccessFromNamespaceSelectorsArgs>[]>;
         }
 
         /**
          * NamespaceSelector selects the namespaces to which this ACL applies. An empty map of MatchLabels matches all namespaces in a cluster.
          */
-        export interface BucketSpecAccessfromNamespaceselectorsArgs {
+        export interface BucketSpecAccessFromNamespaceSelectorsArgs {
             /**
              * MatchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
              */
@@ -2898,7 +4188,7 @@ export namespace source {
         /**
          * SecretRef specifies the Secret containing authentication credentials for the Bucket.
          */
-        export interface BucketSpecSecretrefArgs {
+        export interface BucketSpecSecretRefArgs {
             /**
              * Name of the referent.
              */
@@ -2940,13 +4230,13 @@ export namespace source {
          */
         export interface BucketStatusArtifactArgs {
             /**
-             * Checksum is the SHA256 checksum of the Artifact file.
+             * Digest is the digest of the file in the form of '<algorithm>:<checksum>'.
              */
-            checksum?: pulumi.Input<string>;
+            digest?: pulumi.Input<string>;
             /**
              * LastUpdateTime is the timestamp corresponding to the last update of the Artifact.
              */
-            lastUpdateTime?: pulumi.Input<string>;
+            lastUpdateTime: pulumi.Input<string>;
             /**
              * Metadata holds upstream information such as OCI annotations.
              */
@@ -2958,7 +4248,7 @@ export namespace source {
             /**
              * Revision is a human-readable identifier traceable in the origin source system. It can be a Git commit SHA, Git tag, a Helm chart version, etc.
              */
-            revision?: pulumi.Input<string>;
+            revision: pulumi.Input<string>;
             /**
              * Size is the number of bytes in the file.
              */
@@ -3008,9 +4298,9 @@ export namespace source {
             /**
              * AccessFrom specifies an Access Control List for allowing cross-namespace references to this object. NOTE: Not implemented, provisional as of https://github.com/fluxcd/flux2/pull/2092
              */
-            accessFrom?: pulumi.Input<inputs.source.v1beta2.GitRepositorySpecAccessfromArgs>;
+            accessFrom?: pulumi.Input<inputs.source.v1beta2.GitRepositorySpecAccessFromArgs>;
             /**
-             * GitImplementation specifies which Git client library implementation to use. Defaults to 'go-git', valid values are ('go-git', 'libgit2').
+             * GitImplementation specifies which Git client library implementation to use. Defaults to 'go-git', valid values are ('go-git', 'libgit2'). Deprecated: gitImplementation is deprecated now that 'go-git' is the only supported implementation.
              */
             gitImplementation?: pulumi.Input<string>;
             /**
@@ -3026,7 +4316,7 @@ export namespace source {
              */
             interval: pulumi.Input<string>;
             /**
-             * RecurseSubmodules enables the initialization of all submodules within the GitRepository as cloned from the URL, using their default settings. This option is available only when using the 'go-git' GitImplementation.
+             * RecurseSubmodules enables the initialization of all submodules within the GitRepository as cloned from the URL, using their default settings.
              */
             recurseSubmodules?: pulumi.Input<boolean>;
             /**
@@ -3034,9 +4324,9 @@ export namespace source {
              */
             ref?: pulumi.Input<inputs.source.v1beta2.GitRepositorySpecRefArgs>;
             /**
-             * SecretRef specifies the Secret containing authentication credentials for the GitRepository. For HTTPS repositories the Secret must contain 'username' and 'password' fields. For SSH repositories the Secret must contain 'identity' and 'known_hosts' fields.
+             * SecretRef specifies the Secret containing authentication credentials for the GitRepository. For HTTPS repositories the Secret must contain 'username' and 'password' fields for basic auth or 'bearerToken' field for token auth. For SSH repositories the Secret must contain 'identity' and 'known_hosts' fields.
              */
-            secretRef?: pulumi.Input<inputs.source.v1beta2.GitRepositorySpecSecretrefArgs>;
+            secretRef?: pulumi.Input<inputs.source.v1beta2.GitRepositorySpecSecretRefArgs>;
             /**
              * Suspend tells the controller to suspend the reconciliation of this GitRepository.
              */
@@ -3068,17 +4358,17 @@ export namespace source {
         /**
          * AccessFrom specifies an Access Control List for allowing cross-namespace references to this object. NOTE: Not implemented, provisional as of https://github.com/fluxcd/flux2/pull/2092
          */
-        export interface GitRepositorySpecAccessfromArgs {
+        export interface GitRepositorySpecAccessFromArgs {
             /**
              * NamespaceSelectors is the list of namespace selectors to which this ACL applies. Items in this list are evaluated using a logical OR operation.
              */
-            namespaceSelectors: pulumi.Input<pulumi.Input<inputs.source.v1beta2.GitRepositorySpecAccessfromNamespaceselectorsArgs>[]>;
+            namespaceSelectors: pulumi.Input<pulumi.Input<inputs.source.v1beta2.GitRepositorySpecAccessFromNamespaceSelectorsArgs>[]>;
         }
 
         /**
          * NamespaceSelector selects the namespaces to which this ACL applies. An empty map of MatchLabels matches all namespaces in a cluster.
          */
-        export interface GitRepositorySpecAccessfromNamespaceselectorsArgs {
+        export interface GitRepositorySpecAccessFromNamespaceSelectorsArgs {
             /**
              * MatchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
              */
@@ -3118,15 +4408,19 @@ export namespace source {
          */
         export interface GitRepositorySpecRefArgs {
             /**
-             * Branch to check out, defaults to 'master' if no other field is defined. 
-             *  When GitRepositorySpec.GitImplementation is set to 'go-git', a shallow clone of the specified branch is performed.
+             * Branch to check out, defaults to 'master' if no other field is defined.
              */
             branch?: pulumi.Input<string>;
             /**
              * Commit SHA to check out, takes precedence over all reference fields. 
-             *  When GitRepositorySpec.GitImplementation is set to 'go-git', this can be combined with Branch to shallow clone the branch, in which the commit is expected to exist.
+             *  This can be combined with Branch to shallow clone the branch, in which the commit is expected to exist.
              */
             commit?: pulumi.Input<string>;
+            /**
+             * Name of the reference to check out; takes precedence over Branch, Tag and SemVer. 
+             *  It must be a valid Git reference: https://git-scm.com/docs/git-check-ref-format#_description Examples: "refs/heads/main", "refs/tags/v0.1.0", "refs/pull/420/head", "refs/merge-requests/1/head"
+             */
+            name?: pulumi.Input<string>;
             /**
              * SemVer tag expression to check out, takes precedence over Tag.
              */
@@ -3138,9 +4432,9 @@ export namespace source {
         }
 
         /**
-         * SecretRef specifies the Secret containing authentication credentials for the GitRepository. For HTTPS repositories the Secret must contain 'username' and 'password' fields. For SSH repositories the Secret must contain 'identity' and 'known_hosts' fields.
+         * SecretRef specifies the Secret containing authentication credentials for the GitRepository. For HTTPS repositories the Secret must contain 'username' and 'password' fields for basic auth or 'bearerToken' field for token auth. For SSH repositories the Secret must contain 'identity' and 'known_hosts' fields.
          */
-        export interface GitRepositorySpecSecretrefArgs {
+        export interface GitRepositorySpecSecretRefArgs {
             /**
              * Name of the referent.
              */
@@ -3158,13 +4452,13 @@ export namespace source {
             /**
              * SecretRef specifies the Secret containing the public keys of trusted Git authors.
              */
-            secretRef?: pulumi.Input<inputs.source.v1beta2.GitRepositorySpecVerifySecretrefArgs>;
+            secretRef: pulumi.Input<inputs.source.v1beta2.GitRepositorySpecVerifySecretRefArgs>;
         }
 
         /**
          * SecretRef specifies the Secret containing the public keys of trusted Git authors.
          */
-        export interface GitRepositorySpecVerifySecretrefArgs {
+        export interface GitRepositorySpecVerifySecretRefArgs {
             /**
              * Name of the referent.
              */
@@ -3191,7 +4485,7 @@ export namespace source {
             /**
              * IncludedArtifacts contains a list of the last successfully included Artifacts as instructed by GitRepositorySpec.Include.
              */
-            includedArtifacts?: pulumi.Input<pulumi.Input<inputs.source.v1beta2.GitRepositoryStatusIncludedartifactsArgs>[]>;
+            includedArtifacts?: pulumi.Input<pulumi.Input<inputs.source.v1beta2.GitRepositoryStatusIncludedArtifactsArgs>[]>;
             /**
              * LastHandledReconcileAt holds the value of the most recent reconcile request value, so a change of the annotation value can be detected.
              */
@@ -3207,7 +4501,7 @@ export namespace source {
             /**
              * ObservedInclude is the observed list of GitRepository resources used to to produce the current Artifact.
              */
-            observedInclude?: pulumi.Input<pulumi.Input<inputs.source.v1beta2.GitRepositoryStatusObservedincludeArgs>[]>;
+            observedInclude?: pulumi.Input<pulumi.Input<inputs.source.v1beta2.GitRepositoryStatusObservedIncludeArgs>[]>;
             /**
              * ObservedRecurseSubmodules is the observed resource submodules configuration used to produce the current Artifact.
              */
@@ -3223,13 +4517,13 @@ export namespace source {
          */
         export interface GitRepositoryStatusArtifactArgs {
             /**
-             * Checksum is the SHA256 checksum of the Artifact file.
+             * Digest is the digest of the file in the form of '<algorithm>:<checksum>'.
              */
-            checksum?: pulumi.Input<string>;
+            digest?: pulumi.Input<string>;
             /**
              * LastUpdateTime is the timestamp corresponding to the last update of the Artifact.
              */
-            lastUpdateTime?: pulumi.Input<string>;
+            lastUpdateTime: pulumi.Input<string>;
             /**
              * Metadata holds upstream information such as OCI annotations.
              */
@@ -3241,7 +4535,7 @@ export namespace source {
             /**
              * Revision is a human-readable identifier traceable in the origin source system. It can be a Git commit SHA, Git tag, a Helm chart version, etc.
              */
-            revision?: pulumi.Input<string>;
+            revision: pulumi.Input<string>;
             /**
              * Size is the number of bytes in the file.
              */
@@ -3287,15 +4581,15 @@ export namespace source {
         /**
          * Artifact represents the output of a Source reconciliation.
          */
-        export interface GitRepositoryStatusIncludedartifactsArgs {
+        export interface GitRepositoryStatusIncludedArtifactsArgs {
             /**
-             * Checksum is the SHA256 checksum of the Artifact file.
+             * Digest is the digest of the file in the form of '<algorithm>:<checksum>'.
              */
-            checksum?: pulumi.Input<string>;
+            digest?: pulumi.Input<string>;
             /**
              * LastUpdateTime is the timestamp corresponding to the last update of the Artifact.
              */
-            lastUpdateTime?: pulumi.Input<string>;
+            lastUpdateTime: pulumi.Input<string>;
             /**
              * Metadata holds upstream information such as OCI annotations.
              */
@@ -3307,7 +4601,7 @@ export namespace source {
             /**
              * Revision is a human-readable identifier traceable in the origin source system. It can be a Git commit SHA, Git tag, a Helm chart version, etc.
              */
-            revision?: pulumi.Input<string>;
+            revision: pulumi.Input<string>;
             /**
              * Size is the number of bytes in the file.
              */
@@ -3321,7 +4615,7 @@ export namespace source {
         /**
          * GitRepositoryInclude specifies a local reference to a GitRepository which Artifact (sub-)contents must be included, and where they should be placed.
          */
-        export interface GitRepositoryStatusObservedincludeArgs {
+        export interface GitRepositoryStatusObservedIncludeArgs {
             /**
              * FromPath specifies the path to copy contents from, defaults to the root of the Artifact.
              */
@@ -3329,7 +4623,7 @@ export namespace source {
             /**
              * GitRepositoryRef specifies the GitRepository which Artifact contents must be included.
              */
-            repository: pulumi.Input<inputs.source.v1beta2.GitRepositoryStatusObservedincludeRepositoryArgs>;
+            repository: pulumi.Input<inputs.source.v1beta2.GitRepositoryStatusObservedIncludeRepositoryArgs>;
             /**
              * ToPath specifies the path to copy contents to, defaults to the name of the GitRepositoryRef.
              */
@@ -3339,7 +4633,7 @@ export namespace source {
         /**
          * GitRepositoryRef specifies the GitRepository which Artifact contents must be included.
          */
-        export interface GitRepositoryStatusObservedincludeRepositoryArgs {
+        export interface GitRepositoryStatusObservedIncludeRepositoryArgs {
             /**
              * Name of the referent.
              */
@@ -3353,7 +4647,7 @@ export namespace source {
             /**
              * AccessFrom specifies an Access Control List for allowing cross-namespace references to this object. NOTE: Not implemented, provisional as of https://github.com/fluxcd/flux2/pull/2092
              */
-            accessFrom?: pulumi.Input<inputs.source.v1beta2.HelmChartSpecAccessfromArgs>;
+            accessFrom?: pulumi.Input<inputs.source.v1beta2.HelmChartSpecAccessFromArgs>;
             /**
              * Chart is the name or path the Helm chart is available at in the SourceRef.
              */
@@ -3369,7 +4663,7 @@ export namespace source {
             /**
              * SourceRef is the reference to the Source the chart is available at.
              */
-            sourceRef: pulumi.Input<inputs.source.v1beta2.HelmChartSpecSourcerefArgs>;
+            sourceRef: pulumi.Input<inputs.source.v1beta2.HelmChartSpecSourceRefArgs>;
             /**
              * Suspend tells the controller to suspend the reconciliation of this source.
              */
@@ -3406,17 +4700,17 @@ export namespace source {
         /**
          * AccessFrom specifies an Access Control List for allowing cross-namespace references to this object. NOTE: Not implemented, provisional as of https://github.com/fluxcd/flux2/pull/2092
          */
-        export interface HelmChartSpecAccessfromArgs {
+        export interface HelmChartSpecAccessFromArgs {
             /**
              * NamespaceSelectors is the list of namespace selectors to which this ACL applies. Items in this list are evaluated using a logical OR operation.
              */
-            namespaceSelectors: pulumi.Input<pulumi.Input<inputs.source.v1beta2.HelmChartSpecAccessfromNamespaceselectorsArgs>[]>;
+            namespaceSelectors: pulumi.Input<pulumi.Input<inputs.source.v1beta2.HelmChartSpecAccessFromNamespaceSelectorsArgs>[]>;
         }
 
         /**
          * NamespaceSelector selects the namespaces to which this ACL applies. An empty map of MatchLabels matches all namespaces in a cluster.
          */
-        export interface HelmChartSpecAccessfromNamespaceselectorsArgs {
+        export interface HelmChartSpecAccessFromNamespaceSelectorsArgs {
             /**
              * MatchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
              */
@@ -3426,7 +4720,7 @@ export namespace source {
         /**
          * SourceRef is the reference to the Source the chart is available at.
          */
-        export interface HelmChartSpecSourcerefArgs {
+        export interface HelmChartSpecSourceRefArgs {
             /**
              * APIVersion of the referent.
              */
@@ -3452,7 +4746,7 @@ export namespace source {
             /**
              * SecretRef specifies the Kubernetes Secret containing the trusted public keys.
              */
-            secretRef?: pulumi.Input<inputs.source.v1beta2.HelmChartSpecVerifySecretrefArgs>;
+            secretRef?: pulumi.Input<inputs.source.v1beta2.HelmChartSpecVerifySecretRefArgs>;
         }
         /**
          * helmChartSpecVerifyArgsProvideDefaults sets the appropriate defaults for HelmChartSpecVerifyArgs
@@ -3467,7 +4761,7 @@ export namespace source {
         /**
          * SecretRef specifies the Kubernetes Secret containing the trusted public keys.
          */
-        export interface HelmChartSpecVerifySecretrefArgs {
+        export interface HelmChartSpecVerifySecretRefArgs {
             /**
              * Name of the referent.
              */
@@ -3513,13 +4807,13 @@ export namespace source {
          */
         export interface HelmChartStatusArtifactArgs {
             /**
-             * Checksum is the SHA256 checksum of the Artifact file.
+             * Digest is the digest of the file in the form of '<algorithm>:<checksum>'.
              */
-            checksum?: pulumi.Input<string>;
+            digest?: pulumi.Input<string>;
             /**
              * LastUpdateTime is the timestamp corresponding to the last update of the Artifact.
              */
-            lastUpdateTime?: pulumi.Input<string>;
+            lastUpdateTime: pulumi.Input<string>;
             /**
              * Metadata holds upstream information such as OCI annotations.
              */
@@ -3531,7 +4825,7 @@ export namespace source {
             /**
              * Revision is a human-readable identifier traceable in the origin source system. It can be a Git commit SHA, Git tag, a Helm chart version, etc.
              */
-            revision?: pulumi.Input<string>;
+            revision: pulumi.Input<string>;
             /**
              * Size is the number of bytes in the file.
              */
@@ -3581,7 +4875,7 @@ export namespace source {
             /**
              * AccessFrom specifies an Access Control List for allowing cross-namespace references to this object. NOTE: Not implemented, provisional as of https://github.com/fluxcd/flux2/pull/2092
              */
-            accessFrom?: pulumi.Input<inputs.source.v1beta2.HelmRepositorySpecAccessfromArgs>;
+            accessFrom?: pulumi.Input<inputs.source.v1beta2.HelmRepositorySpecAccessFromArgs>;
             /**
              * Interval at which to check the URL for updates.
              */
@@ -3595,9 +4889,9 @@ export namespace source {
              */
             provider?: pulumi.Input<string>;
             /**
-             * SecretRef specifies the Secret containing authentication credentials for the HelmRepository. For HTTP/S basic auth the secret must contain 'username' and 'password' fields. For TLS the secret must contain a 'certFile' and 'keyFile', and/or 'caCert' fields.
+             * SecretRef specifies the Secret containing authentication credentials for the HelmRepository. For HTTP/S basic auth the secret must contain 'username' and 'password' fields. For TLS the secret must contain a 'certFile' and 'keyFile', and/or 'caFile' fields.
              */
-            secretRef?: pulumi.Input<inputs.source.v1beta2.HelmRepositorySpecSecretrefArgs>;
+            secretRef?: pulumi.Input<inputs.source.v1beta2.HelmRepositorySpecSecretRefArgs>;
             /**
              * Suspend tells the controller to suspend the reconciliation of this HelmRepository.
              */
@@ -3629,17 +4923,17 @@ export namespace source {
         /**
          * AccessFrom specifies an Access Control List for allowing cross-namespace references to this object. NOTE: Not implemented, provisional as of https://github.com/fluxcd/flux2/pull/2092
          */
-        export interface HelmRepositorySpecAccessfromArgs {
+        export interface HelmRepositorySpecAccessFromArgs {
             /**
              * NamespaceSelectors is the list of namespace selectors to which this ACL applies. Items in this list are evaluated using a logical OR operation.
              */
-            namespaceSelectors: pulumi.Input<pulumi.Input<inputs.source.v1beta2.HelmRepositorySpecAccessfromNamespaceselectorsArgs>[]>;
+            namespaceSelectors: pulumi.Input<pulumi.Input<inputs.source.v1beta2.HelmRepositorySpecAccessFromNamespaceSelectorsArgs>[]>;
         }
 
         /**
          * NamespaceSelector selects the namespaces to which this ACL applies. An empty map of MatchLabels matches all namespaces in a cluster.
          */
-        export interface HelmRepositorySpecAccessfromNamespaceselectorsArgs {
+        export interface HelmRepositorySpecAccessFromNamespaceSelectorsArgs {
             /**
              * MatchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
              */
@@ -3647,9 +4941,9 @@ export namespace source {
         }
 
         /**
-         * SecretRef specifies the Secret containing authentication credentials for the HelmRepository. For HTTP/S basic auth the secret must contain 'username' and 'password' fields. For TLS the secret must contain a 'certFile' and 'keyFile', and/or 'caCert' fields.
+         * SecretRef specifies the Secret containing authentication credentials for the HelmRepository. For HTTP/S basic auth the secret must contain 'username' and 'password' fields. For TLS the secret must contain a 'certFile' and 'keyFile', and/or 'caFile' fields.
          */
-        export interface HelmRepositorySpecSecretrefArgs {
+        export interface HelmRepositorySpecSecretRefArgs {
             /**
              * Name of the referent.
              */
@@ -3687,13 +4981,13 @@ export namespace source {
          */
         export interface HelmRepositoryStatusArtifactArgs {
             /**
-             * Checksum is the SHA256 checksum of the Artifact file.
+             * Digest is the digest of the file in the form of '<algorithm>:<checksum>'.
              */
-            checksum?: pulumi.Input<string>;
+            digest?: pulumi.Input<string>;
             /**
              * LastUpdateTime is the timestamp corresponding to the last update of the Artifact.
              */
-            lastUpdateTime?: pulumi.Input<string>;
+            lastUpdateTime: pulumi.Input<string>;
             /**
              * Metadata holds upstream information such as OCI annotations.
              */
@@ -3705,7 +4999,7 @@ export namespace source {
             /**
              * Revision is a human-readable identifier traceable in the origin source system. It can be a Git commit SHA, Git tag, a Helm chart version, etc.
              */
-            revision?: pulumi.Input<string>;
+            revision: pulumi.Input<string>;
             /**
              * Size is the number of bytes in the file.
              */
@@ -3757,7 +5051,7 @@ export namespace source {
              *  - a PEM-encoded client certificate (`certFile`) and private key (`keyFile`); - a PEM-encoded CA certificate (`caFile`) 
              *  and whichever are supplied, will be used for connecting to the registry. The client cert and key are useful if you are authenticating with a certificate; the CA cert is useful if you are using a self-signed server certificate.
              */
-            certSecretRef?: pulumi.Input<inputs.source.v1beta2.OCIRepositorySpecCertsecretrefArgs>;
+            certSecretRef?: pulumi.Input<inputs.source.v1beta2.OCIRepositorySpecCertSecretRefArgs>;
             /**
              * Ignore overrides the set of excluded patterns in the .sourceignore format (which is the same as .gitignore). If not provided, a default will be used, consult the documentation for your version to find out what those are.
              */
@@ -3773,7 +5067,7 @@ export namespace source {
             /**
              * LayerSelector specifies which layer should be extracted from the OCI artifact. When not specified, the first layer found in the artifact is selected.
              */
-            layerSelector?: pulumi.Input<inputs.source.v1beta2.OCIRepositorySpecLayerselectorArgs>;
+            layerSelector?: pulumi.Input<inputs.source.v1beta2.OCIRepositorySpecLayerSelectorArgs>;
             /**
              * The provider used for authentication, can be 'aws', 'azure', 'gcp' or 'generic'. When not specified, defaults to 'generic'.
              */
@@ -3785,7 +5079,7 @@ export namespace source {
             /**
              * SecretRef contains the secret name containing the registry login credentials to resolve image metadata. The secret must be of type kubernetes.io/dockerconfigjson.
              */
-            secretRef?: pulumi.Input<inputs.source.v1beta2.OCIRepositorySpecSecretrefArgs>;
+            secretRef?: pulumi.Input<inputs.source.v1beta2.OCIRepositorySpecSecretRefArgs>;
             /**
              * ServiceAccountName is the name of the Kubernetes ServiceAccount used to authenticate the image pull if the service account has attached pull secrets. For more information: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/#add-imagepullsecrets-to-a-service-account
              */
@@ -3824,7 +5118,7 @@ export namespace source {
          *  - a PEM-encoded client certificate (`certFile`) and private key (`keyFile`); - a PEM-encoded CA certificate (`caFile`) 
          *  and whichever are supplied, will be used for connecting to the registry. The client cert and key are useful if you are authenticating with a certificate; the CA cert is useful if you are using a self-signed server certificate.
          */
-        export interface OCIRepositorySpecCertsecretrefArgs {
+        export interface OCIRepositorySpecCertSecretRefArgs {
             /**
              * Name of the referent.
              */
@@ -3834,7 +5128,7 @@ export namespace source {
         /**
          * LayerSelector specifies which layer should be extracted from the OCI artifact. When not specified, the first layer found in the artifact is selected.
          */
-        export interface OCIRepositorySpecLayerselectorArgs {
+        export interface OCIRepositorySpecLayerSelectorArgs {
             /**
              * MediaType specifies the OCI media type of the layer which should be extracted from the OCI Artifact. The first layer matching this type is selected.
              */
@@ -3866,7 +5160,7 @@ export namespace source {
         /**
          * SecretRef contains the secret name containing the registry login credentials to resolve image metadata. The secret must be of type kubernetes.io/dockerconfigjson.
          */
-        export interface OCIRepositorySpecSecretrefArgs {
+        export interface OCIRepositorySpecSecretRefArgs {
             /**
              * Name of the referent.
              */
@@ -3884,7 +5178,7 @@ export namespace source {
             /**
              * SecretRef specifies the Kubernetes Secret containing the trusted public keys.
              */
-            secretRef?: pulumi.Input<inputs.source.v1beta2.OCIRepositorySpecVerifySecretrefArgs>;
+            secretRef?: pulumi.Input<inputs.source.v1beta2.OCIRepositorySpecVerifySecretRefArgs>;
         }
         /**
          * ocirepositorySpecVerifyArgsProvideDefaults sets the appropriate defaults for OCIRepositorySpecVerifyArgs
@@ -3899,7 +5193,7 @@ export namespace source {
         /**
          * SecretRef specifies the Kubernetes Secret containing the trusted public keys.
          */
-        export interface OCIRepositorySpecVerifySecretrefArgs {
+        export interface OCIRepositorySpecVerifySecretRefArgs {
             /**
              * Name of the referent.
              */
@@ -3938,7 +5232,7 @@ export namespace source {
             /**
              * ObservedLayerSelector is the observed layer selector used for constructing the source artifact.
              */
-            observedLayerSelector?: pulumi.Input<inputs.source.v1beta2.OCIRepositoryStatusObservedlayerselectorArgs>;
+            observedLayerSelector?: pulumi.Input<inputs.source.v1beta2.OCIRepositoryStatusObservedLayerSelectorArgs>;
             /**
              * URL is the download link for the artifact output of the last OCI Repository sync.
              */
@@ -3950,13 +5244,13 @@ export namespace source {
          */
         export interface OCIRepositoryStatusArtifactArgs {
             /**
-             * Checksum is the SHA256 checksum of the Artifact file.
+             * Digest is the digest of the file in the form of '<algorithm>:<checksum>'.
              */
-            checksum?: pulumi.Input<string>;
+            digest?: pulumi.Input<string>;
             /**
              * LastUpdateTime is the timestamp corresponding to the last update of the Artifact.
              */
-            lastUpdateTime?: pulumi.Input<string>;
+            lastUpdateTime: pulumi.Input<string>;
             /**
              * Metadata holds upstream information such as OCI annotations.
              */
@@ -3968,7 +5262,7 @@ export namespace source {
             /**
              * Revision is a human-readable identifier traceable in the origin source system. It can be a Git commit SHA, Git tag, a Helm chart version, etc.
              */
-            revision?: pulumi.Input<string>;
+            revision: pulumi.Input<string>;
             /**
              * Size is the number of bytes in the file.
              */
@@ -4014,7 +5308,7 @@ export namespace source {
         /**
          * ObservedLayerSelector is the observed layer selector used for constructing the source artifact.
          */
-        export interface OCIRepositoryStatusObservedlayerselectorArgs {
+        export interface OCIRepositoryStatusObservedLayerSelectorArgs {
             /**
              * MediaType specifies the OCI media type of the layer which should be extracted from the OCI Artifact. The first layer matching this type is selected.
              */

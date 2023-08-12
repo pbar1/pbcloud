@@ -22,7 +22,7 @@ export namespace helm {
             /**
              * DependsOn may contain a meta.NamespacedObjectReference slice with references to HelmRelease resources that must be ready before this HelmRelease can be reconciled.
              */
-            dependsOn?: outputs.helm.v2beta1.HelmReleaseSpecDependson[];
+            dependsOn?: outputs.helm.v2beta1.HelmReleaseSpecDependsOn[];
             /**
              * Install holds the configuration for Helm install actions for this HelmRelease.
              */
@@ -34,15 +34,21 @@ export namespace helm {
             /**
              * KubeConfig for reconciling the HelmRelease on a remote cluster. When used in combination with HelmReleaseSpec.ServiceAccountName, forces the controller to act on behalf of that Service Account at the target cluster. If the --default-service-account flag is set, its value will be used as a controller level fallback for when HelmReleaseSpec.ServiceAccountName is empty.
              */
-            kubeConfig?: outputs.helm.v2beta1.HelmReleaseSpecKubeconfig;
+            kubeConfig?: outputs.helm.v2beta1.HelmReleaseSpecKubeConfig;
             /**
              * MaxHistory is the number of revisions saved by Helm for this HelmRelease. Use '0' for an unlimited number of revisions; defaults to '10'.
              */
             maxHistory?: number;
             /**
+             * PersistentClient tells the controller to use a persistent Kubernetes client for this release. When enabled, the client will be reused for the duration of the reconciliation, instead of being created and destroyed for each (step of a) Helm action. 
+             *  This can improve performance, but may cause issues with some Helm charts that for example do create Custom Resource Definitions during installation outside Helm's CRD lifecycle hooks, which are then not observed to be available by e.g. post-install hooks. 
+             *  If not set, it defaults to true.
+             */
+            persistentClient?: boolean;
+            /**
              * PostRenderers holds an array of Helm PostRenderers, which will be applied in order of their definition.
              */
-            postRenderers?: outputs.helm.v2beta1.HelmReleaseSpecPostrenderers[];
+            postRenderers?: outputs.helm.v2beta1.HelmReleaseSpecPostRenderers[];
             /**
              * ReleaseName used for the Helm release. Defaults to a composition of '[TargetNamespace-]Name'.
              */
@@ -90,7 +96,7 @@ export namespace helm {
             /**
              * ValuesFrom holds references to resources containing Helm values for this HelmRelease, and information about how they should be merged.
              */
-            valuesFrom?: outputs.helm.v2beta1.HelmReleaseSpecValuesfrom[];
+            valuesFrom?: outputs.helm.v2beta1.HelmReleaseSpecValuesFrom[];
         }
         /**
          * helmReleaseSpecProvideDefaults sets the appropriate defaults for HelmReleaseSpec
@@ -99,6 +105,7 @@ export namespace helm {
             return {
                 ...val,
                 chart: outputs.helm.v2beta1.helmReleaseSpecChartProvideDefaults(val.chart),
+                uninstall: (val.uninstall ? outputs.helm.v2beta1.helmReleaseSpecUninstallProvideDefaults(val.uninstall) : undefined),
             };
         }
 
@@ -106,6 +113,10 @@ export namespace helm {
          * Chart defines the template of the v1beta2.HelmChart that should be created for this HelmRelease.
          */
         export interface HelmReleaseSpecChart {
+            /**
+             * ObjectMeta holds the template for metadata like labels and annotations.
+             */
+            metadata?: outputs.helm.v2beta1.HelmReleaseSpecChartMetadata;
             /**
              * Spec holds the template for the v1beta2.HelmChartSpec for this HelmRelease.
              */
@@ -119,6 +130,20 @@ export namespace helm {
                 ...val,
                 spec: outputs.helm.v2beta1.helmReleaseSpecChartSpecProvideDefaults(val.spec),
             };
+        }
+
+        /**
+         * ObjectMeta holds the template for metadata like labels and annotations.
+         */
+        export interface HelmReleaseSpecChartMetadata {
+            /**
+             * Annotations is an unstructured key value map stored with a resource that may be set by external tools to store and retrieve arbitrary metadata. They are not queryable and should be preserved when modifying objects. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+             */
+            annotations?: {[key: string]: string};
+            /**
+             * Map of string keys and values that can be used to organize and categorize (scope and select) objects. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
+             */
+            labels?: {[key: string]: string};
         }
 
         /**
@@ -140,7 +165,7 @@ export namespace helm {
             /**
              * The name and namespace of the v1beta2.Source the chart is available at.
              */
-            sourceRef: outputs.helm.v2beta1.HelmReleaseSpecChartSpecSourceref;
+            sourceRef: outputs.helm.v2beta1.HelmReleaseSpecChartSpecSourceRef;
             /**
              * Alternative values file to use as the default chart values, expected to be a relative path in the SourceRef. Deprecated in favor of ValuesFiles, for backwards compatibility the file defined here is merged before the ValuesFiles items. Ignored when omitted.
              */
@@ -173,7 +198,7 @@ export namespace helm {
         /**
          * The name and namespace of the v1beta2.Source the chart is available at.
          */
-        export interface HelmReleaseSpecChartSpecSourceref {
+        export interface HelmReleaseSpecChartSpecSourceRef {
             /**
              * APIVersion of the referent.
              */
@@ -203,7 +228,7 @@ export namespace helm {
             /**
              * SecretRef specifies the Kubernetes Secret containing the trusted public keys.
              */
-            secretRef?: outputs.helm.v2beta1.HelmReleaseSpecChartSpecVerifySecretref;
+            secretRef?: outputs.helm.v2beta1.HelmReleaseSpecChartSpecVerifySecretRef;
         }
         /**
          * helmReleaseSpecChartSpecVerifyProvideDefaults sets the appropriate defaults for HelmReleaseSpecChartSpecVerify
@@ -218,7 +243,7 @@ export namespace helm {
         /**
          * SecretRef specifies the Kubernetes Secret containing the trusted public keys.
          */
-        export interface HelmReleaseSpecChartSpecVerifySecretref {
+        export interface HelmReleaseSpecChartSpecVerifySecretRef {
             /**
              * Name of the referent.
              */
@@ -228,7 +253,7 @@ export namespace helm {
         /**
          * NamespacedObjectReference contains enough information to locate the referenced Kubernetes resource object in any namespace.
          */
-        export interface HelmReleaseSpecDependson {
+        export interface HelmReleaseSpecDependsOn {
             /**
              * Name of the referent.
              */
@@ -311,17 +336,17 @@ export namespace helm {
         /**
          * KubeConfig for reconciling the HelmRelease on a remote cluster. When used in combination with HelmReleaseSpec.ServiceAccountName, forces the controller to act on behalf of that Service Account at the target cluster. If the --default-service-account flag is set, its value will be used as a controller level fallback for when HelmReleaseSpec.ServiceAccountName is empty.
          */
-        export interface HelmReleaseSpecKubeconfig {
+        export interface HelmReleaseSpecKubeConfig {
             /**
-             * SecretRef holds the name to a secret that contains a key with the kubeconfig file as the value. If no key is specified the key will default to 'value'. The secret must be in the same namespace as the HelmRelease. It is recommended that the kubeconfig is self-contained, and the secret is regularly updated if credentials such as a cloud-access-token expire. Cloud specific `cmd-path` auth helpers will not function without adding binaries and credentials to the Pod that is responsible for reconciling the HelmRelease.
+             * SecretRef holds the name of a secret that contains a key with the kubeconfig file as the value. If no key is set, the key will default to 'value'. It is recommended that the kubeconfig is self-contained, and the secret is regularly updated if credentials such as a cloud-access-token expire. Cloud specific `cmd-path` auth helpers will not function without adding binaries and credentials to the Pod that is responsible for reconciling Kubernetes resources.
              */
-            secretRef?: outputs.helm.v2beta1.HelmReleaseSpecKubeconfigSecretref;
+            secretRef: outputs.helm.v2beta1.HelmReleaseSpecKubeConfigSecretRef;
         }
 
         /**
-         * SecretRef holds the name to a secret that contains a key with the kubeconfig file as the value. If no key is specified the key will default to 'value'. The secret must be in the same namespace as the HelmRelease. It is recommended that the kubeconfig is self-contained, and the secret is regularly updated if credentials such as a cloud-access-token expire. Cloud specific `cmd-path` auth helpers will not function without adding binaries and credentials to the Pod that is responsible for reconciling the HelmRelease.
+         * SecretRef holds the name of a secret that contains a key with the kubeconfig file as the value. If no key is set, the key will default to 'value'. It is recommended that the kubeconfig is self-contained, and the secret is regularly updated if credentials such as a cloud-access-token expire. Cloud specific `cmd-path` auth helpers will not function without adding binaries and credentials to the Pod that is responsible for reconciling Kubernetes resources.
          */
-        export interface HelmReleaseSpecKubeconfigSecretref {
+        export interface HelmReleaseSpecKubeConfigSecretRef {
             /**
              * Key in the Secret, when not specified an implementation-specific default key is used.
              */
@@ -335,29 +360,29 @@ export namespace helm {
         /**
          * PostRenderer contains a Helm PostRenderer specification.
          */
-        export interface HelmReleaseSpecPostrenderers {
+        export interface HelmReleaseSpecPostRenderers {
             /**
              * Kustomization to apply as PostRenderer.
              */
-            kustomize?: outputs.helm.v2beta1.HelmReleaseSpecPostrenderersKustomize;
+            kustomize?: outputs.helm.v2beta1.HelmReleaseSpecPostRenderersKustomize;
         }
 
         /**
          * Kustomization to apply as PostRenderer.
          */
-        export interface HelmReleaseSpecPostrenderersKustomize {
+        export interface HelmReleaseSpecPostRenderersKustomize {
             /**
              * Images is a list of (image name, new name, new tag or digest) for changing image names, tags or digests. This can also be achieved with a patch, but this operator is simpler to specify.
              */
-            images?: outputs.helm.v2beta1.HelmReleaseSpecPostrenderersKustomizeImages[];
+            images?: outputs.helm.v2beta1.HelmReleaseSpecPostRenderersKustomizeImages[];
             /**
              * Strategic merge and JSON patches, defined as inline YAML objects, capable of targeting objects based on kind, label and annotation selectors.
              */
-            patches?: outputs.helm.v2beta1.HelmReleaseSpecPostrenderersKustomizePatches[];
+            patches?: outputs.helm.v2beta1.HelmReleaseSpecPostRenderersKustomizePatches[];
             /**
              * JSON 6902 patches, defined as inline YAML objects.
              */
-            patchesJson6902?: outputs.helm.v2beta1.HelmReleaseSpecPostrenderersKustomizePatchesjson6902[];
+            patchesJson6902?: outputs.helm.v2beta1.HelmReleaseSpecPostRenderersKustomizePatchesJson6902[];
             /**
              * Strategic merge patches, defined as inline YAML objects.
              */
@@ -367,7 +392,7 @@ export namespace helm {
         /**
          * Image contains an image name, a new name, a new tag or digest, which will replace the original name and tag.
          */
-        export interface HelmReleaseSpecPostrenderersKustomizeImages {
+        export interface HelmReleaseSpecPostRenderersKustomizeImages {
             /**
              * Digest is the value used to replace the original image tag. If digest is present NewTag value is ignored.
              */
@@ -389,21 +414,57 @@ export namespace helm {
         /**
          * Patch contains an inline StrategicMerge or JSON6902 patch, and the target the patch should be applied to.
          */
-        export interface HelmReleaseSpecPostrenderersKustomizePatches {
+        export interface HelmReleaseSpecPostRenderersKustomizePatches {
             /**
              * Patch contains an inline StrategicMerge patch or an inline JSON6902 patch with an array of operation objects.
              */
-            patch?: string;
+            patch: string;
             /**
              * Target points to the resources that the patch document should be applied to.
              */
-            target?: outputs.helm.v2beta1.HelmReleaseSpecPostrenderersKustomizePatchesTarget;
+            target?: outputs.helm.v2beta1.HelmReleaseSpecPostRenderersKustomizePatchesTarget;
+        }
+
+        /**
+         * JSON6902Patch contains a JSON6902 patch and the target the patch should be applied to.
+         */
+        export interface HelmReleaseSpecPostRenderersKustomizePatchesJson6902 {
+            /**
+             * Patch contains the JSON6902 patch document with an array of operation objects.
+             */
+            patch: outputs.helm.v2beta1.HelmReleaseSpecPostRenderersKustomizePatchesJson6902Patch[];
+            /**
+             * Target points to the resources that the patch document should be applied to.
+             */
+            target: outputs.helm.v2beta1.HelmReleaseSpecPostRenderersKustomizePatchesJson6902Target;
+        }
+
+        /**
+         * JSON6902 is a JSON6902 operation object. https://datatracker.ietf.org/doc/html/rfc6902#section-4
+         */
+        export interface HelmReleaseSpecPostRenderersKustomizePatchesJson6902Patch {
+            /**
+             * From contains a JSON-pointer value that references a location within the target document where the operation is performed. The meaning of the value depends on the value of Op, and is NOT taken into account by all operations.
+             */
+            from?: string;
+            /**
+             * Op indicates the operation to perform. Its value MUST be one of "add", "remove", "replace", "move", "copy", or "test". https://datatracker.ietf.org/doc/html/rfc6902#section-4
+             */
+            op: string;
+            /**
+             * Path contains the JSON-pointer value that references a location within the target document where the operation is performed. The meaning of the value depends on the value of Op.
+             */
+            path: string;
+            /**
+             * Value contains a valid JSON structure. The meaning of the value depends on the value of Op, and is NOT taken into account by all operations.
+             */
+            value?: {[key: string]: any};
         }
 
         /**
          * Target points to the resources that the patch document should be applied to.
          */
-        export interface HelmReleaseSpecPostrenderersKustomizePatchesTarget {
+        export interface HelmReleaseSpecPostRenderersKustomizePatchesJson6902Target {
             /**
              * AnnotationSelector is a string that follows the label selection expression https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/#api It matches with the resource annotations.
              */
@@ -435,45 +496,9 @@ export namespace helm {
         }
 
         /**
-         * JSON6902Patch contains a JSON6902 patch and the target the patch should be applied to.
-         */
-        export interface HelmReleaseSpecPostrenderersKustomizePatchesjson6902 {
-            /**
-             * Patch contains the JSON6902 patch document with an array of operation objects.
-             */
-            patch: outputs.helm.v2beta1.HelmReleaseSpecPostrenderersKustomizePatchesjson6902Patch[];
-            /**
-             * Target points to the resources that the patch document should be applied to.
-             */
-            target: outputs.helm.v2beta1.HelmReleaseSpecPostrenderersKustomizePatchesjson6902Target;
-        }
-
-        /**
-         * JSON6902 is a JSON6902 operation object. https://datatracker.ietf.org/doc/html/rfc6902#section-4
-         */
-        export interface HelmReleaseSpecPostrenderersKustomizePatchesjson6902Patch {
-            /**
-             * From contains a JSON-pointer value that references a location within the target document where the operation is performed. The meaning of the value depends on the value of Op, and is NOT taken into account by all operations.
-             */
-            from?: string;
-            /**
-             * Op indicates the operation to perform. Its value MUST be one of "add", "remove", "replace", "move", "copy", or "test". https://datatracker.ietf.org/doc/html/rfc6902#section-4
-             */
-            op: string;
-            /**
-             * Path contains the JSON-pointer value that references a location within the target document where the operation is performed. The meaning of the value depends on the value of Op.
-             */
-            path: string;
-            /**
-             * Value contains a valid JSON structure. The meaning of the value depends on the value of Op, and is NOT taken into account by all operations.
-             */
-            value?: {[key: string]: any};
-        }
-
-        /**
          * Target points to the resources that the patch document should be applied to.
          */
-        export interface HelmReleaseSpecPostrenderersKustomizePatchesjson6902Target {
+        export interface HelmReleaseSpecPostRenderersKustomizePatchesTarget {
             /**
              * AnnotationSelector is a string that follows the label selection expression https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/#api It matches with the resource annotations.
              */
@@ -561,6 +586,10 @@ export namespace helm {
          */
         export interface HelmReleaseSpecUninstall {
             /**
+             * DeletionPropagation specifies the deletion propagation policy when a Helm uninstall is performed.
+             */
+            deletionPropagation?: string;
+            /**
              * DisableHooks prevents hooks from running during the Helm rollback action.
              */
             disableHooks?: boolean;
@@ -576,6 +605,15 @@ export namespace helm {
              * Timeout is the time to wait for any individual Kubernetes operation (like Jobs for hooks) during the performance of a Helm uninstall action. Defaults to 'HelmReleaseSpec.Timeout'.
              */
             timeout?: string;
+        }
+        /**
+         * helmReleaseSpecUninstallProvideDefaults sets the appropriate defaults for HelmReleaseSpecUninstall
+         */
+        export function helmReleaseSpecUninstallProvideDefaults(val: HelmReleaseSpecUninstall): HelmReleaseSpecUninstall {
+            return {
+                ...val,
+                deletionPropagation: (val.deletionPropagation) ?? "background",
+            };
         }
 
         /**
@@ -653,7 +691,7 @@ export namespace helm {
         /**
          * ValuesReference contains a reference to a resource containing Helm values, and optionally the key they can be found at.
          */
-        export interface HelmReleaseSpecValuesfrom {
+        export interface HelmReleaseSpecValuesFrom {
             /**
              * Kind of the values referent, valid values are ('Secret', 'ConfigMap').
              */
@@ -762,19 +800,27 @@ export namespace helm {
 }
 
 export namespace kustomize {
-    export namespace v1beta1 {
+    export namespace v1 {
         /**
-         * KustomizationSpec defines the desired state of a kustomization.
+         * KustomizationSpec defines the configuration to calculate the desired state from a Source using Kustomize.
          */
         export interface KustomizationSpec {
             /**
+             * CommonMetadata specifies the common labels and annotations that are applied to all resources. Any existing label or annotation will be overridden if its key matches a common one.
+             */
+            commonMetadata?: outputs.kustomize.v1.KustomizationSpecCommonMetadata;
+            /**
+             * Components specifies relative paths to specifications of other Components.
+             */
+            components?: string[];
+            /**
              * Decrypt Kubernetes secrets before applying them on the cluster.
              */
-            decryption?: outputs.kustomize.v1beta1.KustomizationSpecDecryption;
+            decryption?: outputs.kustomize.v1.KustomizationSpecDecryption;
             /**
              * DependsOn may contain a meta.NamespacedObjectReference slice with references to Kustomization resources that must be ready before this Kustomization can be reconciled.
              */
-            dependsOn?: outputs.kustomize.v1beta1.KustomizationSpecDependson[];
+            dependsOn?: outputs.kustomize.v1.KustomizationSpecDependsOn[];
             /**
              * Force instructs the controller to recreate resources when patching fails due to an immutable field change.
              */
@@ -782,31 +828,23 @@ export namespace kustomize {
             /**
              * A list of resources to be included in the health assessment.
              */
-            healthChecks?: outputs.kustomize.v1beta1.KustomizationSpecHealthchecks[];
+            healthChecks?: outputs.kustomize.v1.KustomizationSpecHealthChecks[];
             /**
              * Images is a list of (image name, new name, new tag or digest) for changing image names, tags or digests. This can also be achieved with a patch, but this operator is simpler to specify.
              */
-            images?: outputs.kustomize.v1beta1.KustomizationSpecImages[];
+            images?: outputs.kustomize.v1.KustomizationSpecImages[];
             /**
              * The interval at which to reconcile the Kustomization.
              */
             interval: string;
             /**
-             * The KubeConfig for reconciling the Kustomization on a remote cluster. When specified, KubeConfig takes precedence over ServiceAccountName.
+             * The KubeConfig for reconciling the Kustomization on a remote cluster. When used in combination with KustomizationSpec.ServiceAccountName, forces the controller to act on behalf of that Service Account at the target cluster. If the --default-service-account flag is set, its value will be used as a controller level fallback for when KustomizationSpec.ServiceAccountName is empty.
              */
-            kubeConfig?: outputs.kustomize.v1beta1.KustomizationSpecKubeconfig;
+            kubeConfig?: outputs.kustomize.v1.KustomizationSpecKubeConfig;
             /**
              * Strategic merge and JSON patches, defined as inline YAML objects, capable of targeting objects based on kind, label and annotation selectors.
              */
-            patches?: outputs.kustomize.v1beta1.KustomizationSpecPatches[];
-            /**
-             * JSON 6902 patches, defined as inline YAML objects.
-             */
-            patchesJson6902?: outputs.kustomize.v1beta1.KustomizationSpecPatchesjson6902[];
-            /**
-             * Strategic merge patches, defined as inline YAML objects.
-             */
-            patchesStrategicMerge?: {[key: string]: any}[];
+            patches?: outputs.kustomize.v1.KustomizationSpecPatches[];
             /**
              * Path to the directory containing the kustomization.yaml file, or the set of plain YAMLs a kustomization.yaml should be generated for. Defaults to 'None', which translates to the root path of the SourceRef.
              */
@@ -814,7 +852,7 @@ export namespace kustomize {
             /**
              * PostBuild describes which actions to perform on the YAML manifest generated by building the kustomize overlay.
              */
-            postBuild?: outputs.kustomize.v1beta1.KustomizationSpecPostbuild;
+            postBuild?: outputs.kustomize.v1.KustomizationSpecPostBuild;
             /**
              * Prune enables garbage collection.
              */
@@ -830,7 +868,419 @@ export namespace kustomize {
             /**
              * Reference of the source where the kustomization file is.
              */
-            sourceRef: outputs.kustomize.v1beta1.KustomizationSpecSourceref;
+            sourceRef: outputs.kustomize.v1.KustomizationSpecSourceRef;
+            /**
+             * This flag tells the controller to suspend subsequent kustomize executions, it does not apply to already started executions. Defaults to false.
+             */
+            suspend?: boolean;
+            /**
+             * TargetNamespace sets or overrides the namespace in the kustomization.yaml file.
+             */
+            targetNamespace?: string;
+            /**
+             * Timeout for validation, apply and health checking operations. Defaults to 'Interval' duration.
+             */
+            timeout?: string;
+            /**
+             * Wait instructs the controller to check the health of all the reconciled resources. When enabled, the HealthChecks are ignored. Defaults to false.
+             */
+            wait?: boolean;
+        }
+        /**
+         * kustomizationSpecProvideDefaults sets the appropriate defaults for KustomizationSpec
+         */
+        export function kustomizationSpecProvideDefaults(val: KustomizationSpec): KustomizationSpec {
+            return {
+                ...val,
+                force: (val.force) ?? false,
+            };
+        }
+
+        /**
+         * CommonMetadata specifies the common labels and annotations that are applied to all resources. Any existing label or annotation will be overridden if its key matches a common one.
+         */
+        export interface KustomizationSpecCommonMetadata {
+            /**
+             * Annotations to be added to the object's metadata.
+             */
+            annotations?: {[key: string]: string};
+            /**
+             * Labels to be added to the object's metadata.
+             */
+            labels?: {[key: string]: string};
+        }
+
+        /**
+         * Decrypt Kubernetes secrets before applying them on the cluster.
+         */
+        export interface KustomizationSpecDecryption {
+            /**
+             * Provider is the name of the decryption engine.
+             */
+            provider: string;
+            /**
+             * The secret name containing the private OpenPGP keys used for decryption.
+             */
+            secretRef?: outputs.kustomize.v1.KustomizationSpecDecryptionSecretRef;
+        }
+
+        /**
+         * The secret name containing the private OpenPGP keys used for decryption.
+         */
+        export interface KustomizationSpecDecryptionSecretRef {
+            /**
+             * Name of the referent.
+             */
+            name: string;
+        }
+
+        /**
+         * NamespacedObjectReference contains enough information to locate the referenced Kubernetes resource object in any namespace.
+         */
+        export interface KustomizationSpecDependsOn {
+            /**
+             * Name of the referent.
+             */
+            name: string;
+            /**
+             * Namespace of the referent, when not specified it acts as LocalObjectReference.
+             */
+            namespace?: string;
+        }
+
+        /**
+         * NamespacedObjectKindReference contains enough information to locate the typed referenced Kubernetes resource object in any namespace.
+         */
+        export interface KustomizationSpecHealthChecks {
+            /**
+             * API version of the referent, if not specified the Kubernetes preferred version will be used.
+             */
+            apiVersion?: string;
+            /**
+             * Kind of the referent.
+             */
+            kind: string;
+            /**
+             * Name of the referent.
+             */
+            name: string;
+            /**
+             * Namespace of the referent, when not specified it acts as LocalObjectReference.
+             */
+            namespace?: string;
+        }
+
+        /**
+         * Image contains an image name, a new name, a new tag or digest, which will replace the original name and tag.
+         */
+        export interface KustomizationSpecImages {
+            /**
+             * Digest is the value used to replace the original image tag. If digest is present NewTag value is ignored.
+             */
+            digest?: string;
+            /**
+             * Name is a tag-less image name.
+             */
+            name: string;
+            /**
+             * NewName is the value used to replace the original name.
+             */
+            newName?: string;
+            /**
+             * NewTag is the value used to replace the original tag.
+             */
+            newTag?: string;
+        }
+
+        /**
+         * The KubeConfig for reconciling the Kustomization on a remote cluster. When used in combination with KustomizationSpec.ServiceAccountName, forces the controller to act on behalf of that Service Account at the target cluster. If the --default-service-account flag is set, its value will be used as a controller level fallback for when KustomizationSpec.ServiceAccountName is empty.
+         */
+        export interface KustomizationSpecKubeConfig {
+            /**
+             * SecretRef holds the name of a secret that contains a key with the kubeconfig file as the value. If no key is set, the key will default to 'value'. It is recommended that the kubeconfig is self-contained, and the secret is regularly updated if credentials such as a cloud-access-token expire. Cloud specific `cmd-path` auth helpers will not function without adding binaries and credentials to the Pod that is responsible for reconciling Kubernetes resources.
+             */
+            secretRef: outputs.kustomize.v1.KustomizationSpecKubeConfigSecretRef;
+        }
+
+        /**
+         * SecretRef holds the name of a secret that contains a key with the kubeconfig file as the value. If no key is set, the key will default to 'value'. It is recommended that the kubeconfig is self-contained, and the secret is regularly updated if credentials such as a cloud-access-token expire. Cloud specific `cmd-path` auth helpers will not function without adding binaries and credentials to the Pod that is responsible for reconciling Kubernetes resources.
+         */
+        export interface KustomizationSpecKubeConfigSecretRef {
+            /**
+             * Key in the Secret, when not specified an implementation-specific default key is used.
+             */
+            key?: string;
+            /**
+             * Name of the Secret.
+             */
+            name: string;
+        }
+
+        /**
+         * Patch contains an inline StrategicMerge or JSON6902 patch, and the target the patch should be applied to.
+         */
+        export interface KustomizationSpecPatches {
+            /**
+             * Patch contains an inline StrategicMerge patch or an inline JSON6902 patch with an array of operation objects.
+             */
+            patch: string;
+            /**
+             * Target points to the resources that the patch document should be applied to.
+             */
+            target?: outputs.kustomize.v1.KustomizationSpecPatchesTarget;
+        }
+
+        /**
+         * Target points to the resources that the patch document should be applied to.
+         */
+        export interface KustomizationSpecPatchesTarget {
+            /**
+             * AnnotationSelector is a string that follows the label selection expression https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/#api It matches with the resource annotations.
+             */
+            annotationSelector?: string;
+            /**
+             * Group is the API group to select resources from. Together with Version and Kind it is capable of unambiguously identifying and/or selecting resources. https://github.com/kubernetes/community/blob/master/contributors/design-proposals/api-machinery/api-group.md
+             */
+            group?: string;
+            /**
+             * Kind of the API Group to select resources from. Together with Group and Version it is capable of unambiguously identifying and/or selecting resources. https://github.com/kubernetes/community/blob/master/contributors/design-proposals/api-machinery/api-group.md
+             */
+            kind?: string;
+            /**
+             * LabelSelector is a string that follows the label selection expression https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/#api It matches with the resource labels.
+             */
+            labelSelector?: string;
+            /**
+             * Name to match resources with.
+             */
+            name?: string;
+            /**
+             * Namespace to select resources from.
+             */
+            namespace?: string;
+            /**
+             * Version of the API Group to select resources from. Together with Group and Kind it is capable of unambiguously identifying and/or selecting resources. https://github.com/kubernetes/community/blob/master/contributors/design-proposals/api-machinery/api-group.md
+             */
+            version?: string;
+        }
+
+        /**
+         * PostBuild describes which actions to perform on the YAML manifest generated by building the kustomize overlay.
+         */
+        export interface KustomizationSpecPostBuild {
+            /**
+             * Substitute holds a map of key/value pairs. The variables defined in your YAML manifests that match any of the keys defined in the map will be substituted with the set value. Includes support for bash string replacement functions e.g. ${var:=default}, ${var:position} and ${var/substring/replacement}.
+             */
+            substitute?: {[key: string]: string};
+            /**
+             * SubstituteFrom holds references to ConfigMaps and Secrets containing the variables and their values to be substituted in the YAML manifests. The ConfigMap and the Secret data keys represent the var names, and they must match the vars declared in the manifests for the substitution to happen.
+             */
+            substituteFrom?: outputs.kustomize.v1.KustomizationSpecPostBuildSubstituteFrom[];
+        }
+
+        /**
+         * SubstituteReference contains a reference to a resource containing the variables name and value.
+         */
+        export interface KustomizationSpecPostBuildSubstituteFrom {
+            /**
+             * Kind of the values referent, valid values are ('Secret', 'ConfigMap').
+             */
+            kind: string;
+            /**
+             * Name of the values referent. Should reside in the same namespace as the referring resource.
+             */
+            name: string;
+            /**
+             * Optional indicates whether the referenced resource must exist, or whether to tolerate its absence. If true and the referenced resource is absent, proceed as if the resource was present but empty, without any variables defined.
+             */
+            optional?: boolean;
+        }
+        /**
+         * kustomizationSpecPostBuildSubstituteFromProvideDefaults sets the appropriate defaults for KustomizationSpecPostBuildSubstituteFrom
+         */
+        export function kustomizationSpecPostBuildSubstituteFromProvideDefaults(val: KustomizationSpecPostBuildSubstituteFrom): KustomizationSpecPostBuildSubstituteFrom {
+            return {
+                ...val,
+                optional: (val.optional) ?? false,
+            };
+        }
+
+        /**
+         * Reference of the source where the kustomization file is.
+         */
+        export interface KustomizationSpecSourceRef {
+            /**
+             * API version of the referent.
+             */
+            apiVersion?: string;
+            /**
+             * Kind of the referent.
+             */
+            kind: string;
+            /**
+             * Name of the referent.
+             */
+            name: string;
+            /**
+             * Namespace of the referent, defaults to the namespace of the Kubernetes resource object that contains the reference.
+             */
+            namespace?: string;
+        }
+
+        /**
+         * KustomizationStatus defines the observed state of a kustomization.
+         */
+        export interface KustomizationStatus {
+            conditions?: outputs.kustomize.v1.KustomizationStatusConditions[];
+            /**
+             * Inventory contains the list of Kubernetes resource object references that have been successfully applied.
+             */
+            inventory?: outputs.kustomize.v1.KustomizationStatusInventory;
+            /**
+             * The last successfully applied revision. Equals the Revision of the applied Artifact from the referenced Source.
+             */
+            lastAppliedRevision?: string;
+            /**
+             * LastAttemptedRevision is the revision of the last reconciliation attempt.
+             */
+            lastAttemptedRevision?: string;
+            /**
+             * LastHandledReconcileAt holds the value of the most recent reconcile request value, so a change of the annotation value can be detected.
+             */
+            lastHandledReconcileAt?: string;
+            /**
+             * ObservedGeneration is the last reconciled generation.
+             */
+            observedGeneration?: number;
+        }
+
+        /**
+         * Condition contains details for one aspect of the current state of this API Resource. --- This struct is intended for direct use as an array at the field path .status.conditions.  For example, 
+         *  type FooStatus struct{ // Represents the observations of a foo's current state. // Known .status.conditions.type are: "Available", "Progressing", and "Degraded" // +patchMergeKey=type // +patchStrategy=merge // +listType=map // +listMapKey=type Conditions []metav1.Condition `json:"conditions,omitempty" patchStrategy:"merge" patchMergeKey:"type" protobuf:"bytes,1,rep,name=conditions"` 
+         *  // other fields }
+         */
+        export interface KustomizationStatusConditions {
+            /**
+             * lastTransitionTime is the last time the condition transitioned from one status to another. This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+             */
+            lastTransitionTime: string;
+            /**
+             * message is a human readable message indicating details about the transition. This may be an empty string.
+             */
+            message: string;
+            /**
+             * observedGeneration represents the .metadata.generation that the condition was set based upon. For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date with respect to the current state of the instance.
+             */
+            observedGeneration?: number;
+            /**
+             * reason contains a programmatic identifier indicating the reason for the condition's last transition. Producers of specific condition types may define expected values and meanings for this field, and whether the values are considered a guaranteed API. The value should be a CamelCase string. This field may not be empty.
+             */
+            reason: string;
+            /**
+             * status of the condition, one of True, False, Unknown.
+             */
+            status: string;
+            /**
+             * type of condition in CamelCase or in foo.example.com/CamelCase. --- Many .condition.type values are consistent across resources like Available, but because arbitrary conditions can be useful (see .node.status.conditions), the ability to deconflict is important. The regex it matches is (dns1123SubdomainFmt/)?(qualifiedNameFmt)
+             */
+            type: string;
+        }
+
+        /**
+         * Inventory contains the list of Kubernetes resource object references that have been successfully applied.
+         */
+        export interface KustomizationStatusInventory {
+            /**
+             * Entries of Kubernetes resource object references.
+             */
+            entries: outputs.kustomize.v1.KustomizationStatusInventoryEntries[];
+        }
+
+        /**
+         * ResourceRef contains the information necessary to locate a resource within a cluster.
+         */
+        export interface KustomizationStatusInventoryEntries {
+            /**
+             * ID is the string representation of the Kubernetes resource object's metadata, in the format '<namespace>_<name>_<group>_<kind>'.
+             */
+            id: string;
+            /**
+             * Version is the API version of the Kubernetes resource object's kind.
+             */
+            v: string;
+        }
+
+    }
+
+    export namespace v1beta1 {
+        /**
+         * KustomizationSpec defines the desired state of a kustomization.
+         */
+        export interface KustomizationSpec {
+            /**
+             * Decrypt Kubernetes secrets before applying them on the cluster.
+             */
+            decryption?: outputs.kustomize.v1beta1.KustomizationSpecDecryption;
+            /**
+             * DependsOn may contain a meta.NamespacedObjectReference slice with references to Kustomization resources that must be ready before this Kustomization can be reconciled.
+             */
+            dependsOn?: outputs.kustomize.v1beta1.KustomizationSpecDependsOn[];
+            /**
+             * Force instructs the controller to recreate resources when patching fails due to an immutable field change.
+             */
+            force?: boolean;
+            /**
+             * A list of resources to be included in the health assessment.
+             */
+            healthChecks?: outputs.kustomize.v1beta1.KustomizationSpecHealthChecks[];
+            /**
+             * Images is a list of (image name, new name, new tag or digest) for changing image names, tags or digests. This can also be achieved with a patch, but this operator is simpler to specify.
+             */
+            images?: outputs.kustomize.v1beta1.KustomizationSpecImages[];
+            /**
+             * The interval at which to reconcile the Kustomization.
+             */
+            interval: string;
+            /**
+             * The KubeConfig for reconciling the Kustomization on a remote cluster. When specified, KubeConfig takes precedence over ServiceAccountName.
+             */
+            kubeConfig?: outputs.kustomize.v1beta1.KustomizationSpecKubeConfig;
+            /**
+             * Strategic merge and JSON patches, defined as inline YAML objects, capable of targeting objects based on kind, label and annotation selectors.
+             */
+            patches?: outputs.kustomize.v1beta1.KustomizationSpecPatches[];
+            /**
+             * JSON 6902 patches, defined as inline YAML objects.
+             */
+            patchesJson6902?: outputs.kustomize.v1beta1.KustomizationSpecPatchesJson6902[];
+            /**
+             * Strategic merge patches, defined as inline YAML objects.
+             */
+            patchesStrategicMerge?: {[key: string]: any}[];
+            /**
+             * Path to the directory containing the kustomization.yaml file, or the set of plain YAMLs a kustomization.yaml should be generated for. Defaults to 'None', which translates to the root path of the SourceRef.
+             */
+            path?: string;
+            /**
+             * PostBuild describes which actions to perform on the YAML manifest generated by building the kustomize overlay.
+             */
+            postBuild?: outputs.kustomize.v1beta1.KustomizationSpecPostBuild;
+            /**
+             * Prune enables garbage collection.
+             */
+            prune: boolean;
+            /**
+             * The interval at which to retry a previously failed reconciliation. When not specified, the controller uses the KustomizationSpec.Interval value to retry failures.
+             */
+            retryInterval?: string;
+            /**
+             * The name of the Kubernetes service account to impersonate when reconciling this Kustomization.
+             */
+            serviceAccountName?: string;
+            /**
+             * Reference of the source where the kustomization file is.
+             */
+            sourceRef: outputs.kustomize.v1beta1.KustomizationSpecSourceRef;
             /**
              * This flag tells the controller to suspend subsequent kustomize executions, it does not apply to already started executions. Defaults to false.
              */
@@ -869,13 +1319,13 @@ export namespace kustomize {
             /**
              * The secret name containing the private OpenPGP keys used for decryption.
              */
-            secretRef?: outputs.kustomize.v1beta1.KustomizationSpecDecryptionSecretref;
+            secretRef?: outputs.kustomize.v1beta1.KustomizationSpecDecryptionSecretRef;
         }
 
         /**
          * The secret name containing the private OpenPGP keys used for decryption.
          */
-        export interface KustomizationSpecDecryptionSecretref {
+        export interface KustomizationSpecDecryptionSecretRef {
             /**
              * Name of the referent.
              */
@@ -885,7 +1335,7 @@ export namespace kustomize {
         /**
          * NamespacedObjectReference contains enough information to locate the referenced Kubernetes resource object in any namespace.
          */
-        export interface KustomizationSpecDependson {
+        export interface KustomizationSpecDependsOn {
             /**
              * Name of the referent.
              */
@@ -899,7 +1349,7 @@ export namespace kustomize {
         /**
          * NamespacedObjectKindReference contains enough information to locate the typed referenced Kubernetes resource object in any namespace.
          */
-        export interface KustomizationSpecHealthchecks {
+        export interface KustomizationSpecHealthChecks {
             /**
              * API version of the referent, if not specified the Kubernetes preferred version will be used.
              */
@@ -943,17 +1393,17 @@ export namespace kustomize {
         /**
          * The KubeConfig for reconciling the Kustomization on a remote cluster. When specified, KubeConfig takes precedence over ServiceAccountName.
          */
-        export interface KustomizationSpecKubeconfig {
+        export interface KustomizationSpecKubeConfig {
             /**
              * SecretRef holds the name to a secret that contains a 'value' key with the kubeconfig file as the value. It must be in the same namespace as the Kustomization. It is recommended that the kubeconfig is self-contained, and the secret is regularly updated if credentials such as a cloud-access-token expire. Cloud specific `cmd-path` auth helpers will not function without adding binaries and credentials to the Pod that is responsible for reconciling the Kustomization.
              */
-            secretRef?: outputs.kustomize.v1beta1.KustomizationSpecKubeconfigSecretref;
+            secretRef?: outputs.kustomize.v1beta1.KustomizationSpecKubeConfigSecretRef;
         }
 
         /**
          * SecretRef holds the name to a secret that contains a 'value' key with the kubeconfig file as the value. It must be in the same namespace as the Kustomization. It is recommended that the kubeconfig is self-contained, and the secret is regularly updated if credentials such as a cloud-access-token expire. Cloud specific `cmd-path` auth helpers will not function without adding binaries and credentials to the Pod that is responsible for reconciling the Kustomization.
          */
-        export interface KustomizationSpecKubeconfigSecretref {
+        export interface KustomizationSpecKubeConfigSecretRef {
             /**
              * Name of the referent.
              */
@@ -967,11 +1417,81 @@ export namespace kustomize {
             /**
              * Patch contains an inline StrategicMerge patch or an inline JSON6902 patch with an array of operation objects.
              */
-            patch?: string;
+            patch: string;
             /**
              * Target points to the resources that the patch document should be applied to.
              */
             target?: outputs.kustomize.v1beta1.KustomizationSpecPatchesTarget;
+        }
+
+        /**
+         * JSON6902Patch contains a JSON6902 patch and the target the patch should be applied to.
+         */
+        export interface KustomizationSpecPatchesJson6902 {
+            /**
+             * Patch contains the JSON6902 patch document with an array of operation objects.
+             */
+            patch: outputs.kustomize.v1beta1.KustomizationSpecPatchesJson6902Patch[];
+            /**
+             * Target points to the resources that the patch document should be applied to.
+             */
+            target: outputs.kustomize.v1beta1.KustomizationSpecPatchesJson6902Target;
+        }
+
+        /**
+         * JSON6902 is a JSON6902 operation object. https://datatracker.ietf.org/doc/html/rfc6902#section-4
+         */
+        export interface KustomizationSpecPatchesJson6902Patch {
+            /**
+             * From contains a JSON-pointer value that references a location within the target document where the operation is performed. The meaning of the value depends on the value of Op, and is NOT taken into account by all operations.
+             */
+            from?: string;
+            /**
+             * Op indicates the operation to perform. Its value MUST be one of "add", "remove", "replace", "move", "copy", or "test". https://datatracker.ietf.org/doc/html/rfc6902#section-4
+             */
+            op: string;
+            /**
+             * Path contains the JSON-pointer value that references a location within the target document where the operation is performed. The meaning of the value depends on the value of Op.
+             */
+            path: string;
+            /**
+             * Value contains a valid JSON structure. The meaning of the value depends on the value of Op, and is NOT taken into account by all operations.
+             */
+            value?: {[key: string]: any};
+        }
+
+        /**
+         * Target points to the resources that the patch document should be applied to.
+         */
+        export interface KustomizationSpecPatchesJson6902Target {
+            /**
+             * AnnotationSelector is a string that follows the label selection expression https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/#api It matches with the resource annotations.
+             */
+            annotationSelector?: string;
+            /**
+             * Group is the API group to select resources from. Together with Version and Kind it is capable of unambiguously identifying and/or selecting resources. https://github.com/kubernetes/community/blob/master/contributors/design-proposals/api-machinery/api-group.md
+             */
+            group?: string;
+            /**
+             * Kind of the API Group to select resources from. Together with Group and Version it is capable of unambiguously identifying and/or selecting resources. https://github.com/kubernetes/community/blob/master/contributors/design-proposals/api-machinery/api-group.md
+             */
+            kind?: string;
+            /**
+             * LabelSelector is a string that follows the label selection expression https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/#api It matches with the resource labels.
+             */
+            labelSelector?: string;
+            /**
+             * Name to match resources with.
+             */
+            name?: string;
+            /**
+             * Namespace to select resources from.
+             */
+            namespace?: string;
+            /**
+             * Version of the API Group to select resources from. Together with Group and Kind it is capable of unambiguously identifying and/or selecting resources. https://github.com/kubernetes/community/blob/master/contributors/design-proposals/api-machinery/api-group.md
+             */
+            version?: string;
         }
 
         /**
@@ -1009,93 +1529,23 @@ export namespace kustomize {
         }
 
         /**
-         * JSON6902Patch contains a JSON6902 patch and the target the patch should be applied to.
-         */
-        export interface KustomizationSpecPatchesjson6902 {
-            /**
-             * Patch contains the JSON6902 patch document with an array of operation objects.
-             */
-            patch: outputs.kustomize.v1beta1.KustomizationSpecPatchesjson6902Patch[];
-            /**
-             * Target points to the resources that the patch document should be applied to.
-             */
-            target: outputs.kustomize.v1beta1.KustomizationSpecPatchesjson6902Target;
-        }
-
-        /**
-         * JSON6902 is a JSON6902 operation object. https://datatracker.ietf.org/doc/html/rfc6902#section-4
-         */
-        export interface KustomizationSpecPatchesjson6902Patch {
-            /**
-             * From contains a JSON-pointer value that references a location within the target document where the operation is performed. The meaning of the value depends on the value of Op, and is NOT taken into account by all operations.
-             */
-            from?: string;
-            /**
-             * Op indicates the operation to perform. Its value MUST be one of "add", "remove", "replace", "move", "copy", or "test". https://datatracker.ietf.org/doc/html/rfc6902#section-4
-             */
-            op: string;
-            /**
-             * Path contains the JSON-pointer value that references a location within the target document where the operation is performed. The meaning of the value depends on the value of Op.
-             */
-            path: string;
-            /**
-             * Value contains a valid JSON structure. The meaning of the value depends on the value of Op, and is NOT taken into account by all operations.
-             */
-            value?: {[key: string]: any};
-        }
-
-        /**
-         * Target points to the resources that the patch document should be applied to.
-         */
-        export interface KustomizationSpecPatchesjson6902Target {
-            /**
-             * AnnotationSelector is a string that follows the label selection expression https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/#api It matches with the resource annotations.
-             */
-            annotationSelector?: string;
-            /**
-             * Group is the API group to select resources from. Together with Version and Kind it is capable of unambiguously identifying and/or selecting resources. https://github.com/kubernetes/community/blob/master/contributors/design-proposals/api-machinery/api-group.md
-             */
-            group?: string;
-            /**
-             * Kind of the API Group to select resources from. Together with Group and Version it is capable of unambiguously identifying and/or selecting resources. https://github.com/kubernetes/community/blob/master/contributors/design-proposals/api-machinery/api-group.md
-             */
-            kind?: string;
-            /**
-             * LabelSelector is a string that follows the label selection expression https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/#api It matches with the resource labels.
-             */
-            labelSelector?: string;
-            /**
-             * Name to match resources with.
-             */
-            name?: string;
-            /**
-             * Namespace to select resources from.
-             */
-            namespace?: string;
-            /**
-             * Version of the API Group to select resources from. Together with Group and Kind it is capable of unambiguously identifying and/or selecting resources. https://github.com/kubernetes/community/blob/master/contributors/design-proposals/api-machinery/api-group.md
-             */
-            version?: string;
-        }
-
-        /**
          * PostBuild describes which actions to perform on the YAML manifest generated by building the kustomize overlay.
          */
-        export interface KustomizationSpecPostbuild {
+        export interface KustomizationSpecPostBuild {
             /**
-             * Substitute holds a map of key/value pairs. The variables defined in your YAML manifests that match any of the keys defined in the map will be substituted with the set value. Includes support for bash string replacement functions e.g. default, and .
+             * Substitute holds a map of key/value pairs. The variables defined in your YAML manifests that match any of the keys defined in the map will be substituted with the set value. Includes support for bash string replacement functions e.g. ${var:=default}, ${var:position} and ${var/substring/replacement}.
              */
             substitute?: {[key: string]: string};
             /**
              * SubstituteFrom holds references to ConfigMaps and Secrets containing the variables and their values to be substituted in the YAML manifests. The ConfigMap and the Secret data keys represent the var names and they must match the vars declared in the manifests for the substitution to happen.
              */
-            substituteFrom?: outputs.kustomize.v1beta1.KustomizationSpecPostbuildSubstitutefrom[];
+            substituteFrom?: outputs.kustomize.v1beta1.KustomizationSpecPostBuildSubstituteFrom[];
         }
 
         /**
          * SubstituteReference contains a reference to a resource containing the variables name and value.
          */
-        export interface KustomizationSpecPostbuildSubstitutefrom {
+        export interface KustomizationSpecPostBuildSubstituteFrom {
             /**
              * Kind of the values referent, valid values are ('Secret', 'ConfigMap').
              */
@@ -1109,7 +1559,7 @@ export namespace kustomize {
         /**
          * Reference of the source where the kustomization file is.
          */
-        export interface KustomizationSpecSourceref {
+        export interface KustomizationSpecSourceRef {
             /**
              * API version of the referent
              */
@@ -1223,13 +1673,21 @@ export namespace kustomize {
          */
         export interface KustomizationSpec {
             /**
+             * CommonMetadata specifies the common labels and annotations that are applied to all resources. Any existing label or annotation will be overridden if its key matches a common one.
+             */
+            commonMetadata?: outputs.kustomize.v1beta2.KustomizationSpecCommonMetadata;
+            /**
+             * Components specifies relative paths to specifications of other Components.
+             */
+            components?: string[];
+            /**
              * Decrypt Kubernetes secrets before applying them on the cluster.
              */
             decryption?: outputs.kustomize.v1beta2.KustomizationSpecDecryption;
             /**
              * DependsOn may contain a meta.NamespacedObjectReference slice with references to Kustomization resources that must be ready before this Kustomization can be reconciled.
              */
-            dependsOn?: outputs.kustomize.v1beta2.KustomizationSpecDependson[];
+            dependsOn?: outputs.kustomize.v1beta2.KustomizationSpecDependsOn[];
             /**
              * Force instructs the controller to recreate resources when patching fails due to an immutable field change.
              */
@@ -1237,7 +1695,7 @@ export namespace kustomize {
             /**
              * A list of resources to be included in the health assessment.
              */
-            healthChecks?: outputs.kustomize.v1beta2.KustomizationSpecHealthchecks[];
+            healthChecks?: outputs.kustomize.v1beta2.KustomizationSpecHealthChecks[];
             /**
              * Images is a list of (image name, new name, new tag or digest) for changing image names, tags or digests. This can also be achieved with a patch, but this operator is simpler to specify.
              */
@@ -1249,7 +1707,7 @@ export namespace kustomize {
             /**
              * The KubeConfig for reconciling the Kustomization on a remote cluster. When used in combination with KustomizationSpec.ServiceAccountName, forces the controller to act on behalf of that Service Account at the target cluster. If the --default-service-account flag is set, its value will be used as a controller level fallback for when KustomizationSpec.ServiceAccountName is empty.
              */
-            kubeConfig?: outputs.kustomize.v1beta2.KustomizationSpecKubeconfig;
+            kubeConfig?: outputs.kustomize.v1beta2.KustomizationSpecKubeConfig;
             /**
              * Strategic merge and JSON patches, defined as inline YAML objects, capable of targeting objects based on kind, label and annotation selectors.
              */
@@ -1257,7 +1715,7 @@ export namespace kustomize {
             /**
              * JSON 6902 patches, defined as inline YAML objects. Deprecated: Use Patches instead.
              */
-            patchesJson6902?: outputs.kustomize.v1beta2.KustomizationSpecPatchesjson6902[];
+            patchesJson6902?: outputs.kustomize.v1beta2.KustomizationSpecPatchesJson6902[];
             /**
              * Strategic merge patches, defined as inline YAML objects. Deprecated: Use Patches instead.
              */
@@ -1269,7 +1727,7 @@ export namespace kustomize {
             /**
              * PostBuild describes which actions to perform on the YAML manifest generated by building the kustomize overlay.
              */
-            postBuild?: outputs.kustomize.v1beta2.KustomizationSpecPostbuild;
+            postBuild?: outputs.kustomize.v1beta2.KustomizationSpecPostBuild;
             /**
              * Prune enables garbage collection.
              */
@@ -1285,7 +1743,7 @@ export namespace kustomize {
             /**
              * Reference of the source where the kustomization file is.
              */
-            sourceRef: outputs.kustomize.v1beta2.KustomizationSpecSourceref;
+            sourceRef: outputs.kustomize.v1beta2.KustomizationSpecSourceRef;
             /**
              * This flag tells the controller to suspend subsequent kustomize executions, it does not apply to already started executions. Defaults to false.
              */
@@ -1318,6 +1776,20 @@ export namespace kustomize {
         }
 
         /**
+         * CommonMetadata specifies the common labels and annotations that are applied to all resources. Any existing label or annotation will be overridden if its key matches a common one.
+         */
+        export interface KustomizationSpecCommonMetadata {
+            /**
+             * Annotations to be added to the object's metadata.
+             */
+            annotations?: {[key: string]: string};
+            /**
+             * Labels to be added to the object's metadata.
+             */
+            labels?: {[key: string]: string};
+        }
+
+        /**
          * Decrypt Kubernetes secrets before applying them on the cluster.
          */
         export interface KustomizationSpecDecryption {
@@ -1328,13 +1800,13 @@ export namespace kustomize {
             /**
              * The secret name containing the private OpenPGP keys used for decryption.
              */
-            secretRef?: outputs.kustomize.v1beta2.KustomizationSpecDecryptionSecretref;
+            secretRef?: outputs.kustomize.v1beta2.KustomizationSpecDecryptionSecretRef;
         }
 
         /**
          * The secret name containing the private OpenPGP keys used for decryption.
          */
-        export interface KustomizationSpecDecryptionSecretref {
+        export interface KustomizationSpecDecryptionSecretRef {
             /**
              * Name of the referent.
              */
@@ -1344,7 +1816,7 @@ export namespace kustomize {
         /**
          * NamespacedObjectReference contains enough information to locate the referenced Kubernetes resource object in any namespace.
          */
-        export interface KustomizationSpecDependson {
+        export interface KustomizationSpecDependsOn {
             /**
              * Name of the referent.
              */
@@ -1358,7 +1830,7 @@ export namespace kustomize {
         /**
          * NamespacedObjectKindReference contains enough information to locate the typed referenced Kubernetes resource object in any namespace.
          */
-        export interface KustomizationSpecHealthchecks {
+        export interface KustomizationSpecHealthChecks {
             /**
              * API version of the referent, if not specified the Kubernetes preferred version will be used.
              */
@@ -1402,17 +1874,17 @@ export namespace kustomize {
         /**
          * The KubeConfig for reconciling the Kustomization on a remote cluster. When used in combination with KustomizationSpec.ServiceAccountName, forces the controller to act on behalf of that Service Account at the target cluster. If the --default-service-account flag is set, its value will be used as a controller level fallback for when KustomizationSpec.ServiceAccountName is empty.
          */
-        export interface KustomizationSpecKubeconfig {
+        export interface KustomizationSpecKubeConfig {
             /**
              * SecretRef holds the name of a secret that contains a key with the kubeconfig file as the value. If no key is set, the key will default to 'value'. It is recommended that the kubeconfig is self-contained, and the secret is regularly updated if credentials such as a cloud-access-token expire. Cloud specific `cmd-path` auth helpers will not function without adding binaries and credentials to the Pod that is responsible for reconciling Kubernetes resources.
              */
-            secretRef: outputs.kustomize.v1beta2.KustomizationSpecKubeconfigSecretref;
+            secretRef: outputs.kustomize.v1beta2.KustomizationSpecKubeConfigSecretRef;
         }
 
         /**
          * SecretRef holds the name of a secret that contains a key with the kubeconfig file as the value. If no key is set, the key will default to 'value'. It is recommended that the kubeconfig is self-contained, and the secret is regularly updated if credentials such as a cloud-access-token expire. Cloud specific `cmd-path` auth helpers will not function without adding binaries and credentials to the Pod that is responsible for reconciling Kubernetes resources.
          */
-        export interface KustomizationSpecKubeconfigSecretref {
+        export interface KustomizationSpecKubeConfigSecretRef {
             /**
              * Key in the Secret, when not specified an implementation-specific default key is used.
              */
@@ -1430,11 +1902,81 @@ export namespace kustomize {
             /**
              * Patch contains an inline StrategicMerge patch or an inline JSON6902 patch with an array of operation objects.
              */
-            patch?: string;
+            patch: string;
             /**
              * Target points to the resources that the patch document should be applied to.
              */
             target?: outputs.kustomize.v1beta2.KustomizationSpecPatchesTarget;
+        }
+
+        /**
+         * JSON6902Patch contains a JSON6902 patch and the target the patch should be applied to.
+         */
+        export interface KustomizationSpecPatchesJson6902 {
+            /**
+             * Patch contains the JSON6902 patch document with an array of operation objects.
+             */
+            patch: outputs.kustomize.v1beta2.KustomizationSpecPatchesJson6902Patch[];
+            /**
+             * Target points to the resources that the patch document should be applied to.
+             */
+            target: outputs.kustomize.v1beta2.KustomizationSpecPatchesJson6902Target;
+        }
+
+        /**
+         * JSON6902 is a JSON6902 operation object. https://datatracker.ietf.org/doc/html/rfc6902#section-4
+         */
+        export interface KustomizationSpecPatchesJson6902Patch {
+            /**
+             * From contains a JSON-pointer value that references a location within the target document where the operation is performed. The meaning of the value depends on the value of Op, and is NOT taken into account by all operations.
+             */
+            from?: string;
+            /**
+             * Op indicates the operation to perform. Its value MUST be one of "add", "remove", "replace", "move", "copy", or "test". https://datatracker.ietf.org/doc/html/rfc6902#section-4
+             */
+            op: string;
+            /**
+             * Path contains the JSON-pointer value that references a location within the target document where the operation is performed. The meaning of the value depends on the value of Op.
+             */
+            path: string;
+            /**
+             * Value contains a valid JSON structure. The meaning of the value depends on the value of Op, and is NOT taken into account by all operations.
+             */
+            value?: {[key: string]: any};
+        }
+
+        /**
+         * Target points to the resources that the patch document should be applied to.
+         */
+        export interface KustomizationSpecPatchesJson6902Target {
+            /**
+             * AnnotationSelector is a string that follows the label selection expression https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/#api It matches with the resource annotations.
+             */
+            annotationSelector?: string;
+            /**
+             * Group is the API group to select resources from. Together with Version and Kind it is capable of unambiguously identifying and/or selecting resources. https://github.com/kubernetes/community/blob/master/contributors/design-proposals/api-machinery/api-group.md
+             */
+            group?: string;
+            /**
+             * Kind of the API Group to select resources from. Together with Group and Version it is capable of unambiguously identifying and/or selecting resources. https://github.com/kubernetes/community/blob/master/contributors/design-proposals/api-machinery/api-group.md
+             */
+            kind?: string;
+            /**
+             * LabelSelector is a string that follows the label selection expression https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/#api It matches with the resource labels.
+             */
+            labelSelector?: string;
+            /**
+             * Name to match resources with.
+             */
+            name?: string;
+            /**
+             * Namespace to select resources from.
+             */
+            namespace?: string;
+            /**
+             * Version of the API Group to select resources from. Together with Group and Kind it is capable of unambiguously identifying and/or selecting resources. https://github.com/kubernetes/community/blob/master/contributors/design-proposals/api-machinery/api-group.md
+             */
+            version?: string;
         }
 
         /**
@@ -1472,93 +2014,23 @@ export namespace kustomize {
         }
 
         /**
-         * JSON6902Patch contains a JSON6902 patch and the target the patch should be applied to.
-         */
-        export interface KustomizationSpecPatchesjson6902 {
-            /**
-             * Patch contains the JSON6902 patch document with an array of operation objects.
-             */
-            patch: outputs.kustomize.v1beta2.KustomizationSpecPatchesjson6902Patch[];
-            /**
-             * Target points to the resources that the patch document should be applied to.
-             */
-            target: outputs.kustomize.v1beta2.KustomizationSpecPatchesjson6902Target;
-        }
-
-        /**
-         * JSON6902 is a JSON6902 operation object. https://datatracker.ietf.org/doc/html/rfc6902#section-4
-         */
-        export interface KustomizationSpecPatchesjson6902Patch {
-            /**
-             * From contains a JSON-pointer value that references a location within the target document where the operation is performed. The meaning of the value depends on the value of Op, and is NOT taken into account by all operations.
-             */
-            from?: string;
-            /**
-             * Op indicates the operation to perform. Its value MUST be one of "add", "remove", "replace", "move", "copy", or "test". https://datatracker.ietf.org/doc/html/rfc6902#section-4
-             */
-            op: string;
-            /**
-             * Path contains the JSON-pointer value that references a location within the target document where the operation is performed. The meaning of the value depends on the value of Op.
-             */
-            path: string;
-            /**
-             * Value contains a valid JSON structure. The meaning of the value depends on the value of Op, and is NOT taken into account by all operations.
-             */
-            value?: {[key: string]: any};
-        }
-
-        /**
-         * Target points to the resources that the patch document should be applied to.
-         */
-        export interface KustomizationSpecPatchesjson6902Target {
-            /**
-             * AnnotationSelector is a string that follows the label selection expression https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/#api It matches with the resource annotations.
-             */
-            annotationSelector?: string;
-            /**
-             * Group is the API group to select resources from. Together with Version and Kind it is capable of unambiguously identifying and/or selecting resources. https://github.com/kubernetes/community/blob/master/contributors/design-proposals/api-machinery/api-group.md
-             */
-            group?: string;
-            /**
-             * Kind of the API Group to select resources from. Together with Group and Version it is capable of unambiguously identifying and/or selecting resources. https://github.com/kubernetes/community/blob/master/contributors/design-proposals/api-machinery/api-group.md
-             */
-            kind?: string;
-            /**
-             * LabelSelector is a string that follows the label selection expression https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/#api It matches with the resource labels.
-             */
-            labelSelector?: string;
-            /**
-             * Name to match resources with.
-             */
-            name?: string;
-            /**
-             * Namespace to select resources from.
-             */
-            namespace?: string;
-            /**
-             * Version of the API Group to select resources from. Together with Group and Kind it is capable of unambiguously identifying and/or selecting resources. https://github.com/kubernetes/community/blob/master/contributors/design-proposals/api-machinery/api-group.md
-             */
-            version?: string;
-        }
-
-        /**
          * PostBuild describes which actions to perform on the YAML manifest generated by building the kustomize overlay.
          */
-        export interface KustomizationSpecPostbuild {
+        export interface KustomizationSpecPostBuild {
             /**
-             * Substitute holds a map of key/value pairs. The variables defined in your YAML manifests that match any of the keys defined in the map will be substituted with the set value. Includes support for bash string replacement functions e.g. default, and .
+             * Substitute holds a map of key/value pairs. The variables defined in your YAML manifests that match any of the keys defined in the map will be substituted with the set value. Includes support for bash string replacement functions e.g. ${var:=default}, ${var:position} and ${var/substring/replacement}.
              */
             substitute?: {[key: string]: string};
             /**
              * SubstituteFrom holds references to ConfigMaps and Secrets containing the variables and their values to be substituted in the YAML manifests. The ConfigMap and the Secret data keys represent the var names and they must match the vars declared in the manifests for the substitution to happen.
              */
-            substituteFrom?: outputs.kustomize.v1beta2.KustomizationSpecPostbuildSubstitutefrom[];
+            substituteFrom?: outputs.kustomize.v1beta2.KustomizationSpecPostBuildSubstituteFrom[];
         }
 
         /**
          * SubstituteReference contains a reference to a resource containing the variables name and value.
          */
-        export interface KustomizationSpecPostbuildSubstitutefrom {
+        export interface KustomizationSpecPostBuildSubstituteFrom {
             /**
              * Kind of the values referent, valid values are ('Secret', 'ConfigMap').
              */
@@ -1573,9 +2045,9 @@ export namespace kustomize {
             optional?: boolean;
         }
         /**
-         * kustomizationSpecPostbuildSubstitutefromProvideDefaults sets the appropriate defaults for KustomizationSpecPostbuildSubstitutefrom
+         * kustomizationSpecPostBuildSubstituteFromProvideDefaults sets the appropriate defaults for KustomizationSpecPostBuildSubstituteFrom
          */
-        export function kustomizationSpecPostbuildSubstitutefromProvideDefaults(val: KustomizationSpecPostbuildSubstitutefrom): KustomizationSpecPostbuildSubstitutefrom {
+        export function kustomizationSpecPostBuildSubstituteFromProvideDefaults(val: KustomizationSpecPostBuildSubstituteFrom): KustomizationSpecPostBuildSubstituteFrom {
             return {
                 ...val,
                 optional: (val.optional) ?? false,
@@ -1585,7 +2057,7 @@ export namespace kustomize {
         /**
          * Reference of the source where the kustomization file is.
          */
-        export interface KustomizationSpecSourceref {
+        export interface KustomizationSpecSourceRef {
             /**
              * API version of the referent.
              */
@@ -1614,7 +2086,7 @@ export namespace kustomize {
              */
             inventory?: outputs.kustomize.v1beta2.KustomizationStatusInventory;
             /**
-             * The last successfully applied revision. The revision format for Git sources is <branch|tag>/<commit-sha>.
+             * The last successfully applied revision. Equals the Revision of the applied Artifact from the referenced Source.
              */
             lastAppliedRevision?: string;
             /**
@@ -1691,6 +2163,138 @@ export namespace kustomize {
 }
 
 export namespace notification {
+    export namespace v1 {
+        /**
+         * ReceiverSpec defines the desired state of the Receiver.
+         */
+        export interface ReceiverSpec {
+            /**
+             * Events specifies the list of event types to handle, e.g. 'push' for GitHub or 'Push Hook' for GitLab.
+             */
+            events?: string[];
+            /**
+             * Interval at which to reconcile the Receiver with its Secret references.
+             */
+            interval?: string;
+            /**
+             * A list of resources to be notified about changes.
+             */
+            resources: outputs.notification.v1.ReceiverSpecResources[];
+            /**
+             * SecretRef specifies the Secret containing the token used to validate the payload authenticity.
+             */
+            secretRef: outputs.notification.v1.ReceiverSpecSecretRef;
+            /**
+             * Suspend tells the controller to suspend subsequent events handling for this receiver.
+             */
+            suspend?: boolean;
+            /**
+             * Type of webhook sender, used to determine the validation procedure and payload deserialization.
+             */
+            type: string;
+        }
+        /**
+         * receiverSpecProvideDefaults sets the appropriate defaults for ReceiverSpec
+         */
+        export function receiverSpecProvideDefaults(val: ReceiverSpec): ReceiverSpec {
+            return {
+                ...val,
+                interval: (val.interval) ?? "10m",
+            };
+        }
+
+        /**
+         * CrossNamespaceObjectReference contains enough information to let you locate the typed referenced object at cluster level
+         */
+        export interface ReceiverSpecResources {
+            /**
+             * API version of the referent
+             */
+            apiVersion?: string;
+            /**
+             * Kind of the referent
+             */
+            kind: string;
+            /**
+             * MatchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed. MatchLabels requires the name to be set to `*`.
+             */
+            matchLabels?: {[key: string]: string};
+            /**
+             * Name of the referent If multiple resources are targeted `*` may be set.
+             */
+            name: string;
+            /**
+             * Namespace of the referent
+             */
+            namespace?: string;
+        }
+
+        /**
+         * SecretRef specifies the Secret containing the token used to validate the payload authenticity.
+         */
+        export interface ReceiverSpecSecretRef {
+            /**
+             * Name of the referent.
+             */
+            name: string;
+        }
+
+        /**
+         * ReceiverStatus defines the observed state of the Receiver.
+         */
+        export interface ReceiverStatus {
+            /**
+             * Conditions holds the conditions for the Receiver.
+             */
+            conditions?: outputs.notification.v1.ReceiverStatusConditions[];
+            /**
+             * LastHandledReconcileAt holds the value of the most recent reconcile request value, so a change of the annotation value can be detected.
+             */
+            lastHandledReconcileAt?: string;
+            /**
+             * ObservedGeneration is the last observed generation of the Receiver object.
+             */
+            observedGeneration?: number;
+            /**
+             * WebhookPath is the generated incoming webhook address in the format of '/hook/sha256sum(token+name+namespace)'.
+             */
+            webhookPath?: string;
+        }
+
+        /**
+         * Condition contains details for one aspect of the current state of this API Resource. --- This struct is intended for direct use as an array at the field path .status.conditions.  For example, 
+         *  type FooStatus struct{ // Represents the observations of a foo's current state. // Known .status.conditions.type are: "Available", "Progressing", and "Degraded" // +patchMergeKey=type // +patchStrategy=merge // +listType=map // +listMapKey=type Conditions []metav1.Condition `json:"conditions,omitempty" patchStrategy:"merge" patchMergeKey:"type" protobuf:"bytes,1,rep,name=conditions"` 
+         *  // other fields }
+         */
+        export interface ReceiverStatusConditions {
+            /**
+             * lastTransitionTime is the last time the condition transitioned from one status to another. This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+             */
+            lastTransitionTime: string;
+            /**
+             * message is a human readable message indicating details about the transition. This may be an empty string.
+             */
+            message: string;
+            /**
+             * observedGeneration represents the .metadata.generation that the condition was set based upon. For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date with respect to the current state of the instance.
+             */
+            observedGeneration?: number;
+            /**
+             * reason contains a programmatic identifier indicating the reason for the condition's last transition. Producers of specific condition types may define expected values and meanings for this field, and whether the values are considered a guaranteed API. The value should be a CamelCase string. This field may not be empty.
+             */
+            reason: string;
+            /**
+             * status of the condition, one of True, False, Unknown.
+             */
+            status: string;
+            /**
+             * type of condition in CamelCase or in foo.example.com/CamelCase. --- Many .condition.type values are consistent across resources like Available, but because arbitrary conditions can be useful (see .node.status.conditions), the ability to deconflict is important. The regex it matches is (dns1123SubdomainFmt/)?(qualifiedNameFmt)
+             */
+            type: string;
+        }
+
+    }
+
     export namespace v1beta1 {
         /**
          * AlertSpec defines an alerting rule for events involving a list of objects
@@ -1703,7 +2307,7 @@ export namespace notification {
             /**
              * Filter events based on the involved objects.
              */
-            eventSources: outputs.notification.v1beta1.AlertSpecEventsources[];
+            eventSources: outputs.notification.v1beta1.AlertSpecEventSources[];
             /**
              * A list of Golang regular expressions to be used for excluding messages.
              */
@@ -1711,7 +2315,7 @@ export namespace notification {
             /**
              * Send events using this provider.
              */
-            providerRef: outputs.notification.v1beta1.AlertSpecProviderref;
+            providerRef: outputs.notification.v1beta1.AlertSpecProviderRef;
             /**
              * Short description of the impact and affected cluster.
              */
@@ -1734,7 +2338,7 @@ export namespace notification {
         /**
          * CrossNamespaceObjectReference contains enough information to let you locate the typed referenced object at cluster level
          */
-        export interface AlertSpecEventsources {
+        export interface AlertSpecEventSources {
             /**
              * API version of the referent
              */
@@ -1760,7 +2364,7 @@ export namespace notification {
         /**
          * Send events using this provider.
          */
-        export interface AlertSpecProviderref {
+        export interface AlertSpecProviderRef {
             /**
              * Name of the referent.
              */
@@ -1821,7 +2425,7 @@ export namespace notification {
             /**
              * CertSecretRef can be given the name of a secret containing a PEM-encoded CA certificate (`caFile`)
              */
-            certSecretRef?: outputs.notification.v1beta1.ProviderSpecCertsecretref;
+            certSecretRef?: outputs.notification.v1beta1.ProviderSpecCertSecretRef;
             /**
              * Alert channel for this provider
              */
@@ -1833,7 +2437,7 @@ export namespace notification {
             /**
              * Secret reference containing the provider webhook URL using "address" as data key
              */
-            secretRef?: outputs.notification.v1beta1.ProviderSpecSecretref;
+            secretRef?: outputs.notification.v1beta1.ProviderSpecSecretRef;
             /**
              * This flag tells the controller to suspend subsequent events handling. Defaults to false.
              */
@@ -1855,7 +2459,7 @@ export namespace notification {
         /**
          * CertSecretRef can be given the name of a secret containing a PEM-encoded CA certificate (`caFile`)
          */
-        export interface ProviderSpecCertsecretref {
+        export interface ProviderSpecCertSecretRef {
             /**
              * Name of the referent.
              */
@@ -1865,7 +2469,7 @@ export namespace notification {
         /**
          * Secret reference containing the provider webhook URL using "address" as data key
          */
-        export interface ProviderSpecSecretref {
+        export interface ProviderSpecSecretRef {
             /**
              * Name of the referent.
              */
@@ -1930,7 +2534,7 @@ export namespace notification {
             /**
              * Secret reference containing the token used to validate the payload authenticity
              */
-            secretRef?: outputs.notification.v1beta1.ReceiverSpecSecretref;
+            secretRef?: outputs.notification.v1beta1.ReceiverSpecSecretRef;
             /**
              * This flag tells the controller to suspend subsequent events handling. Defaults to false.
              */
@@ -1970,7 +2574,7 @@ export namespace notification {
         /**
          * Secret reference containing the token used to validate the payload authenticity
          */
-        export interface ReceiverSpecSecretref {
+        export interface ReceiverSpecSecretRef {
             /**
              * Name of the referent.
              */
@@ -2025,9 +2629,699 @@ export namespace notification {
         }
 
     }
+
+    export namespace v1beta2 {
+        /**
+         * AlertSpec defines an alerting rule for events involving a list of objects.
+         */
+        export interface AlertSpec {
+            /**
+             * EventMetadata is an optional field for adding metadata to events dispatched by the controller. This can be used for enhancing the context of the event. If a field would override one already present on the original event as generated by the emitter, then the override doesn't happen, i.e. the original value is preserved, and an info log is printed.
+             */
+            eventMetadata?: {[key: string]: string};
+            /**
+             * EventSeverity specifies how to filter events based on severity. If set to 'info' no events will be filtered.
+             */
+            eventSeverity?: string;
+            /**
+             * EventSources specifies how to filter events based on the involved object kind, name and namespace.
+             */
+            eventSources: outputs.notification.v1beta2.AlertSpecEventSources[];
+            /**
+             * ExclusionList specifies a list of Golang regular expressions to be used for excluding messages.
+             */
+            exclusionList?: string[];
+            /**
+             * InclusionList specifies a list of Golang regular expressions to be used for including messages.
+             */
+            inclusionList?: string[];
+            /**
+             * ProviderRef specifies which Provider this Alert should use.
+             */
+            providerRef: outputs.notification.v1beta2.AlertSpecProviderRef;
+            /**
+             * Summary holds a short description of the impact and affected cluster.
+             */
+            summary?: string;
+            /**
+             * Suspend tells the controller to suspend subsequent events handling for this Alert.
+             */
+            suspend?: boolean;
+        }
+        /**
+         * alertSpecProvideDefaults sets the appropriate defaults for AlertSpec
+         */
+        export function alertSpecProvideDefaults(val: AlertSpec): AlertSpec {
+            return {
+                ...val,
+                eventSeverity: (val.eventSeverity) ?? "info",
+            };
+        }
+
+        /**
+         * CrossNamespaceObjectReference contains enough information to let you locate the typed referenced object at cluster level
+         */
+        export interface AlertSpecEventSources {
+            /**
+             * API version of the referent
+             */
+            apiVersion?: string;
+            /**
+             * Kind of the referent
+             */
+            kind: string;
+            /**
+             * MatchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed. MatchLabels requires the name to be set to `*`.
+             */
+            matchLabels?: {[key: string]: string};
+            /**
+             * Name of the referent If multiple resources are targeted `*` may be set.
+             */
+            name: string;
+            /**
+             * Namespace of the referent
+             */
+            namespace?: string;
+        }
+
+        /**
+         * ProviderRef specifies which Provider this Alert should use.
+         */
+        export interface AlertSpecProviderRef {
+            /**
+             * Name of the referent.
+             */
+            name: string;
+        }
+
+        /**
+         * AlertStatus defines the observed state of the Alert.
+         */
+        export interface AlertStatus {
+            /**
+             * Conditions holds the conditions for the Alert.
+             */
+            conditions?: outputs.notification.v1beta2.AlertStatusConditions[];
+            /**
+             * LastHandledReconcileAt holds the value of the most recent reconcile request value, so a change of the annotation value can be detected.
+             */
+            lastHandledReconcileAt?: string;
+            /**
+             * ObservedGeneration is the last observed generation.
+             */
+            observedGeneration?: number;
+        }
+
+        /**
+         * Condition contains details for one aspect of the current state of this API Resource. --- This struct is intended for direct use as an array at the field path .status.conditions.  For example, 
+         *  type FooStatus struct{ // Represents the observations of a foo's current state. // Known .status.conditions.type are: "Available", "Progressing", and "Degraded" // +patchMergeKey=type // +patchStrategy=merge // +listType=map // +listMapKey=type Conditions []metav1.Condition `json:"conditions,omitempty" patchStrategy:"merge" patchMergeKey:"type" protobuf:"bytes,1,rep,name=conditions"` 
+         *  // other fields }
+         */
+        export interface AlertStatusConditions {
+            /**
+             * lastTransitionTime is the last time the condition transitioned from one status to another. This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+             */
+            lastTransitionTime: string;
+            /**
+             * message is a human readable message indicating details about the transition. This may be an empty string.
+             */
+            message: string;
+            /**
+             * observedGeneration represents the .metadata.generation that the condition was set based upon. For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date with respect to the current state of the instance.
+             */
+            observedGeneration?: number;
+            /**
+             * reason contains a programmatic identifier indicating the reason for the condition's last transition. Producers of specific condition types may define expected values and meanings for this field, and whether the values are considered a guaranteed API. The value should be a CamelCase string. This field may not be empty.
+             */
+            reason: string;
+            /**
+             * status of the condition, one of True, False, Unknown.
+             */
+            status: string;
+            /**
+             * type of condition in CamelCase or in foo.example.com/CamelCase. --- Many .condition.type values are consistent across resources like Available, but because arbitrary conditions can be useful (see .node.status.conditions), the ability to deconflict is important. The regex it matches is (dns1123SubdomainFmt/)?(qualifiedNameFmt)
+             */
+            type: string;
+        }
+
+        /**
+         * ProviderSpec defines the desired state of the Provider.
+         */
+        export interface ProviderSpec {
+            /**
+             * Address specifies the endpoint, in a generic sense, to where alerts are sent. What kind of endpoint depends on the specific Provider type being used. For the generic Provider, for example, this is an HTTP/S address. For other Provider types this could be a project ID or a namespace.
+             */
+            address?: string;
+            /**
+             * CertSecretRef specifies the Secret containing a PEM-encoded CA certificate (`caFile`).
+             */
+            certSecretRef?: outputs.notification.v1beta2.ProviderSpecCertSecretRef;
+            /**
+             * Channel specifies the destination channel where events should be posted.
+             */
+            channel?: string;
+            /**
+             * Interval at which to reconcile the Provider with its Secret references.
+             */
+            interval?: string;
+            /**
+             * Proxy the HTTP/S address of the proxy server.
+             */
+            proxy?: string;
+            /**
+             * SecretRef specifies the Secret containing the authentication credentials for this Provider.
+             */
+            secretRef?: outputs.notification.v1beta2.ProviderSpecSecretRef;
+            /**
+             * Suspend tells the controller to suspend subsequent events handling for this Provider.
+             */
+            suspend?: boolean;
+            /**
+             * Timeout for sending alerts to the Provider.
+             */
+            timeout?: string;
+            /**
+             * Type specifies which Provider implementation to use.
+             */
+            type: string;
+            /**
+             * Username specifies the name under which events are posted.
+             */
+            username?: string;
+        }
+
+        /**
+         * CertSecretRef specifies the Secret containing a PEM-encoded CA certificate (`caFile`).
+         */
+        export interface ProviderSpecCertSecretRef {
+            /**
+             * Name of the referent.
+             */
+            name: string;
+        }
+
+        /**
+         * SecretRef specifies the Secret containing the authentication credentials for this Provider.
+         */
+        export interface ProviderSpecSecretRef {
+            /**
+             * Name of the referent.
+             */
+            name: string;
+        }
+
+        /**
+         * ProviderStatus defines the observed state of the Provider.
+         */
+        export interface ProviderStatus {
+            /**
+             * Conditions holds the conditions for the Provider.
+             */
+            conditions?: outputs.notification.v1beta2.ProviderStatusConditions[];
+            /**
+             * LastHandledReconcileAt holds the value of the most recent reconcile request value, so a change of the annotation value can be detected.
+             */
+            lastHandledReconcileAt?: string;
+            /**
+             * ObservedGeneration is the last reconciled generation.
+             */
+            observedGeneration?: number;
+        }
+
+        /**
+         * Condition contains details for one aspect of the current state of this API Resource. --- This struct is intended for direct use as an array at the field path .status.conditions.  For example, 
+         *  type FooStatus struct{ // Represents the observations of a foo's current state. // Known .status.conditions.type are: "Available", "Progressing", and "Degraded" // +patchMergeKey=type // +patchStrategy=merge // +listType=map // +listMapKey=type Conditions []metav1.Condition `json:"conditions,omitempty" patchStrategy:"merge" patchMergeKey:"type" protobuf:"bytes,1,rep,name=conditions"` 
+         *  // other fields }
+         */
+        export interface ProviderStatusConditions {
+            /**
+             * lastTransitionTime is the last time the condition transitioned from one status to another. This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+             */
+            lastTransitionTime: string;
+            /**
+             * message is a human readable message indicating details about the transition. This may be an empty string.
+             */
+            message: string;
+            /**
+             * observedGeneration represents the .metadata.generation that the condition was set based upon. For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date with respect to the current state of the instance.
+             */
+            observedGeneration?: number;
+            /**
+             * reason contains a programmatic identifier indicating the reason for the condition's last transition. Producers of specific condition types may define expected values and meanings for this field, and whether the values are considered a guaranteed API. The value should be a CamelCase string. This field may not be empty.
+             */
+            reason: string;
+            /**
+             * status of the condition, one of True, False, Unknown.
+             */
+            status: string;
+            /**
+             * type of condition in CamelCase or in foo.example.com/CamelCase. --- Many .condition.type values are consistent across resources like Available, but because arbitrary conditions can be useful (see .node.status.conditions), the ability to deconflict is important. The regex it matches is (dns1123SubdomainFmt/)?(qualifiedNameFmt)
+             */
+            type: string;
+        }
+
+        /**
+         * ReceiverSpec defines the desired state of the Receiver.
+         */
+        export interface ReceiverSpec {
+            /**
+             * Events specifies the list of event types to handle, e.g. 'push' for GitHub or 'Push Hook' for GitLab.
+             */
+            events?: string[];
+            /**
+             * Interval at which to reconcile the Receiver with its Secret references.
+             */
+            interval?: string;
+            /**
+             * A list of resources to be notified about changes.
+             */
+            resources: outputs.notification.v1beta2.ReceiverSpecResources[];
+            /**
+             * SecretRef specifies the Secret containing the token used to validate the payload authenticity.
+             */
+            secretRef?: outputs.notification.v1beta2.ReceiverSpecSecretRef;
+            /**
+             * Suspend tells the controller to suspend subsequent events handling for this receiver.
+             */
+            suspend?: boolean;
+            /**
+             * Type of webhook sender, used to determine the validation procedure and payload deserialization.
+             */
+            type: string;
+        }
+
+        /**
+         * CrossNamespaceObjectReference contains enough information to let you locate the typed referenced object at cluster level
+         */
+        export interface ReceiverSpecResources {
+            /**
+             * API version of the referent
+             */
+            apiVersion?: string;
+            /**
+             * Kind of the referent
+             */
+            kind: string;
+            /**
+             * MatchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed. MatchLabels requires the name to be set to `*`.
+             */
+            matchLabels?: {[key: string]: string};
+            /**
+             * Name of the referent If multiple resources are targeted `*` may be set.
+             */
+            name: string;
+            /**
+             * Namespace of the referent
+             */
+            namespace?: string;
+        }
+
+        /**
+         * SecretRef specifies the Secret containing the token used to validate the payload authenticity.
+         */
+        export interface ReceiverSpecSecretRef {
+            /**
+             * Name of the referent.
+             */
+            name: string;
+        }
+
+        /**
+         * ReceiverStatus defines the observed state of the Receiver.
+         */
+        export interface ReceiverStatus {
+            /**
+             * Conditions holds the conditions for the Receiver.
+             */
+            conditions?: outputs.notification.v1beta2.ReceiverStatusConditions[];
+            /**
+             * LastHandledReconcileAt holds the value of the most recent reconcile request value, so a change of the annotation value can be detected.
+             */
+            lastHandledReconcileAt?: string;
+            /**
+             * ObservedGeneration is the last observed generation of the Receiver object.
+             */
+            observedGeneration?: number;
+            /**
+             * URL is the generated incoming webhook address in the format of '/hook/sha256sum(token+name+namespace)'. Deprecated: Replaced by WebhookPath.
+             */
+            url?: string;
+            /**
+             * WebhookPath is the generated incoming webhook address in the format of '/hook/sha256sum(token+name+namespace)'.
+             */
+            webhookPath?: string;
+        }
+
+        /**
+         * Condition contains details for one aspect of the current state of this API Resource. --- This struct is intended for direct use as an array at the field path .status.conditions.  For example, 
+         *  type FooStatus struct{ // Represents the observations of a foo's current state. // Known .status.conditions.type are: "Available", "Progressing", and "Degraded" // +patchMergeKey=type // +patchStrategy=merge // +listType=map // +listMapKey=type Conditions []metav1.Condition `json:"conditions,omitempty" patchStrategy:"merge" patchMergeKey:"type" protobuf:"bytes,1,rep,name=conditions"` 
+         *  // other fields }
+         */
+        export interface ReceiverStatusConditions {
+            /**
+             * lastTransitionTime is the last time the condition transitioned from one status to another. This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+             */
+            lastTransitionTime: string;
+            /**
+             * message is a human readable message indicating details about the transition. This may be an empty string.
+             */
+            message: string;
+            /**
+             * observedGeneration represents the .metadata.generation that the condition was set based upon. For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date with respect to the current state of the instance.
+             */
+            observedGeneration?: number;
+            /**
+             * reason contains a programmatic identifier indicating the reason for the condition's last transition. Producers of specific condition types may define expected values and meanings for this field, and whether the values are considered a guaranteed API. The value should be a CamelCase string. This field may not be empty.
+             */
+            reason: string;
+            /**
+             * status of the condition, one of True, False, Unknown.
+             */
+            status: string;
+            /**
+             * type of condition in CamelCase or in foo.example.com/CamelCase. --- Many .condition.type values are consistent across resources like Available, but because arbitrary conditions can be useful (see .node.status.conditions), the ability to deconflict is important. The regex it matches is (dns1123SubdomainFmt/)?(qualifiedNameFmt)
+             */
+            type: string;
+        }
+
+    }
 }
 
 export namespace source {
+    export namespace v1 {
+        /**
+         * GitRepositorySpec specifies the required configuration to produce an Artifact for a Git repository.
+         */
+        export interface GitRepositorySpec {
+            /**
+             * Ignore overrides the set of excluded patterns in the .sourceignore format (which is the same as .gitignore). If not provided, a default will be used, consult the documentation for your version to find out what those are.
+             */
+            ignore?: string;
+            /**
+             * Include specifies a list of GitRepository resources which Artifacts should be included in the Artifact produced for this GitRepository.
+             */
+            include?: outputs.source.v1.GitRepositorySpecInclude[];
+            /**
+             * Interval at which to check the GitRepository for updates.
+             */
+            interval: string;
+            /**
+             * RecurseSubmodules enables the initialization of all submodules within the GitRepository as cloned from the URL, using their default settings.
+             */
+            recurseSubmodules?: boolean;
+            /**
+             * Reference specifies the Git reference to resolve and monitor for changes, defaults to the 'master' branch.
+             */
+            ref?: outputs.source.v1.GitRepositorySpecRef;
+            /**
+             * SecretRef specifies the Secret containing authentication credentials for the GitRepository. For HTTPS repositories the Secret must contain 'username' and 'password' fields for basic auth or 'bearerToken' field for token auth. For SSH repositories the Secret must contain 'identity' and 'known_hosts' fields.
+             */
+            secretRef?: outputs.source.v1.GitRepositorySpecSecretRef;
+            /**
+             * Suspend tells the controller to suspend the reconciliation of this GitRepository.
+             */
+            suspend?: boolean;
+            /**
+             * Timeout for Git operations like cloning, defaults to 60s.
+             */
+            timeout?: string;
+            /**
+             * URL specifies the Git repository URL, it can be an HTTP/S or SSH address.
+             */
+            url: string;
+            /**
+             * Verification specifies the configuration to verify the Git commit signature(s).
+             */
+            verify?: outputs.source.v1.GitRepositorySpecVerify;
+        }
+        /**
+         * gitRepositorySpecProvideDefaults sets the appropriate defaults for GitRepositorySpec
+         */
+        export function gitRepositorySpecProvideDefaults(val: GitRepositorySpec): GitRepositorySpec {
+            return {
+                ...val,
+                timeout: (val.timeout) ?? "60s",
+            };
+        }
+
+        /**
+         * GitRepositoryInclude specifies a local reference to a GitRepository which Artifact (sub-)contents must be included, and where they should be placed.
+         */
+        export interface GitRepositorySpecInclude {
+            /**
+             * FromPath specifies the path to copy contents from, defaults to the root of the Artifact.
+             */
+            fromPath?: string;
+            /**
+             * GitRepositoryRef specifies the GitRepository which Artifact contents must be included.
+             */
+            repository: outputs.source.v1.GitRepositorySpecIncludeRepository;
+            /**
+             * ToPath specifies the path to copy contents to, defaults to the name of the GitRepositoryRef.
+             */
+            toPath?: string;
+        }
+
+        /**
+         * GitRepositoryRef specifies the GitRepository which Artifact contents must be included.
+         */
+        export interface GitRepositorySpecIncludeRepository {
+            /**
+             * Name of the referent.
+             */
+            name: string;
+        }
+
+        /**
+         * Reference specifies the Git reference to resolve and monitor for changes, defaults to the 'master' branch.
+         */
+        export interface GitRepositorySpecRef {
+            /**
+             * Branch to check out, defaults to 'master' if no other field is defined.
+             */
+            branch?: string;
+            /**
+             * Commit SHA to check out, takes precedence over all reference fields. 
+             *  This can be combined with Branch to shallow clone the branch, in which the commit is expected to exist.
+             */
+            commit?: string;
+            /**
+             * Name of the reference to check out; takes precedence over Branch, Tag and SemVer. 
+             *  It must be a valid Git reference: https://git-scm.com/docs/git-check-ref-format#_description Examples: "refs/heads/main", "refs/tags/v0.1.0", "refs/pull/420/head", "refs/merge-requests/1/head"
+             */
+            name?: string;
+            /**
+             * SemVer tag expression to check out, takes precedence over Tag.
+             */
+            semver?: string;
+            /**
+             * Tag to check out, takes precedence over Branch.
+             */
+            tag?: string;
+        }
+
+        /**
+         * SecretRef specifies the Secret containing authentication credentials for the GitRepository. For HTTPS repositories the Secret must contain 'username' and 'password' fields for basic auth or 'bearerToken' field for token auth. For SSH repositories the Secret must contain 'identity' and 'known_hosts' fields.
+         */
+        export interface GitRepositorySpecSecretRef {
+            /**
+             * Name of the referent.
+             */
+            name: string;
+        }
+
+        /**
+         * Verification specifies the configuration to verify the Git commit signature(s).
+         */
+        export interface GitRepositorySpecVerify {
+            /**
+             * Mode specifies what Git object should be verified, currently ('head').
+             */
+            mode: string;
+            /**
+             * SecretRef specifies the Secret containing the public keys of trusted Git authors.
+             */
+            secretRef: outputs.source.v1.GitRepositorySpecVerifySecretRef;
+        }
+
+        /**
+         * SecretRef specifies the Secret containing the public keys of trusted Git authors.
+         */
+        export interface GitRepositorySpecVerifySecretRef {
+            /**
+             * Name of the referent.
+             */
+            name: string;
+        }
+
+        /**
+         * GitRepositoryStatus records the observed state of a Git repository.
+         */
+        export interface GitRepositoryStatus {
+            /**
+             * Artifact represents the last successful GitRepository reconciliation.
+             */
+            artifact?: outputs.source.v1.GitRepositoryStatusArtifact;
+            /**
+             * Conditions holds the conditions for the GitRepository.
+             */
+            conditions?: outputs.source.v1.GitRepositoryStatusConditions[];
+            /**
+             * IncludedArtifacts contains a list of the last successfully included Artifacts as instructed by GitRepositorySpec.Include.
+             */
+            includedArtifacts?: outputs.source.v1.GitRepositoryStatusIncludedArtifacts[];
+            /**
+             * LastHandledReconcileAt holds the value of the most recent reconcile request value, so a change of the annotation value can be detected.
+             */
+            lastHandledReconcileAt?: string;
+            /**
+             * ObservedGeneration is the last observed generation of the GitRepository object.
+             */
+            observedGeneration?: number;
+            /**
+             * ObservedIgnore is the observed exclusion patterns used for constructing the source artifact.
+             */
+            observedIgnore?: string;
+            /**
+             * ObservedInclude is the observed list of GitRepository resources used to produce the current Artifact.
+             */
+            observedInclude?: outputs.source.v1.GitRepositoryStatusObservedInclude[];
+            /**
+             * ObservedRecurseSubmodules is the observed resource submodules configuration used to produce the current Artifact.
+             */
+            observedRecurseSubmodules?: boolean;
+        }
+
+        /**
+         * Artifact represents the last successful GitRepository reconciliation.
+         */
+        export interface GitRepositoryStatusArtifact {
+            /**
+             * Digest is the digest of the file in the form of '<algorithm>:<checksum>'.
+             */
+            digest?: string;
+            /**
+             * LastUpdateTime is the timestamp corresponding to the last update of the Artifact.
+             */
+            lastUpdateTime: string;
+            /**
+             * Metadata holds upstream information such as OCI annotations.
+             */
+            metadata?: {[key: string]: string};
+            /**
+             * Path is the relative file path of the Artifact. It can be used to locate the file in the root of the Artifact storage on the local file system of the controller managing the Source.
+             */
+            path: string;
+            /**
+             * Revision is a human-readable identifier traceable in the origin source system. It can be a Git commit SHA, Git tag, a Helm chart version, etc.
+             */
+            revision: string;
+            /**
+             * Size is the number of bytes in the file.
+             */
+            size?: number;
+            /**
+             * URL is the HTTP address of the Artifact as exposed by the controller managing the Source. It can be used to retrieve the Artifact for consumption, e.g. by another controller applying the Artifact contents.
+             */
+            url: string;
+        }
+
+        /**
+         * Condition contains details for one aspect of the current state of this API Resource. --- This struct is intended for direct use as an array at the field path .status.conditions.  For example, 
+         *  type FooStatus struct{ // Represents the observations of a foo's current state. // Known .status.conditions.type are: "Available", "Progressing", and "Degraded" // +patchMergeKey=type // +patchStrategy=merge // +listType=map // +listMapKey=type Conditions []metav1.Condition `json:"conditions,omitempty" patchStrategy:"merge" patchMergeKey:"type" protobuf:"bytes,1,rep,name=conditions"` 
+         *  // other fields }
+         */
+        export interface GitRepositoryStatusConditions {
+            /**
+             * lastTransitionTime is the last time the condition transitioned from one status to another. This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+             */
+            lastTransitionTime: string;
+            /**
+             * message is a human readable message indicating details about the transition. This may be an empty string.
+             */
+            message: string;
+            /**
+             * observedGeneration represents the .metadata.generation that the condition was set based upon. For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date with respect to the current state of the instance.
+             */
+            observedGeneration?: number;
+            /**
+             * reason contains a programmatic identifier indicating the reason for the condition's last transition. Producers of specific condition types may define expected values and meanings for this field, and whether the values are considered a guaranteed API. The value should be a CamelCase string. This field may not be empty.
+             */
+            reason: string;
+            /**
+             * status of the condition, one of True, False, Unknown.
+             */
+            status: string;
+            /**
+             * type of condition in CamelCase or in foo.example.com/CamelCase. --- Many .condition.type values are consistent across resources like Available, but because arbitrary conditions can be useful (see .node.status.conditions), the ability to deconflict is important. The regex it matches is (dns1123SubdomainFmt/)?(qualifiedNameFmt)
+             */
+            type: string;
+        }
+
+        /**
+         * Artifact represents the output of a Source reconciliation.
+         */
+        export interface GitRepositoryStatusIncludedArtifacts {
+            /**
+             * Digest is the digest of the file in the form of '<algorithm>:<checksum>'.
+             */
+            digest?: string;
+            /**
+             * LastUpdateTime is the timestamp corresponding to the last update of the Artifact.
+             */
+            lastUpdateTime: string;
+            /**
+             * Metadata holds upstream information such as OCI annotations.
+             */
+            metadata?: {[key: string]: string};
+            /**
+             * Path is the relative file path of the Artifact. It can be used to locate the file in the root of the Artifact storage on the local file system of the controller managing the Source.
+             */
+            path: string;
+            /**
+             * Revision is a human-readable identifier traceable in the origin source system. It can be a Git commit SHA, Git tag, a Helm chart version, etc.
+             */
+            revision: string;
+            /**
+             * Size is the number of bytes in the file.
+             */
+            size?: number;
+            /**
+             * URL is the HTTP address of the Artifact as exposed by the controller managing the Source. It can be used to retrieve the Artifact for consumption, e.g. by another controller applying the Artifact contents.
+             */
+            url: string;
+        }
+
+        /**
+         * GitRepositoryInclude specifies a local reference to a GitRepository which Artifact (sub-)contents must be included, and where they should be placed.
+         */
+        export interface GitRepositoryStatusObservedInclude {
+            /**
+             * FromPath specifies the path to copy contents from, defaults to the root of the Artifact.
+             */
+            fromPath?: string;
+            /**
+             * GitRepositoryRef specifies the GitRepository which Artifact contents must be included.
+             */
+            repository: outputs.source.v1.GitRepositoryStatusObservedIncludeRepository;
+            /**
+             * ToPath specifies the path to copy contents to, defaults to the name of the GitRepositoryRef.
+             */
+            toPath?: string;
+        }
+
+        /**
+         * GitRepositoryRef specifies the GitRepository which Artifact contents must be included.
+         */
+        export interface GitRepositoryStatusObservedIncludeRepository {
+            /**
+             * Name of the referent.
+             */
+            name: string;
+        }
+
+    }
+
     export namespace v1beta1 {
         /**
          * BucketSpec defines the desired state of an S3 compatible bucket
@@ -2036,7 +3330,7 @@ export namespace source {
             /**
              * AccessFrom defines an Access Control List for allowing cross-namespace references to this object.
              */
-            accessFrom?: outputs.source.v1beta1.BucketSpecAccessfrom;
+            accessFrom?: outputs.source.v1beta1.BucketSpecAccessFrom;
             /**
              * The bucket name.
              */
@@ -2068,7 +3362,7 @@ export namespace source {
             /**
              * The name of the secret containing authentication credentials for the Bucket.
              */
-            secretRef?: outputs.source.v1beta1.BucketSpecSecretref;
+            secretRef?: outputs.source.v1beta1.BucketSpecSecretRef;
             /**
              * This flag tells the controller to suspend the reconciliation of this source.
              */
@@ -2092,17 +3386,17 @@ export namespace source {
         /**
          * AccessFrom defines an Access Control List for allowing cross-namespace references to this object.
          */
-        export interface BucketSpecAccessfrom {
+        export interface BucketSpecAccessFrom {
             /**
              * NamespaceSelectors is the list of namespace selectors to which this ACL applies. Items in this list are evaluated using a logical OR operation.
              */
-            namespaceSelectors: outputs.source.v1beta1.BucketSpecAccessfromNamespaceselectors[];
+            namespaceSelectors: outputs.source.v1beta1.BucketSpecAccessFromNamespaceSelectors[];
         }
 
         /**
          * NamespaceSelector selects the namespaces to which this ACL applies. An empty map of MatchLabels matches all namespaces in a cluster.
          */
-        export interface BucketSpecAccessfromNamespaceselectors {
+        export interface BucketSpecAccessFromNamespaceSelectors {
             /**
              * MatchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
              */
@@ -2112,7 +3406,7 @@ export namespace source {
         /**
          * The name of the secret containing authentication credentials for the Bucket.
          */
-        export interface BucketSpecSecretref {
+        export interface BucketSpecSecretRef {
             /**
              * Name of the referent.
              */
@@ -2210,7 +3504,7 @@ export namespace source {
             /**
              * AccessFrom defines an Access Control List for allowing cross-namespace references to this object.
              */
-            accessFrom?: outputs.source.v1beta1.GitRepositorySpecAccessfrom;
+            accessFrom?: outputs.source.v1beta1.GitRepositorySpecAccessFrom;
             /**
              * Determines which git client library to use. Defaults to go-git, valid values are ('go-git', 'libgit2').
              */
@@ -2238,7 +3532,7 @@ export namespace source {
             /**
              * The secret name containing the Git credentials. For HTTPS repositories the secret must contain username and password fields. For SSH repositories the secret must contain identity and known_hosts fields.
              */
-            secretRef?: outputs.source.v1beta1.GitRepositorySpecSecretref;
+            secretRef?: outputs.source.v1beta1.GitRepositorySpecSecretRef;
             /**
              * This flag tells the controller to suspend the reconciliation of this source.
              */
@@ -2270,17 +3564,17 @@ export namespace source {
         /**
          * AccessFrom defines an Access Control List for allowing cross-namespace references to this object.
          */
-        export interface GitRepositorySpecAccessfrom {
+        export interface GitRepositorySpecAccessFrom {
             /**
              * NamespaceSelectors is the list of namespace selectors to which this ACL applies. Items in this list are evaluated using a logical OR operation.
              */
-            namespaceSelectors: outputs.source.v1beta1.GitRepositorySpecAccessfromNamespaceselectors[];
+            namespaceSelectors: outputs.source.v1beta1.GitRepositorySpecAccessFromNamespaceSelectors[];
         }
 
         /**
          * NamespaceSelector selects the namespaces to which this ACL applies. An empty map of MatchLabels matches all namespaces in a cluster.
          */
-        export interface GitRepositorySpecAccessfromNamespaceselectors {
+        export interface GitRepositorySpecAccessFromNamespaceSelectors {
             /**
              * MatchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
              */
@@ -2340,7 +3634,7 @@ export namespace source {
         /**
          * The secret name containing the Git credentials. For HTTPS repositories the secret must contain username and password fields. For SSH repositories the secret must contain identity and known_hosts fields.
          */
-        export interface GitRepositorySpecSecretref {
+        export interface GitRepositorySpecSecretRef {
             /**
              * Name of the referent.
              */
@@ -2358,13 +3652,13 @@ export namespace source {
             /**
              * The secret name containing the public keys of all trusted Git authors.
              */
-            secretRef?: outputs.source.v1beta1.GitRepositorySpecVerifySecretref;
+            secretRef?: outputs.source.v1beta1.GitRepositorySpecVerifySecretRef;
         }
 
         /**
          * The secret name containing the public keys of all trusted Git authors.
          */
-        export interface GitRepositorySpecVerifySecretref {
+        export interface GitRepositorySpecVerifySecretRef {
             /**
              * Name of the referent.
              */
@@ -2386,7 +3680,7 @@ export namespace source {
             /**
              * IncludedArtifacts represents the included artifacts from the last successful repository sync.
              */
-            includedArtifacts?: outputs.source.v1beta1.GitRepositoryStatusIncludedartifacts[];
+            includedArtifacts?: outputs.source.v1beta1.GitRepositoryStatusIncludedArtifacts[];
             /**
              * LastHandledReconcileAt holds the value of the most recent reconcile request value, so a change of the annotation value can be detected.
              */
@@ -2462,7 +3756,7 @@ export namespace source {
         /**
          * Artifact represents the output of a source synchronisation.
          */
-        export interface GitRepositoryStatusIncludedartifacts {
+        export interface GitRepositoryStatusIncludedArtifacts {
             /**
              * Checksum is the SHA256 checksum of the artifact.
              */
@@ -2492,7 +3786,7 @@ export namespace source {
             /**
              * AccessFrom defines an Access Control List for allowing cross-namespace references to this object.
              */
-            accessFrom?: outputs.source.v1beta1.HelmChartSpecAccessfrom;
+            accessFrom?: outputs.source.v1beta1.HelmChartSpecAccessFrom;
             /**
              * The name or path the Helm chart is available at in the SourceRef.
              */
@@ -2508,7 +3802,7 @@ export namespace source {
             /**
              * The reference to the Source the chart is available at.
              */
-            sourceRef: outputs.source.v1beta1.HelmChartSpecSourceref;
+            sourceRef: outputs.source.v1beta1.HelmChartSpecSourceRef;
             /**
              * This flag tells the controller to suspend the reconciliation of this source.
              */
@@ -2540,17 +3834,17 @@ export namespace source {
         /**
          * AccessFrom defines an Access Control List for allowing cross-namespace references to this object.
          */
-        export interface HelmChartSpecAccessfrom {
+        export interface HelmChartSpecAccessFrom {
             /**
              * NamespaceSelectors is the list of namespace selectors to which this ACL applies. Items in this list are evaluated using a logical OR operation.
              */
-            namespaceSelectors: outputs.source.v1beta1.HelmChartSpecAccessfromNamespaceselectors[];
+            namespaceSelectors: outputs.source.v1beta1.HelmChartSpecAccessFromNamespaceSelectors[];
         }
 
         /**
          * NamespaceSelector selects the namespaces to which this ACL applies. An empty map of MatchLabels matches all namespaces in a cluster.
          */
-        export interface HelmChartSpecAccessfromNamespaceselectors {
+        export interface HelmChartSpecAccessFromNamespaceSelectors {
             /**
              * MatchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
              */
@@ -2560,7 +3854,7 @@ export namespace source {
         /**
          * The reference to the Source the chart is available at.
          */
-        export interface HelmChartSpecSourceref {
+        export interface HelmChartSpecSourceRef {
             /**
              * APIVersion of the referent.
              */
@@ -2666,7 +3960,7 @@ export namespace source {
             /**
              * AccessFrom defines an Access Control List for allowing cross-namespace references to this object.
              */
-            accessFrom?: outputs.source.v1beta1.HelmRepositorySpecAccessfrom;
+            accessFrom?: outputs.source.v1beta1.HelmRepositorySpecAccessFrom;
             /**
              * The interval at which to check the upstream for updates.
              */
@@ -2676,9 +3970,9 @@ export namespace source {
              */
             passCredentials?: boolean;
             /**
-             * The name of the secret containing authentication credentials for the Helm repository. For HTTP/S basic auth the secret must contain username and password fields. For TLS the secret must contain a certFile and keyFile, and/or caCert fields.
+             * The name of the secret containing authentication credentials for the Helm repository. For HTTP/S basic auth the secret must contain username and password fields. For TLS the secret must contain a certFile and keyFile, and/or caFile fields.
              */
-            secretRef?: outputs.source.v1beta1.HelmRepositorySpecSecretref;
+            secretRef?: outputs.source.v1beta1.HelmRepositorySpecSecretRef;
             /**
              * This flag tells the controller to suspend the reconciliation of this source.
              */
@@ -2705,17 +3999,17 @@ export namespace source {
         /**
          * AccessFrom defines an Access Control List for allowing cross-namespace references to this object.
          */
-        export interface HelmRepositorySpecAccessfrom {
+        export interface HelmRepositorySpecAccessFrom {
             /**
              * NamespaceSelectors is the list of namespace selectors to which this ACL applies. Items in this list are evaluated using a logical OR operation.
              */
-            namespaceSelectors: outputs.source.v1beta1.HelmRepositorySpecAccessfromNamespaceselectors[];
+            namespaceSelectors: outputs.source.v1beta1.HelmRepositorySpecAccessFromNamespaceSelectors[];
         }
 
         /**
          * NamespaceSelector selects the namespaces to which this ACL applies. An empty map of MatchLabels matches all namespaces in a cluster.
          */
-        export interface HelmRepositorySpecAccessfromNamespaceselectors {
+        export interface HelmRepositorySpecAccessFromNamespaceSelectors {
             /**
              * MatchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
              */
@@ -2723,9 +4017,9 @@ export namespace source {
         }
 
         /**
-         * The name of the secret containing authentication credentials for the Helm repository. For HTTP/S basic auth the secret must contain username and password fields. For TLS the secret must contain a certFile and keyFile, and/or caCert fields.
+         * The name of the secret containing authentication credentials for the Helm repository. For HTTP/S basic auth the secret must contain username and password fields. For TLS the secret must contain a certFile and keyFile, and/or caFile fields.
          */
-        export interface HelmRepositorySpecSecretref {
+        export interface HelmRepositorySpecSecretRef {
             /**
              * Name of the referent.
              */
@@ -2826,7 +4120,7 @@ export namespace source {
             /**
              * AccessFrom specifies an Access Control List for allowing cross-namespace references to this object. NOTE: Not implemented, provisional as of https://github.com/fluxcd/flux2/pull/2092
              */
-            accessFrom?: outputs.source.v1beta2.BucketSpecAccessfrom;
+            accessFrom?: outputs.source.v1beta2.BucketSpecAccessFrom;
             /**
              * BucketName is the name of the object storage bucket.
              */
@@ -2858,7 +4152,7 @@ export namespace source {
             /**
              * SecretRef specifies the Secret containing authentication credentials for the Bucket.
              */
-            secretRef?: outputs.source.v1beta2.BucketSpecSecretref;
+            secretRef?: outputs.source.v1beta2.BucketSpecSecretRef;
             /**
              * Suspend tells the controller to suspend the reconciliation of this Bucket.
              */
@@ -2882,17 +4176,17 @@ export namespace source {
         /**
          * AccessFrom specifies an Access Control List for allowing cross-namespace references to this object. NOTE: Not implemented, provisional as of https://github.com/fluxcd/flux2/pull/2092
          */
-        export interface BucketSpecAccessfrom {
+        export interface BucketSpecAccessFrom {
             /**
              * NamespaceSelectors is the list of namespace selectors to which this ACL applies. Items in this list are evaluated using a logical OR operation.
              */
-            namespaceSelectors: outputs.source.v1beta2.BucketSpecAccessfromNamespaceselectors[];
+            namespaceSelectors: outputs.source.v1beta2.BucketSpecAccessFromNamespaceSelectors[];
         }
 
         /**
          * NamespaceSelector selects the namespaces to which this ACL applies. An empty map of MatchLabels matches all namespaces in a cluster.
          */
-        export interface BucketSpecAccessfromNamespaceselectors {
+        export interface BucketSpecAccessFromNamespaceSelectors {
             /**
              * MatchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
              */
@@ -2902,7 +4196,7 @@ export namespace source {
         /**
          * SecretRef specifies the Secret containing authentication credentials for the Bucket.
          */
-        export interface BucketSpecSecretref {
+        export interface BucketSpecSecretRef {
             /**
              * Name of the referent.
              */
@@ -2944,13 +4238,13 @@ export namespace source {
          */
         export interface BucketStatusArtifact {
             /**
-             * Checksum is the SHA256 checksum of the Artifact file.
+             * Digest is the digest of the file in the form of '<algorithm>:<checksum>'.
              */
-            checksum?: string;
+            digest?: string;
             /**
              * LastUpdateTime is the timestamp corresponding to the last update of the Artifact.
              */
-            lastUpdateTime?: string;
+            lastUpdateTime: string;
             /**
              * Metadata holds upstream information such as OCI annotations.
              */
@@ -2962,7 +4256,7 @@ export namespace source {
             /**
              * Revision is a human-readable identifier traceable in the origin source system. It can be a Git commit SHA, Git tag, a Helm chart version, etc.
              */
-            revision?: string;
+            revision: string;
             /**
              * Size is the number of bytes in the file.
              */
@@ -3012,9 +4306,9 @@ export namespace source {
             /**
              * AccessFrom specifies an Access Control List for allowing cross-namespace references to this object. NOTE: Not implemented, provisional as of https://github.com/fluxcd/flux2/pull/2092
              */
-            accessFrom?: outputs.source.v1beta2.GitRepositorySpecAccessfrom;
+            accessFrom?: outputs.source.v1beta2.GitRepositorySpecAccessFrom;
             /**
-             * GitImplementation specifies which Git client library implementation to use. Defaults to 'go-git', valid values are ('go-git', 'libgit2').
+             * GitImplementation specifies which Git client library implementation to use. Defaults to 'go-git', valid values are ('go-git', 'libgit2'). Deprecated: gitImplementation is deprecated now that 'go-git' is the only supported implementation.
              */
             gitImplementation?: string;
             /**
@@ -3030,7 +4324,7 @@ export namespace source {
              */
             interval: string;
             /**
-             * RecurseSubmodules enables the initialization of all submodules within the GitRepository as cloned from the URL, using their default settings. This option is available only when using the 'go-git' GitImplementation.
+             * RecurseSubmodules enables the initialization of all submodules within the GitRepository as cloned from the URL, using their default settings.
              */
             recurseSubmodules?: boolean;
             /**
@@ -3038,9 +4332,9 @@ export namespace source {
              */
             ref?: outputs.source.v1beta2.GitRepositorySpecRef;
             /**
-             * SecretRef specifies the Secret containing authentication credentials for the GitRepository. For HTTPS repositories the Secret must contain 'username' and 'password' fields. For SSH repositories the Secret must contain 'identity' and 'known_hosts' fields.
+             * SecretRef specifies the Secret containing authentication credentials for the GitRepository. For HTTPS repositories the Secret must contain 'username' and 'password' fields for basic auth or 'bearerToken' field for token auth. For SSH repositories the Secret must contain 'identity' and 'known_hosts' fields.
              */
-            secretRef?: outputs.source.v1beta2.GitRepositorySpecSecretref;
+            secretRef?: outputs.source.v1beta2.GitRepositorySpecSecretRef;
             /**
              * Suspend tells the controller to suspend the reconciliation of this GitRepository.
              */
@@ -3072,17 +4366,17 @@ export namespace source {
         /**
          * AccessFrom specifies an Access Control List for allowing cross-namespace references to this object. NOTE: Not implemented, provisional as of https://github.com/fluxcd/flux2/pull/2092
          */
-        export interface GitRepositorySpecAccessfrom {
+        export interface GitRepositorySpecAccessFrom {
             /**
              * NamespaceSelectors is the list of namespace selectors to which this ACL applies. Items in this list are evaluated using a logical OR operation.
              */
-            namespaceSelectors: outputs.source.v1beta2.GitRepositorySpecAccessfromNamespaceselectors[];
+            namespaceSelectors: outputs.source.v1beta2.GitRepositorySpecAccessFromNamespaceSelectors[];
         }
 
         /**
          * NamespaceSelector selects the namespaces to which this ACL applies. An empty map of MatchLabels matches all namespaces in a cluster.
          */
-        export interface GitRepositorySpecAccessfromNamespaceselectors {
+        export interface GitRepositorySpecAccessFromNamespaceSelectors {
             /**
              * MatchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
              */
@@ -3122,15 +4416,19 @@ export namespace source {
          */
         export interface GitRepositorySpecRef {
             /**
-             * Branch to check out, defaults to 'master' if no other field is defined. 
-             *  When GitRepositorySpec.GitImplementation is set to 'go-git', a shallow clone of the specified branch is performed.
+             * Branch to check out, defaults to 'master' if no other field is defined.
              */
             branch?: string;
             /**
              * Commit SHA to check out, takes precedence over all reference fields. 
-             *  When GitRepositorySpec.GitImplementation is set to 'go-git', this can be combined with Branch to shallow clone the branch, in which the commit is expected to exist.
+             *  This can be combined with Branch to shallow clone the branch, in which the commit is expected to exist.
              */
             commit?: string;
+            /**
+             * Name of the reference to check out; takes precedence over Branch, Tag and SemVer. 
+             *  It must be a valid Git reference: https://git-scm.com/docs/git-check-ref-format#_description Examples: "refs/heads/main", "refs/tags/v0.1.0", "refs/pull/420/head", "refs/merge-requests/1/head"
+             */
+            name?: string;
             /**
              * SemVer tag expression to check out, takes precedence over Tag.
              */
@@ -3142,9 +4440,9 @@ export namespace source {
         }
 
         /**
-         * SecretRef specifies the Secret containing authentication credentials for the GitRepository. For HTTPS repositories the Secret must contain 'username' and 'password' fields. For SSH repositories the Secret must contain 'identity' and 'known_hosts' fields.
+         * SecretRef specifies the Secret containing authentication credentials for the GitRepository. For HTTPS repositories the Secret must contain 'username' and 'password' fields for basic auth or 'bearerToken' field for token auth. For SSH repositories the Secret must contain 'identity' and 'known_hosts' fields.
          */
-        export interface GitRepositorySpecSecretref {
+        export interface GitRepositorySpecSecretRef {
             /**
              * Name of the referent.
              */
@@ -3162,13 +4460,13 @@ export namespace source {
             /**
              * SecretRef specifies the Secret containing the public keys of trusted Git authors.
              */
-            secretRef?: outputs.source.v1beta2.GitRepositorySpecVerifySecretref;
+            secretRef: outputs.source.v1beta2.GitRepositorySpecVerifySecretRef;
         }
 
         /**
          * SecretRef specifies the Secret containing the public keys of trusted Git authors.
          */
-        export interface GitRepositorySpecVerifySecretref {
+        export interface GitRepositorySpecVerifySecretRef {
             /**
              * Name of the referent.
              */
@@ -3195,7 +4493,7 @@ export namespace source {
             /**
              * IncludedArtifacts contains a list of the last successfully included Artifacts as instructed by GitRepositorySpec.Include.
              */
-            includedArtifacts?: outputs.source.v1beta2.GitRepositoryStatusIncludedartifacts[];
+            includedArtifacts?: outputs.source.v1beta2.GitRepositoryStatusIncludedArtifacts[];
             /**
              * LastHandledReconcileAt holds the value of the most recent reconcile request value, so a change of the annotation value can be detected.
              */
@@ -3211,7 +4509,7 @@ export namespace source {
             /**
              * ObservedInclude is the observed list of GitRepository resources used to to produce the current Artifact.
              */
-            observedInclude?: outputs.source.v1beta2.GitRepositoryStatusObservedinclude[];
+            observedInclude?: outputs.source.v1beta2.GitRepositoryStatusObservedInclude[];
             /**
              * ObservedRecurseSubmodules is the observed resource submodules configuration used to produce the current Artifact.
              */
@@ -3227,13 +4525,13 @@ export namespace source {
          */
         export interface GitRepositoryStatusArtifact {
             /**
-             * Checksum is the SHA256 checksum of the Artifact file.
+             * Digest is the digest of the file in the form of '<algorithm>:<checksum>'.
              */
-            checksum?: string;
+            digest?: string;
             /**
              * LastUpdateTime is the timestamp corresponding to the last update of the Artifact.
              */
-            lastUpdateTime?: string;
+            lastUpdateTime: string;
             /**
              * Metadata holds upstream information such as OCI annotations.
              */
@@ -3245,7 +4543,7 @@ export namespace source {
             /**
              * Revision is a human-readable identifier traceable in the origin source system. It can be a Git commit SHA, Git tag, a Helm chart version, etc.
              */
-            revision?: string;
+            revision: string;
             /**
              * Size is the number of bytes in the file.
              */
@@ -3291,15 +4589,15 @@ export namespace source {
         /**
          * Artifact represents the output of a Source reconciliation.
          */
-        export interface GitRepositoryStatusIncludedartifacts {
+        export interface GitRepositoryStatusIncludedArtifacts {
             /**
-             * Checksum is the SHA256 checksum of the Artifact file.
+             * Digest is the digest of the file in the form of '<algorithm>:<checksum>'.
              */
-            checksum?: string;
+            digest?: string;
             /**
              * LastUpdateTime is the timestamp corresponding to the last update of the Artifact.
              */
-            lastUpdateTime?: string;
+            lastUpdateTime: string;
             /**
              * Metadata holds upstream information such as OCI annotations.
              */
@@ -3311,7 +4609,7 @@ export namespace source {
             /**
              * Revision is a human-readable identifier traceable in the origin source system. It can be a Git commit SHA, Git tag, a Helm chart version, etc.
              */
-            revision?: string;
+            revision: string;
             /**
              * Size is the number of bytes in the file.
              */
@@ -3325,7 +4623,7 @@ export namespace source {
         /**
          * GitRepositoryInclude specifies a local reference to a GitRepository which Artifact (sub-)contents must be included, and where they should be placed.
          */
-        export interface GitRepositoryStatusObservedinclude {
+        export interface GitRepositoryStatusObservedInclude {
             /**
              * FromPath specifies the path to copy contents from, defaults to the root of the Artifact.
              */
@@ -3333,7 +4631,7 @@ export namespace source {
             /**
              * GitRepositoryRef specifies the GitRepository which Artifact contents must be included.
              */
-            repository: outputs.source.v1beta2.GitRepositoryStatusObservedincludeRepository;
+            repository: outputs.source.v1beta2.GitRepositoryStatusObservedIncludeRepository;
             /**
              * ToPath specifies the path to copy contents to, defaults to the name of the GitRepositoryRef.
              */
@@ -3343,7 +4641,7 @@ export namespace source {
         /**
          * GitRepositoryRef specifies the GitRepository which Artifact contents must be included.
          */
-        export interface GitRepositoryStatusObservedincludeRepository {
+        export interface GitRepositoryStatusObservedIncludeRepository {
             /**
              * Name of the referent.
              */
@@ -3357,7 +4655,7 @@ export namespace source {
             /**
              * AccessFrom specifies an Access Control List for allowing cross-namespace references to this object. NOTE: Not implemented, provisional as of https://github.com/fluxcd/flux2/pull/2092
              */
-            accessFrom?: outputs.source.v1beta2.HelmChartSpecAccessfrom;
+            accessFrom?: outputs.source.v1beta2.HelmChartSpecAccessFrom;
             /**
              * Chart is the name or path the Helm chart is available at in the SourceRef.
              */
@@ -3373,7 +4671,7 @@ export namespace source {
             /**
              * SourceRef is the reference to the Source the chart is available at.
              */
-            sourceRef: outputs.source.v1beta2.HelmChartSpecSourceref;
+            sourceRef: outputs.source.v1beta2.HelmChartSpecSourceRef;
             /**
              * Suspend tells the controller to suspend the reconciliation of this source.
              */
@@ -3410,17 +4708,17 @@ export namespace source {
         /**
          * AccessFrom specifies an Access Control List for allowing cross-namespace references to this object. NOTE: Not implemented, provisional as of https://github.com/fluxcd/flux2/pull/2092
          */
-        export interface HelmChartSpecAccessfrom {
+        export interface HelmChartSpecAccessFrom {
             /**
              * NamespaceSelectors is the list of namespace selectors to which this ACL applies. Items in this list are evaluated using a logical OR operation.
              */
-            namespaceSelectors: outputs.source.v1beta2.HelmChartSpecAccessfromNamespaceselectors[];
+            namespaceSelectors: outputs.source.v1beta2.HelmChartSpecAccessFromNamespaceSelectors[];
         }
 
         /**
          * NamespaceSelector selects the namespaces to which this ACL applies. An empty map of MatchLabels matches all namespaces in a cluster.
          */
-        export interface HelmChartSpecAccessfromNamespaceselectors {
+        export interface HelmChartSpecAccessFromNamespaceSelectors {
             /**
              * MatchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
              */
@@ -3430,7 +4728,7 @@ export namespace source {
         /**
          * SourceRef is the reference to the Source the chart is available at.
          */
-        export interface HelmChartSpecSourceref {
+        export interface HelmChartSpecSourceRef {
             /**
              * APIVersion of the referent.
              */
@@ -3456,7 +4754,7 @@ export namespace source {
             /**
              * SecretRef specifies the Kubernetes Secret containing the trusted public keys.
              */
-            secretRef?: outputs.source.v1beta2.HelmChartSpecVerifySecretref;
+            secretRef?: outputs.source.v1beta2.HelmChartSpecVerifySecretRef;
         }
         /**
          * helmChartSpecVerifyProvideDefaults sets the appropriate defaults for HelmChartSpecVerify
@@ -3471,7 +4769,7 @@ export namespace source {
         /**
          * SecretRef specifies the Kubernetes Secret containing the trusted public keys.
          */
-        export interface HelmChartSpecVerifySecretref {
+        export interface HelmChartSpecVerifySecretRef {
             /**
              * Name of the referent.
              */
@@ -3517,13 +4815,13 @@ export namespace source {
          */
         export interface HelmChartStatusArtifact {
             /**
-             * Checksum is the SHA256 checksum of the Artifact file.
+             * Digest is the digest of the file in the form of '<algorithm>:<checksum>'.
              */
-            checksum?: string;
+            digest?: string;
             /**
              * LastUpdateTime is the timestamp corresponding to the last update of the Artifact.
              */
-            lastUpdateTime?: string;
+            lastUpdateTime: string;
             /**
              * Metadata holds upstream information such as OCI annotations.
              */
@@ -3535,7 +4833,7 @@ export namespace source {
             /**
              * Revision is a human-readable identifier traceable in the origin source system. It can be a Git commit SHA, Git tag, a Helm chart version, etc.
              */
-            revision?: string;
+            revision: string;
             /**
              * Size is the number of bytes in the file.
              */
@@ -3585,7 +4883,7 @@ export namespace source {
             /**
              * AccessFrom specifies an Access Control List for allowing cross-namespace references to this object. NOTE: Not implemented, provisional as of https://github.com/fluxcd/flux2/pull/2092
              */
-            accessFrom?: outputs.source.v1beta2.HelmRepositorySpecAccessfrom;
+            accessFrom?: outputs.source.v1beta2.HelmRepositorySpecAccessFrom;
             /**
              * Interval at which to check the URL for updates.
              */
@@ -3599,9 +4897,9 @@ export namespace source {
              */
             provider?: string;
             /**
-             * SecretRef specifies the Secret containing authentication credentials for the HelmRepository. For HTTP/S basic auth the secret must contain 'username' and 'password' fields. For TLS the secret must contain a 'certFile' and 'keyFile', and/or 'caCert' fields.
+             * SecretRef specifies the Secret containing authentication credentials for the HelmRepository. For HTTP/S basic auth the secret must contain 'username' and 'password' fields. For TLS the secret must contain a 'certFile' and 'keyFile', and/or 'caFile' fields.
              */
-            secretRef?: outputs.source.v1beta2.HelmRepositorySpecSecretref;
+            secretRef?: outputs.source.v1beta2.HelmRepositorySpecSecretRef;
             /**
              * Suspend tells the controller to suspend the reconciliation of this HelmRepository.
              */
@@ -3633,17 +4931,17 @@ export namespace source {
         /**
          * AccessFrom specifies an Access Control List for allowing cross-namespace references to this object. NOTE: Not implemented, provisional as of https://github.com/fluxcd/flux2/pull/2092
          */
-        export interface HelmRepositorySpecAccessfrom {
+        export interface HelmRepositorySpecAccessFrom {
             /**
              * NamespaceSelectors is the list of namespace selectors to which this ACL applies. Items in this list are evaluated using a logical OR operation.
              */
-            namespaceSelectors: outputs.source.v1beta2.HelmRepositorySpecAccessfromNamespaceselectors[];
+            namespaceSelectors: outputs.source.v1beta2.HelmRepositorySpecAccessFromNamespaceSelectors[];
         }
 
         /**
          * NamespaceSelector selects the namespaces to which this ACL applies. An empty map of MatchLabels matches all namespaces in a cluster.
          */
-        export interface HelmRepositorySpecAccessfromNamespaceselectors {
+        export interface HelmRepositorySpecAccessFromNamespaceSelectors {
             /**
              * MatchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
              */
@@ -3651,9 +4949,9 @@ export namespace source {
         }
 
         /**
-         * SecretRef specifies the Secret containing authentication credentials for the HelmRepository. For HTTP/S basic auth the secret must contain 'username' and 'password' fields. For TLS the secret must contain a 'certFile' and 'keyFile', and/or 'caCert' fields.
+         * SecretRef specifies the Secret containing authentication credentials for the HelmRepository. For HTTP/S basic auth the secret must contain 'username' and 'password' fields. For TLS the secret must contain a 'certFile' and 'keyFile', and/or 'caFile' fields.
          */
-        export interface HelmRepositorySpecSecretref {
+        export interface HelmRepositorySpecSecretRef {
             /**
              * Name of the referent.
              */
@@ -3691,13 +4989,13 @@ export namespace source {
          */
         export interface HelmRepositoryStatusArtifact {
             /**
-             * Checksum is the SHA256 checksum of the Artifact file.
+             * Digest is the digest of the file in the form of '<algorithm>:<checksum>'.
              */
-            checksum?: string;
+            digest?: string;
             /**
              * LastUpdateTime is the timestamp corresponding to the last update of the Artifact.
              */
-            lastUpdateTime?: string;
+            lastUpdateTime: string;
             /**
              * Metadata holds upstream information such as OCI annotations.
              */
@@ -3709,7 +5007,7 @@ export namespace source {
             /**
              * Revision is a human-readable identifier traceable in the origin source system. It can be a Git commit SHA, Git tag, a Helm chart version, etc.
              */
-            revision?: string;
+            revision: string;
             /**
              * Size is the number of bytes in the file.
              */
@@ -3761,7 +5059,7 @@ export namespace source {
              *  - a PEM-encoded client certificate (`certFile`) and private key (`keyFile`); - a PEM-encoded CA certificate (`caFile`) 
              *  and whichever are supplied, will be used for connecting to the registry. The client cert and key are useful if you are authenticating with a certificate; the CA cert is useful if you are using a self-signed server certificate.
              */
-            certSecretRef?: outputs.source.v1beta2.OCIRepositorySpecCertsecretref;
+            certSecretRef?: outputs.source.v1beta2.OCIRepositorySpecCertSecretRef;
             /**
              * Ignore overrides the set of excluded patterns in the .sourceignore format (which is the same as .gitignore). If not provided, a default will be used, consult the documentation for your version to find out what those are.
              */
@@ -3777,7 +5075,7 @@ export namespace source {
             /**
              * LayerSelector specifies which layer should be extracted from the OCI artifact. When not specified, the first layer found in the artifact is selected.
              */
-            layerSelector?: outputs.source.v1beta2.OCIRepositorySpecLayerselector;
+            layerSelector?: outputs.source.v1beta2.OCIRepositorySpecLayerSelector;
             /**
              * The provider used for authentication, can be 'aws', 'azure', 'gcp' or 'generic'. When not specified, defaults to 'generic'.
              */
@@ -3789,7 +5087,7 @@ export namespace source {
             /**
              * SecretRef contains the secret name containing the registry login credentials to resolve image metadata. The secret must be of type kubernetes.io/dockerconfigjson.
              */
-            secretRef?: outputs.source.v1beta2.OCIRepositorySpecSecretref;
+            secretRef?: outputs.source.v1beta2.OCIRepositorySpecSecretRef;
             /**
              * ServiceAccountName is the name of the Kubernetes ServiceAccount used to authenticate the image pull if the service account has attached pull secrets. For more information: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/#add-imagepullsecrets-to-a-service-account
              */
@@ -3828,7 +5126,7 @@ export namespace source {
          *  - a PEM-encoded client certificate (`certFile`) and private key (`keyFile`); - a PEM-encoded CA certificate (`caFile`) 
          *  and whichever are supplied, will be used for connecting to the registry. The client cert and key are useful if you are authenticating with a certificate; the CA cert is useful if you are using a self-signed server certificate.
          */
-        export interface OCIRepositorySpecCertsecretref {
+        export interface OCIRepositorySpecCertSecretRef {
             /**
              * Name of the referent.
              */
@@ -3838,7 +5136,7 @@ export namespace source {
         /**
          * LayerSelector specifies which layer should be extracted from the OCI artifact. When not specified, the first layer found in the artifact is selected.
          */
-        export interface OCIRepositorySpecLayerselector {
+        export interface OCIRepositorySpecLayerSelector {
             /**
              * MediaType specifies the OCI media type of the layer which should be extracted from the OCI Artifact. The first layer matching this type is selected.
              */
@@ -3870,7 +5168,7 @@ export namespace source {
         /**
          * SecretRef contains the secret name containing the registry login credentials to resolve image metadata. The secret must be of type kubernetes.io/dockerconfigjson.
          */
-        export interface OCIRepositorySpecSecretref {
+        export interface OCIRepositorySpecSecretRef {
             /**
              * Name of the referent.
              */
@@ -3888,7 +5186,7 @@ export namespace source {
             /**
              * SecretRef specifies the Kubernetes Secret containing the trusted public keys.
              */
-            secretRef?: outputs.source.v1beta2.OCIRepositorySpecVerifySecretref;
+            secretRef?: outputs.source.v1beta2.OCIRepositorySpecVerifySecretRef;
         }
         /**
          * ocirepositorySpecVerifyProvideDefaults sets the appropriate defaults for OCIRepositorySpecVerify
@@ -3903,7 +5201,7 @@ export namespace source {
         /**
          * SecretRef specifies the Kubernetes Secret containing the trusted public keys.
          */
-        export interface OCIRepositorySpecVerifySecretref {
+        export interface OCIRepositorySpecVerifySecretRef {
             /**
              * Name of the referent.
              */
@@ -3942,7 +5240,7 @@ export namespace source {
             /**
              * ObservedLayerSelector is the observed layer selector used for constructing the source artifact.
              */
-            observedLayerSelector?: outputs.source.v1beta2.OCIRepositoryStatusObservedlayerselector;
+            observedLayerSelector?: outputs.source.v1beta2.OCIRepositoryStatusObservedLayerSelector;
             /**
              * URL is the download link for the artifact output of the last OCI Repository sync.
              */
@@ -3954,13 +5252,13 @@ export namespace source {
          */
         export interface OCIRepositoryStatusArtifact {
             /**
-             * Checksum is the SHA256 checksum of the Artifact file.
+             * Digest is the digest of the file in the form of '<algorithm>:<checksum>'.
              */
-            checksum?: string;
+            digest?: string;
             /**
              * LastUpdateTime is the timestamp corresponding to the last update of the Artifact.
              */
-            lastUpdateTime?: string;
+            lastUpdateTime: string;
             /**
              * Metadata holds upstream information such as OCI annotations.
              */
@@ -3972,7 +5270,7 @@ export namespace source {
             /**
              * Revision is a human-readable identifier traceable in the origin source system. It can be a Git commit SHA, Git tag, a Helm chart version, etc.
              */
-            revision?: string;
+            revision: string;
             /**
              * Size is the number of bytes in the file.
              */
@@ -4018,7 +5316,7 @@ export namespace source {
         /**
          * ObservedLayerSelector is the observed layer selector used for constructing the source artifact.
          */
-        export interface OCIRepositoryStatusObservedlayerselector {
+        export interface OCIRepositoryStatusObservedLayerSelector {
             /**
              * MediaType specifies the OCI media type of the layer which should be extracted from the OCI Artifact. The first layer matching this type is selected.
              */

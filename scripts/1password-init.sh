@@ -8,6 +8,9 @@ SECRET="personal/nke7ubza2skerjsbkxem4rohha"
 # Ensure we're signed in to 1Password CLI
 eval "$(op signin)"
 
+# Ensure namespace exists
+kubectl create namespace "$NS" --dry-run=client --output=yaml | kubectl apply -f -
+
 # Delete secrets if they exist
 kubectl delete secret op-credentials --namespace="$NS" || true
 kubectl delete secret onepassword-token --namespace="$NS" || true

@@ -1,9 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: cluster-settings
-  namespace: flux-system
-data:
-  DOMAIN: xnauts.net
-  EMAIL: piercebartine@gmail.com
-  NETWORK_CIDR: 192.168.0.0/23

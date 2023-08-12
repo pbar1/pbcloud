@@ -2,19 +2,13 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.8.0
-  creationTimestamp: "2023-02-12T18:19:27Z"
-  generation: 2
+    controller-gen.kubebuilder.io/version: v0.12.0
   labels:
     app.kubernetes.io/component: helm-controller
     app.kubernetes.io/instance: flux-system
     app.kubernetes.io/part-of: flux
-    app.kubernetes.io/version: v0.37.0
-    kustomize.toolkit.fluxcd.io/name: flux-system
-    kustomize.toolkit.fluxcd.io/namespace: flux-system
+    app.kubernetes.io/version: v2.0.1
   name: helmreleases.helm.toolkit.fluxcd.io
-  resourceVersion: "65261"
-  uid: 178a8fb2-8877-4012-b890-a533c74c513b
 spec:
   conversion:
     strategy: None
@@ -62,6 +56,27 @@ spec:
                 description: Chart defines the template of the v1beta2.HelmChart that
                   should be created for this HelmRelease.
                 properties:
+                  metadata:
+                    description: ObjectMeta holds the template for metadata like labels
+                      and annotations.
+                    properties:
+                      annotations:
+                        additionalProperties:
+                          type: string
+                        description: 'Annotations is an unstructured key value map
+                          stored with a resource that may be set by external tools
+                          to store and retrieve arbitrary metadata. They are not queryable
+                          and should be preserved when modifying objects. More info:
+                          https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/'
+                        type: object
+                      labels:
+                        additionalProperties:
+                          type: string
+                        description: 'Map of string keys and values that can be used
+                          to organize and categorize (scope and select) objects. More
+                          info: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/'
+                        type: object
+                    type: object
                   spec:
                     description: Spec holds the template for the v1beta2.HelmChartSpec
                       for this HelmRelease.
@@ -285,14 +300,14 @@ spec:
                   is empty.
                 properties:
                   secretRef:
-                    description: SecretRef holds the name to a secret that contains
-                      a key with the kubeconfig file as the value. If no key is specified
-                      the key will default to 'value'. The secret must be in the same
-                      namespace as the HelmRelease. It is recommended that the kubeconfig
-                      is self-contained, and the secret is regularly updated if credentials
-                      such as a cloud-access-token expire. Cloud specific `cmd-path`
-                      auth helpers will not function without adding binaries and credentials
-                      to the Pod that is responsible for reconciling the HelmRelease.
+                    description: SecretRef holds the name of a secret that contains
+                      a key with the kubeconfig file as the value. If no key is set,
+                      the key will default to 'value'. It is recommended that the
+                      kubeconfig is self-contained, and the secret is regularly updated
+                      if credentials such as a cloud-access-token expire. Cloud specific
+                      `cmd-path` auth helpers will not function without adding binaries
+                      and credentials to the Pod that is responsible for reconciling
+                      Kubernetes resources.
                     properties:
                       key:
                         description: Key in the Secret, when not specified an implementation-specific
@@ -304,12 +319,25 @@ spec:
                     required:
                     - name
                     type: object
+                required:
+                - secretRef
                 type: object
               maxHistory:
                 description: MaxHistory is the number of revisions saved by Helm for
                   this HelmRelease. Use '0' for an unlimited number of revisions;
                   defaults to '10'.
                 type: integer
+              persistentClient:
+                description: "PersistentClient tells the controller to use a persistent
+                  Kubernetes client for this release. When enabled, the client will
+                  be reused for the duration of the reconciliation, instead of being
+                  created and destroyed for each (step of a) Helm action. \n This
+                  can improve performance, but may cause issues with some Helm charts
+                  that for example do create Custom Resource Definitions during installation
+                  outside Helm's CRD lifecycle hooks, which are then not observed
+                  to be available by e.g. post-install hooks. \n If not set, it defaults
+                  to true."
+                type: boolean
               postRenderers:
                 description: PostRenderers holds an array of Helm PostRenderers, which
                   will be applied in order of their definition.
@@ -402,6 +430,8 @@ spec:
                                       selecting resources. https://github.com/kubernetes/community/blob/master/contributors/design-proposals/api-machinery/api-group.md
                                     type: string
                                 type: object
+                            required:
+                            - patch
                             type: object
                           type: array
                         patchesJson6902:
@@ -601,6 +631,15 @@ spec:
                 description: Uninstall holds the configuration for Helm uninstall
                   actions for this HelmRelease.
                 properties:
+                  deletionPropagation:
+                    default: background
+                    description: DeletionPropagation specifies the deletion propagation
+                      policy when a Helm uninstall is performed.
+                    enum:
+                    - background
+                    - foreground
+                    - orphan
+                    type: string
                   disableHooks:
                     description: DisableHooks prevents hooks from running during the
                       Helm rollback action.
@@ -744,7 +783,7 @@ spec:
                         be a single flat value. Defaults to 'None', which results
                         in the values getting merged at the root.
                       maxLength: 250
-                      pattern: ^([a-zA-Z0-9_\-.\/]|\[[0-9]{1,5}\])+$
+                      pattern: ^([a-zA-Z0-9_\-.\\\/]|\[[0-9]{1,5}\])+$
                       type: string
                     valuesKey:
                       description: ValuesKey is the data key where the values.yaml
@@ -885,26 +924,3 @@ spec:
         type: object
     served: true
     storage: true
-    subresources:
-      status: {}
-status:
-  acceptedNames:
-    kind: HelmRelease
-    listKind: HelmReleaseList
-    plural: helmreleases
-    shortNames:
-    - hr
-    singular: helmrelease
-  conditions:
-  - lastTransitionTime: "2023-02-12T18:19:27Z"
-    message: no conflicts found
-    reason: NoConflicts
-    status: "True"
-    type: NamesAccepted
-  - lastTransitionTime: "2023-02-12T18:19:27Z"
-    message: the initial names have been accepted
-    reason: InitialNamesAccepted
-    status: "True"
-    type: Established
-  storedVersions:
-  - v2beta1
