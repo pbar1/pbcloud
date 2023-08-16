@@ -121,6 +121,7 @@ function prometheusValuesIngress(name: string): PromethesValuesIngress {
     annotations: {
       "cert-manager.io/cluster-issuer": "letsencrypt-production",
       "ingress.kubernetes.io/force-ssl-redirect": "true",
+      "projectcontour.io/ingress.class": "contour-external",
     },
     hosts: [host],
     paths: ["/"],
