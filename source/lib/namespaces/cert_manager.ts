@@ -30,6 +30,8 @@ export class Namespace extends pbcloud.RenderedKubeNamespace {
           },
         },
         values: {
+          // FIXME: Last time this was deployed, `installCRDs` was enabled,
+          // the release was installed, then this was disabled
           installCRDs: false,
           webhook: { enabled: true },
           extraArgs: [
