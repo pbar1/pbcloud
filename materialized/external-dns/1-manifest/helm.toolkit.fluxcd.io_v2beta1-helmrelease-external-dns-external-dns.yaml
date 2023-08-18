@@ -31,3 +31,7 @@ spec:
       operator.1password.io/item-name: cloudflare-creds
       operator.1password.io/item-path: vaults/pbcloud/items/cloudflare
     provider: cloudflare
+    sources:
+    - service
+    - ingress
+    - contour-httpproxy

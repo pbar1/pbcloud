@@ -23,7 +23,15 @@ export class Namespace extends pbcloud.RenderedKubeNamespace {
         },
         values: {
           logLevel: "debug",
+          sources: ["service", "ingress", "contour-httpproxy"],
           provider: "cloudflare",
+          // We could enable Cloudflare proxy for IPs to not disclose the
+          // the public IP, but it's still going to be open anyway so might
+          // as well not worry about it as it presents problems for Contour's
+          // IP filtering (ie, we need to set num-trusted-hops). In the future
+          // this may be re-enabled and we can set the router WAN to only
+          // accept port-forwarded traffic from Cloudflare IPs.
+          // extraArgs: ["--cloudflare-proxied"],
           podAnnotations: {
             "operator.1password.io/item-name": "cloudflare-creds",
             "operator.1password.io/item-path":
