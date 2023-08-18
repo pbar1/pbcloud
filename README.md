@@ -53,6 +53,10 @@ Here is the basic lifecycle of a Kubernetes config:
 - Reinvestigate deploying Knative but with only internal ingress, exposable via CF tunnel
 - Break things up into cells/layers that depend on each other. For example,
   most things can't be deployed until Flux or 1Password have been installed
+- Use Contour `TLSCertificateDelegation` and `HTTPProxy` + IP filtering to
+  expose services instead of `Ingress`. This allows for usage of a wildcard
+  TLS cert that's shared across the cluster. Also need dynamic DNS updating for
+  Cloudflare dyn record, and CNAME targeting via ExternalDNS, and port-forward.
 
 <!-- Links -->
 
