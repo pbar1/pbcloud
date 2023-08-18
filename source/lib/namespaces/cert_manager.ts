@@ -1,8 +1,8 @@
 import * as fluxcd from "../crds/fluxcd";
 import * as certManager from "../crds/cert-manager";
 import * as pbcloud from "../pbcloud";
-import * as k8s from "@pulumi/kubernetes";
 import * as pulumi from "@pulumi/pulumi";
+import * as contour from "../crds/projectcontour";
 
 // TODO: CRDs
 
@@ -62,6 +62,34 @@ export class Namespace extends pbcloud.RenderedKubeNamespace {
     //   "https://acme-staging-v02.api.letsencrypt.org/directory",
     //   opts
     // );
+
+    const certName = "xnauts-net-tls";
+    const certArgs: certManager.certmanager.v1.CertificateArgs = {
+      metadata: { name: certName, namespace },
+      spec: {
+        secretName: certName,
+        issuerRef: {
+          group: "cert-manager.io",
+          kind: "ClusterIssuer",
+          name: "letsencrypt-production",
+        },
+        commonName: "*.xnauts.net",
+        dnsNames: ["*.xnauts.net"],
+      },
+    };
+    new certManager.certmanager.v1.Certificate(certName, certArgs, opts);
+
+    const delegArgs: contour.projectcontour.v1.TLSCertificateDelegationArgs = {
+      metadata: { name: certName, namespace },
+      spec: {
+        delegations: [{ secretName: certName, targetNamespaces: ["*"] }],
+      },
+    };
+    new contour.projectcontour.v1.TLSCertificateDelegation(
+      certName,
+      delegArgs,
+      opts
+    );
   }
 }
 
