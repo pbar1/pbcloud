@@ -25,20 +25,7 @@ spec:
       tag: latest
     ingress:
       main:
-        annotations:
-          cert-manager.io/cluster-issuer: letsencrypt-production
-          ingress.kubernetes.io/force-ssl-redirect: "true"
-          projectcontour.io/ingress.class: contour-external
-        enabled: true
-        hosts:
-        - host: radarr.xnauts.net
-          paths:
-          - path: /
-            pathType: Prefix
-        tls:
-        - hosts:
-          - radarr.xnauts.net
-          secretName: radarr-tls
+        enabled: false
     persistence:
       config:
         enabled: true

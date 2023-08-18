@@ -1,0 +1,16 @@
+apiVersion: projectcontour.io/v1
+kind: HTTPProxy
+metadata:
+  annotations:
+    projectcontour.io/ingress.class: contour-external
+  name: radarr
+  namespace: media
+spec:
+  routes:
+  - services:
+    - name: radarr
+      port: 7878
+  virtualhost:
+    fqdn: radarr.xnauts.net
+    tls:
+      secretName: cert-manager/xnauts-net-tls

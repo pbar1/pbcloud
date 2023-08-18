@@ -100,7 +100,7 @@ export class GeekCookbookValuesBuilder {
   private podAnnotations?: { [index: string]: string };
 
   private noHostNetwork = true;
-  private noIngress = false;
+  private noIngress = true; // FIXME: This now forces Ingress disabled in all cases!
   private noDropCaps = false;
 
   withName(name: string) {

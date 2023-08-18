@@ -6,6 +6,7 @@ import {
 } from "../helm/geek_cookbook";
 import * as pbcloud from "../pbcloud";
 import * as pulumi from "@pulumi/pulumi";
+import * as runCtr from "../run_container";
 
 const HP_DOWNLOADS = new HostPathPersistence("/data/torrents", "/downloads");
 const HP_TV = new HostPathPersistence("/data/media/tv", "/tv");
@@ -30,6 +31,7 @@ export class Namespace extends pbcloud.RenderedKubeNamespace {
       },
       opts
     );
+    pbcloud.newHttpProxy("prowlarr", "media", "prowlarr", 9696, opts);
 
     newGkHelmRelease(
       {
@@ -45,6 +47,7 @@ export class Namespace extends pbcloud.RenderedKubeNamespace {
       },
       opts
     );
+    pbcloud.newHttpProxy("sonarr", "media", "sonarr", 8989, opts);
 
     newGkHelmRelease(
       {
@@ -60,6 +63,7 @@ export class Namespace extends pbcloud.RenderedKubeNamespace {
       },
       opts
     );
+    pbcloud.newHttpProxy("radarr", "media", "radarr", 7878, opts);
 
     newGkHelmRelease(
       {
@@ -76,6 +80,7 @@ export class Namespace extends pbcloud.RenderedKubeNamespace {
       },
       opts
     );
+    pbcloud.newHttpProxy("readarr", "media", "readarr", 8787, opts);
 
     newGkHelmRelease(
       {
@@ -91,6 +96,7 @@ export class Namespace extends pbcloud.RenderedKubeNamespace {
       },
       opts
     );
+    pbcloud.newHttpProxy("bazarr", "media", "bazarr", 6767, opts);
 
     // Supplemental groups are for GPU support and were found using:
     // $ cat /etc/group | grep "video\|render"
@@ -164,5 +170,6 @@ export class Namespace extends pbcloud.RenderedKubeNamespace {
       },
       opts
     );
+    pbcloud.newHttpProxy("qbittorrent", "media", "qbittorrent", 8080, opts);
   }
 }

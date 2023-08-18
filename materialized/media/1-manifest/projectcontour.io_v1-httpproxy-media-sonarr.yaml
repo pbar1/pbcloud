@@ -1,0 +1,16 @@
+apiVersion: projectcontour.io/v1
+kind: HTTPProxy
+metadata:
+  annotations:
+    projectcontour.io/ingress.class: contour-external
+  name: sonarr
+  namespace: media
+spec:
+  routes:
+  - services:
+    - name: sonarr
+      port: 8989
+  virtualhost:
+    fqdn: sonarr.xnauts.net
+    tls:
+      secretName: cert-manager/xnauts-net-tls

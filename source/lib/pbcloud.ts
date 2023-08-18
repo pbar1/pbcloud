@@ -1,6 +1,7 @@
 import * as k8s from "@pulumi/kubernetes";
 import * as pulumi from "@pulumi/pulumi";
 import * as fluxcd from "./crds/fluxcd";
+import * as projectcontour from "./crds/projectcontour";
 
 export const EMAIL = "piercebartine@gmail.com";
 export const DOMAIN = "xnauts.net";
@@ -88,4 +89,37 @@ export function helmRelease(
       values,
     },
   };
+}
+
+// FIXME: Lots of hardcodes in here
+export function newHttpProxy(
+  name: string,
+  namespace: string,
+  service: string,
+  port: number,
+  opts: pulumi.CustomResourceOptions
+): projectcontour.projectcontour.v1.HTTPProxy {
+  const args: projectcontour.projectcontour.v1.HTTPProxyArgs = {
+    metadata: {
+      name,
+      namespace,
+      annotations: {
+        // Use the Knative Contour meant for exposing outside of cluster
+        "projectcontour.io/ingress.class": "contour-external",
+        // Target the dynamically updated record
+        // https://github.com/kubernetes-sigs/external-dns/issues/1394#issuecomment-585228684
+        // TODO: Enable this once public ingress is ready
+        // "external-dns.alpha.kubernetes.io/target": "dyn.xnauts.net",
+      },
+    },
+    spec: {
+      virtualhost: {
+        fqdn: `${service}.xnauts.net`,
+        tls: { secretName: "cert-manager/xnauts-net-tls" },
+      },
+      routes: [{ services: [{ name: service, port }] }],
+    },
+  };
+
+  return new projectcontour.projectcontour.v1.HTTPProxy(name, args, opts);
 }
