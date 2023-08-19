@@ -94,15 +94,7 @@ export class Namespace extends pbcloud.RenderedKubeNamespace {
       },
     };
 
-    // Expose the Atuin server on the internet via a Cloudflare Tunnel
-    const tbArgs: cf.networking.v1alpha1.TunnelBindingArgs = {
-      metadata: { namespace, name, labels },
-      subjects: [{ name }],
-      tunnelRef: { kind: "ClusterTunnel", name: "xnauts-net-tunnel" },
-    };
-
     new k8s.apps.v1.Deployment(name, deployArgs, opts);
     new k8s.core.v1.Service(name, svcArgs, opts);
-    new cf.networking.v1alpha1.TunnelBinding(name, tbArgs, opts);
   }
 }

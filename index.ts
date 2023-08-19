@@ -2,7 +2,6 @@ import * as namespaces from "./source/lib/namespaces";
 
 new namespaces.atuin.Namespace();
 new namespaces.certManager.Namespace();
-new namespaces.cloudflareOperatorSystem.Namespace();
 new namespaces.externalDns.Namespace();
 new namespaces.fluxSystem.Namespace();
 new namespaces.gitea.Namespace();
