@@ -30,6 +30,7 @@ spec:
     podAnnotations:
       operator.1password.io/item-name: cloudflare-creds
       operator.1password.io/item-path: vaults/pbcloud/items/cloudflare
+    policy: sync
     provider: cloudflare
     sources:
     - service

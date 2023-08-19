@@ -24,6 +24,7 @@ export class Namespace extends pbcloud.RenderedKubeNamespace {
         values: {
           logLevel: "debug",
           sources: ["service", "ingress", "contour-httpproxy"],
+          policy: "sync",
           provider: "cloudflare",
           // We could enable Cloudflare proxy for IPs to not disclose the
           // the public IP, but it's still going to be open anyway so might
