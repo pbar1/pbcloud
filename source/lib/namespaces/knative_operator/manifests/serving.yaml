@@ -15,6 +15,3 @@ spec:
   config:
     network:
       ingress-class: "contour.ingress.networking.knative.dev"
-    domain:
-      "xnauts.net": ""
-    # TODO: Manually added `default-tls-secret: cert-manager/xnauts-net-tls` to `config-contour` configmap
