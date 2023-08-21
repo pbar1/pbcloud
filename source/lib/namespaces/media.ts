@@ -16,8 +16,6 @@ const HP_AUDIOBOOKS = new HostPathPersistence(
   "/audiobooks"
 );
 
-const MULLVAD_PORT = "55487";
-
 export class Namespace extends pbcloud.RenderedKubeNamespace {
   constructor(namespace = "media") {
     super(namespace);
@@ -119,6 +117,7 @@ export class Namespace extends pbcloud.RenderedKubeNamespace {
       opts
     );
 
+    const torrentPort = "21133";
     const gluetunCtr = {
       image: "qmcgaw/gluetun",
       // FIXME: Why did NET_ADMIN cap stop working?
@@ -126,12 +125,14 @@ export class Namespace extends pbcloud.RenderedKubeNamespace {
       envFrom: [{ secretRef: { name: "qbittorrent" } }],
       env: [
         { name: "TZ", value: "America/Los_Angeles" },
-        { name: "VPN_SERVICE_PROVIDER", value: "mullvad" },
+        { name: "VPN_SERVICE_PROVIDER", value: "airvpn" },
         { name: "VPN_TYPE", value: "wireguard" },
-        { name: "WIREGUARD_ADDRESSES", value: "10.67.247.61/32" },
-        { name: "SERVER_CITIES", value: "Zurich" },
-        { name: "OWNED_ONLY", value: "yes" },
-        { name: "FIREWALL_VPN_INPUT_PORTS", value: MULLVAD_PORT },
+        {
+          name: "WIREGUARD_ADDRESSES",
+          value: "10.184.150.109/32,fd7d:76ee:e68f:a993:38c6:c8f3:5d35:8c9/128",
+        },
+        { name: "SERVER_COUNTRIES", value: "Switzerland" },
+        { name: "FIREWALL_VPN_INPUT_PORTS", value: torrentPort },
         // VPN health check failures take down port and breaks qBittorrent
         // https://github.com/qdm12/gluetun/issues/1407
         // FIXME: On qBittorrent restart, existing torrents may startup and
@@ -154,7 +155,7 @@ export class Namespace extends pbcloud.RenderedKubeNamespace {
               "/downloads/qbittorrent"
             ),
           })
-          .withEnv({ QBT_TORRENTING_PORT: MULLVAD_PORT })
+          .withEnv({ QBT_TORRENTING_PORT: torrentPort })
           .withAdditionalContainers({ gluetun: gluetunCtr })
           .withPodAnnotations({
             "operator.1password.io/item-name": "qbittorrent",

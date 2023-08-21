@@ -21,17 +21,15 @@ spec:
         - name: TZ
           value: America/Los_Angeles
         - name: VPN_SERVICE_PROVIDER
-          value: mullvad
+          value: airvpn
         - name: VPN_TYPE
           value: wireguard
         - name: WIREGUARD_ADDRESSES
-          value: 10.67.247.61/32
-        - name: SERVER_CITIES
-          value: Zurich
-        - name: OWNED_ONLY
-          value: "yes"
+          value: 10.184.150.109/32,fd7d:76ee:e68f:a993:38c6:c8f3:5d35:8c9/128
+        - name: SERVER_COUNTRIES
+          value: Switzerland
         - name: FIREWALL_VPN_INPUT_PORTS
-          value: "55487"
+          value: "21133"
         - name: HEALTH_VPN_DURATION_INITIAL
           value: 120s
         envFrom:
@@ -43,7 +41,7 @@ spec:
     env:
       PGID: 100
       PUID: 1000
-      QBT_TORRENTING_PORT: "55487"
+      QBT_TORRENTING_PORT: "21133"
       TZ: America/Los_Angeles
     image:
       imagePullPolicy: Always
