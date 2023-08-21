@@ -1,0 +1,43 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: overseerr
+  namespace: media
+spec:
+  chart:
+    spec:
+      chart: overseerr
+      reconcileStrategy: ChartVersion
+      sourceRef:
+        kind: HelmRepository
+        name: geek-cookbook
+        namespace: flux-system
+      version: '*'
+  interval: 24h
+  values:
+    env:
+      PGID: 100
+      PUID: 1000
+      TZ: America/Los_Angeles
+    image:
+      imagePullPolicy: Always
+      repository: ghcr.io/linuxserver/overseerr
+      tag: latest
+    ingress:
+      main:
+        enabled: false
+    persistence:
+      config:
+        enabled: true
+        hostPath: /data/general/config/overseerr
+        mountPath: /config
+        type: hostPath
+    podAnnotations:
+      container.apparmor.security.beta.kubernetes.io/overseerr: unconfined
+    podSecurityContext:
+      fsGroup: 100
+      fsGroupChangePolicy: OnRootMismatch
+      seccompProfile:
+        type: RuntimeDefault
+    securityContext:
+      capabilities: {}

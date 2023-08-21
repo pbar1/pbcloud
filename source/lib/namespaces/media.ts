@@ -79,6 +79,15 @@ export class Namespace extends pbcloud.RenderedKubeNamespace {
     newGkHelmRelease(
       {
         namespace,
+        chart: "overseerr",
+        values: new GeekCookbookValuesBuilder().withName("overseerr").build(),
+      },
+      opts
+    );
+
+    newGkHelmRelease(
+      {
+        namespace,
         chart: "bazarr",
         values: new GeekCookbookValuesBuilder()
           .withName("bazarr")
