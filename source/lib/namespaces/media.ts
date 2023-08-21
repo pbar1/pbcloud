@@ -121,7 +121,7 @@ export class Namespace extends pbcloud.RenderedKubeNamespace {
     const gluetunCtr = {
       image: "qmcgaw/gluetun",
       // FIXME: Why did NET_ADMIN cap stop working?
-      securityContext: { privileged: true },
+      securityContext: { capabilities: { add: ["NET_ADMIN"] } },
       envFrom: [{ secretRef: { name: "qbittorrent" } }],
       env: [
         { name: "TZ", value: "America/Los_Angeles" },

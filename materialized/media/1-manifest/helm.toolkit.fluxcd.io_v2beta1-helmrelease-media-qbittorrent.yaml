@@ -37,7 +37,9 @@ spec:
             name: qbittorrent
         image: qmcgaw/gluetun
         securityContext:
-          privileged: true
+          capabilities:
+            add:
+            - NET_ADMIN
     env:
       PGID: 100
       PUID: 1000
