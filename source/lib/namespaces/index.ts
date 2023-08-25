@@ -1,5 +1,6 @@
 export * as atuin from "./atuin";
 export * as certManager from "./cert_manager";
+export * as data from "./data";
 export * as externalDns from "./external_dns";
 export * as fluxSystem from "./flux_system";
 export * as gitea from "./gitea";

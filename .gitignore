@@ -6,4 +6,4 @@ Pulumi.prod.yaml
 secret-safehouse/*
 flux
 **/1password-credentials.json
-ingress-backup/
+tf
