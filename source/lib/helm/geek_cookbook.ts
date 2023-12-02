@@ -221,7 +221,7 @@ export class GeekCookbookValuesBuilder {
 
     const repository = this.repository ?? `ghcr.io/linuxserver/${this.name}`;
     const configHostPath =
-      this.configHostPath ?? `/data/general/config/${this.name}`;
+      this.configHostPath ?? `/zssd/general/config/${this.name}`;
     const host = this.host ?? `${this.name}.xnauts.net`; // FIXME: Extract
     const persistence = {
       config: {

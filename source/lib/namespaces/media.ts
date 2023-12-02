@@ -175,5 +175,7 @@ export class Namespace extends pbcloud.RenderedKubeNamespace {
       },
       opts
     );
+
+    // TODO: SMB
   }
 }
