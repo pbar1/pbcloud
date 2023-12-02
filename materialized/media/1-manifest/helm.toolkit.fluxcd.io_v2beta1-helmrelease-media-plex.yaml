@@ -35,7 +35,7 @@ spec:
         type: hostPath
       config:
         enabled: true
-        hostPath: /data/general/config/plex
+        hostPath: /zssd/general/config/plex
         mountPath: /config
         type: hostPath
       movies:
