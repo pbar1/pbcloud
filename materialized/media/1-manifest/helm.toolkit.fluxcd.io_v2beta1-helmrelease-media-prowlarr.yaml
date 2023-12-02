@@ -29,7 +29,7 @@ spec:
     persistence:
       config:
         enabled: true
-        hostPath: /data/general/config/prowlarr
+        hostPath: /zssd/general/config/prowlarr
         mountPath: /config
         type: hostPath
     podAnnotations:
