@@ -29,7 +29,7 @@ spec:
     persistence:
       config:
         enabled: true
-        hostPath: /data/general/config/sonarr
+        hostPath: /zssd/general/config/sonarr
         mountPath: /config
         type: hostPath
       downloads:

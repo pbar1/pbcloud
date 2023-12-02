@@ -29,7 +29,7 @@ spec:
     persistence:
       config:
         enabled: true
-        hostPath: /data/general/config/radarr
+        hostPath: /zssd/general/config/radarr
         mountPath: /config
         type: hostPath
       downloads:

@@ -29,7 +29,7 @@ spec:
     persistence:
       config:
         enabled: true
-        hostPath: /data/general/config/readarr
+        hostPath: /zssd/general/config/readarr
         mountPath: /config
         type: hostPath
       downloads:
