@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cloudflared
+  namespace: cloudflare
+spec:
+  selector:
+    matchLabels:
+      workload: cloudflared
+  template:
+    metadata:
+      annotations:
+        operator.1password.io/item-name: cloudflared
+        operator.1password.io/item-path: vaults/pbcloud/items/cloudflared
+      labels:
+        workload: cloudflared
+    spec:
+      containers:
+        - args:
+            - tunnel
+            - run
+          env:
+            - name: NO_AUTOUPDATE
+              value: "true"
+          envFrom:
+            - secretRef:
+                name: cloudflared
+          image: cloudflare/cloudflared:latest
+          name: cloudflared

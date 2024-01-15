@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lidarr
+  namespace: media
+spec:
+  selector:
+    matchLabels:
+      workload: lidarr
+  template:
+    metadata:
+      labels:
+        workload: lidarr
+    spec:
+      containers:
+        - env:
+            - name: TZ
+              value: America/Los_Angeles
+          image: ghcr.io/pbar1/lidarr:latest
+          imagePullPolicy: Always
+          name: lidarr
+          ports:
+            - containerPort: 8686
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - all
+            privileged: false
+            readOnlyRootFilesystem: true
+            runAsGroup: 100
+            runAsNonRoot: true
+            runAsUser: 1000
+          volumeMounts:
+            - mountPath: /tmp
+              name: tmp
+            - mountPath: /config
+              name: config
+            - mountPath: /downloads
+              name: downloads
+            - mountPath: /music
+              name: music
+      volumes:
+        - emptyDir:
+            medium: ""
+          name: tmp
+        - hostPath:
+            path: /zssd/general/config/lidarr
+          name: config
+        - hostPath:
+            path: /data/torrents
+          name: downloads
+        - hostPath:
+            path: /data/media/music
+          name: music

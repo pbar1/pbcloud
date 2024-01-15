@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prowlarr
+  namespace: media
+spec:
+  selector:
+    matchLabels:
+      workload: prowlarr
+  template:
+    metadata:
+      labels:
+        workload: prowlarr
+    spec:
+      containers:
+        - env:
+            - name: TZ
+              value: America/Los_Angeles
+          image: ghcr.io/pbar1/prowlarr:latest
+          imagePullPolicy: Always
+          name: prowlarr
+          ports:
+            - containerPort: 9696
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - all
+            privileged: false
+            readOnlyRootFilesystem: true
+            runAsGroup: 100
+            runAsNonRoot: true
+            runAsUser: 1000
+          volumeMounts:
+            - mountPath: /tmp
+              name: tmp
+            - mountPath: /config
+              name: config
+      volumes:
+        - emptyDir:
+            medium: ""
+          name: tmp
+        - hostPath:
+            path: /zssd/general/config/prowlarr
+          name: config

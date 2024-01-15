@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: plex
+  namespace: media
+spec:
+  selector:
+    matchLabels:
+      workload: plex
+  template:
+    metadata:
+      labels:
+        workload: plex
+    spec:
+      containers:
+        - env:
+            - name: TZ
+              value: America/Los_Angeles
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "100"
+          image: ghcr.io/linuxserver/plex:latest
+          name: plex
+          ports:
+            - containerPort: 32400
+          volumeMounts:
+            - mountPath: /config
+              name: config
+            - mountPath: /transcode
+              name: transcode
+            - mountPath: /tv
+              name: tv
+            - mountPath: /movies
+              name: movies
+            - mountPath: /audiobooks
+              name: audiobooks
+            - mountPath: /music
+              name: music
+      hostNetwork: true
+      volumes:
+        - hostPath:
+            path: /zssd/general/config/plex
+          name: config
+        - emptyDir:
+            medium: Memory
+          name: transcode
+        - hostPath:
+            path: /data/media/tv
+          name: tv
+        - hostPath:
+            path: /data/media/movies
+          name: movies
+        - hostPath:
+            path: /data/media/audiobooks
+          name: audiobooks
+        - hostPath:
+            path: /data/media/music
+          name: music

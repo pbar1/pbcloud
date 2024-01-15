@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: qbittorrent
+  namespace: media
+spec:
+  selector:
+    matchLabels:
+      workload: qbittorrent
+  template:
+    metadata:
+      annotations:
+        operator.1password.io/item-name: qbittorrent
+        operator.1password.io/item-path: vaults/pbcloud/items/qbittorrent
+      labels:
+        workload: qbittorrent
+    spec:
+      containers:
+        - env:
+            - name: QBT_TORRENTING_PORT
+              value: "21133"
+            - name: TZ
+              value: America/Los_Angeles
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "100"
+          image: ghcr.io/hotio/qbittorrent:latest
+          name: qbittorrent
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - mountPath: /config
+              name: config
+            - mountPath: /downloads
+              name: downloads
+        - env:
+            - name: TZ
+              value: America/Los_Angeles
+            - name: VPN_SERVICE_PROVIDER
+              value: airvpn
+            - name: VPN_TYPE
+              value: wireguard
+            - name: WIREGUARD_ADDRESSES
+              value: 10.184.150.109/32,fd7d:76ee:e68f:a993:38c6:c8f3:5d35:8c9/128
+            - name: SERVER_COUNTRIES
+              value: Switzerland
+            - name: FIREWALL_VPN_INPUT_PORTS
+              value: "21133"
+            - name: HEALTH_VPN_DURATION_INITIAL
+              value: 120s
+          envFrom:
+            - secretRef:
+                name: qbittorrent
+          image: qmcgaw/gluetun:latest
+          name: gluetun
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              add:
+                - NET_ADMIN
+      volumes:
+        - hostPath:
+            path: /zssd/general/config/qbittorrent
+          name: config
+        - hostPath:
+            path: /data/torrents
+          name: downloads

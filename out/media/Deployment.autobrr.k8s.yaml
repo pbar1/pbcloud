@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: autobrr
+  namespace: media
+spec:
+  selector:
+    matchLabels:
+      workload: autobrr
+  template:
+    metadata:
+      labels:
+        workload: autobrr
+    spec:
+      containers:
+        - env:
+            - name: AUTOBRR__HOST
+              value: 0.0.0.0
+            - name: TZ
+              value: America/Los_Angeles
+          image: ghcr.io/autobrr/autobrr:latest
+          imagePullPolicy: Always
+          name: autobrr
+          ports:
+            - containerPort: 7474
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - all
+            privileged: false
+            readOnlyRootFilesystem: true
+            runAsGroup: 100
+            runAsNonRoot: true
+            runAsUser: 1000
+          volumeMounts:
+            - mountPath: /tmp
+              name: tmp
+            - mountPath: /config
+              name: config
+      volumes:
+        - emptyDir:
+            medium: ""
+          name: tmp
+        - hostPath:
+            path: /zssd/general/config/autobrr
+          name: config

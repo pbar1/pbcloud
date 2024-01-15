@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: readarr
+  namespace: media
+spec:
+  selector:
+    matchLabels:
+      workload: readarr
+  template:
+    metadata:
+      labels:
+        workload: readarr
+    spec:
+      containers:
+        - env:
+            - name: TZ
+              value: America/Los_Angeles
+          image: ghcr.io/pbar1/readarr:latest
+          imagePullPolicy: Always
+          name: readarr
+          ports:
+            - containerPort: 8787
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - all
+            privileged: false
+            readOnlyRootFilesystem: true
+            runAsGroup: 100
+            runAsNonRoot: true
+            runAsUser: 1000
+          volumeMounts:
+            - mountPath: /tmp
+              name: tmp
+            - mountPath: /config
+              name: config
+            - mountPath: /downloads
+              name: downloads
+            - mountPath: /audiobooks
+              name: audiobooks
+      volumes:
+        - emptyDir:
+            medium: ""
+          name: tmp
+        - hostPath:
+            path: /zssd/general/config/readarr
+          name: config
+        - hostPath:
+            path: /data/torrents
+          name: downloads
+        - hostPath:
+            path: /data/media/audiobooks
+          name: audiobooks
