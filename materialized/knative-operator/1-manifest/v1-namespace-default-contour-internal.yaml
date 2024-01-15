@@ -1,6 +1,0 @@
-apiVersion: v1
-kind: Namespace
-metadata:
-  labels:
-    networking.knative.dev/ingress-provider: contour
-  name: contour-internal

@@ -1,9 +1,0 @@
-**/*.sops.dec.yaml
-**/.DS_Store
-.ignore
-/node_modules
-Pulumi.prod.yaml
-secret-safehouse/*
-flux
-**/1password-credentials.json
-tf
