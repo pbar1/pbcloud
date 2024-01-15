@@ -1,0 +1,49 @@
+version: "3"
+
+tasks:
+  default: task --list
+
+  clean:
+    aliases: ["c", "purge"]
+    desc: Removes all built config
+    cmds:
+    - rm -rf out/
+
+  vendor:
+    aliases: ["import"]
+    desc: Vendors third-party code
+    cmds:
+    - bun cdk8s import k8s@1.27.0 --no-class-prefix --output=third-party/crds --language=typescript --save=false
+    - bun run third-party/helm/VENDOR.ts
+
+  build:
+    aliases: ["b", "materialize"]
+    desc: Builds the config
+    deps:
+    - clean
+    cmds:
+    - bun run k8s/index.ts
+
+  init:
+    aliases: ["i", "bootstrap"]
+    desc: Initializes an existing cluster
+    cmds:
+    - bash scripts/1password-init.sh
+
+  diff:
+    aliases: ["d"]
+    desc: Diffs materialized against live config
+    cmds:
+    - echo TODO
+
+  apply:
+    aliases: ["a", "sync"]
+    desc: Applies materialized config
+    cmds:
+    - echo TODO
+
+  # Example: `task new:namespace -- foo`
+  new:namespace:
+    desc: Creates a new namespace from template
+    cmds:
+    - bun run scripts/new-namespace.ts {{.CLI_ARGS}}

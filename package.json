@@ -1,0 +1,48 @@
+{
+  "name": "pbcloud",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "k8s",
+    "third-party/crds",
+    "third-party/helm"
+  ],
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^6.7.0",
+    "@typescript-eslint/parser": "^6.7.0",
+    "bun-types": "latest",
+    "cdk8s-cli": "^2.82.0",
+    "eslint": "^8.49.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-prettier": "^5.0.0",
+    "eslint-plugin-simple-import-sort": "^10.0.0",
+    "execa": "^8.0.1",
+    "prettier": "^3.0.3",
+    "typescript": "^5.2.2"
+  },
+  "dependencies": {
+    "cdk8s": "^2.64.6",
+    "constructs": "^10.2.70",
+    "type-fest": "^4.3.1"
+  },
+  "eslintConfig": {
+    "extends": [
+      "eslint:recommended",
+      "plugin:@typescript-eslint/recommended",
+      "plugin:prettier/recommended"
+    ],
+    "parser": "@typescript-eslint/parser",
+    "plugins": [
+      "simple-import-sort",
+      "@typescript-eslint",
+      "prettier"
+    ],
+    "rules": {
+      "simple-import-sort/imports": "error"
+    },
+    "root": true,
+    "ignorePatterns": [
+      "third-party/*"
+    ]
+  }
+}

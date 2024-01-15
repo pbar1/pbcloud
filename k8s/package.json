@@ -1,0 +1,6 @@
+{
+  "name": "@pbcloud/k8s",
+  "devDependencies": {
+    "change-case": "^5.4.2"
+  }
+}
