@@ -49,6 +49,14 @@ export class Namespace extends pb.Namespace {
       .withNamespace(name)
       .build(this);
 
+    container("ghcr.io/hotio/bazarr:latest")
+      .withPort(pb.port(6767))
+      .asLinuxServerWorkload()
+      .withTvMount()
+      .withMoviesMount()
+      .withNamespace(name)
+      .build(this);
+
     container("ghcr.io/autobrr/autobrr:latest")
       .withPort(pb.port(7474))
       .withEnv(pb.env("AUTOBRR__HOST", "0.0.0.0"))

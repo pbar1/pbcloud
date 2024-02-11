@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bazarr
+  namespace: media
+spec:
+  selector:
+    matchLabels:
+      workload: bazarr
+  template:
+    metadata:
+      labels:
+        workload: bazarr
+    spec:
+      containers:
+        - env:
+            - name: TZ
+              value: America/Los_Angeles
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "100"
+          image: ghcr.io/hotio/bazarr:latest
+          name: bazarr
+          ports:
+            - containerPort: 6767
+          volumeMounts:
+            - mountPath: /config
+              name: config
+            - mountPath: /tv
+              name: tv
+            - mountPath: /movies
+              name: movies
+      volumes:
+        - hostPath:
+            path: /zssd/general/config/bazarr
+          name: config
+        - hostPath:
+            path: /data/media/tv
+          name: tv
+        - hostPath:
+            path: /data/media/movies
+          name: movies
