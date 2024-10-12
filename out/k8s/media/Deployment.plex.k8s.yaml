@@ -58,6 +58,8 @@ spec:
               name: tmp
             - mountPath: /config
               name: config
+            - mountPath: /transcode
+              name: transcode
       dnsPolicy: ClusterFirst
       hostNetwork: true
       restartPolicy: Always
@@ -93,3 +95,6 @@ spec:
             path: /zssd/general/config/plex
             type: ""
           name: config
+        - emptyDir:
+            medium: Memory
+          name: transcode

@@ -1,6 +1,6 @@
 import { ENV, GLUETUN, HOST_PATHS } from "../constants.ts";
 import { NamespaceChart, envValues, run } from "../util.ts";
-import { Capability, Env, Secret } from "cdk8s-plus-30";
+import { Capability, EmptyDirMedium, Env, Secret, Volume } from "cdk8s-plus-30";
 
 const env = ENV;
 
@@ -58,8 +58,7 @@ export function create(ns: NamespaceChart) {
 
   run(ns, "ghcr.io/hotio/tautulli:latest", { port: 8181, env });
 
-  // FIXME: Transcode mount
-  run(ns, "ghcr.io/linuxserver/plex", {
+  const plex = run(ns, "ghcr.io/linuxserver/plex", {
     port: 32400,
     env,
     hostPaths: {
@@ -71,6 +70,12 @@ export function create(ns: NamespaceChart) {
     },
     hostNetwork: true,
   });
+  plex.containers[0]?.mount(
+    "/transcode",
+    Volume.fromEmptyDir(ns, "plex-transcode", "transcode", {
+      medium: EmptyDirMedium.MEMORY,
+    }),
+  );
 
   const qbt = run(ns, "ghcr.io/hotio/qbittorrent:latest", {
     port: 8080,
@@ -96,6 +101,10 @@ export function create(ns: NamespaceChart) {
     envFrom: [
       Env.fromSecret(Secret.fromSecretName(ns, "gluetun", "qbittorrent")),
     ],
-    securityContext: { capabilities: { add: [Capability.NET_ADMIN] } },
+    resources: {},
+    securityContext: {
+      capabilities: { add: [Capability.NET_ADMIN] },
+      ensureNonRoot: false,
+    },
   });
 }

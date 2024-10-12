@@ -74,13 +74,6 @@ spec:
           image: qmcgaw/gluetun:latest
           imagePullPolicy: Always
           name: main
-          resources:
-            limits:
-              cpu: 1500m
-              memory: 2048Mi
-            requests:
-              cpu: 1000m
-              memory: 512Mi
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:
@@ -88,7 +81,7 @@ spec:
                 - NET_ADMIN
             privileged: false
             readOnlyRootFilesystem: true
-            runAsNonRoot: true
+            runAsNonRoot: false
       dnsPolicy: ClusterFirst
       hostNetwork: false
       restartPolicy: Always
