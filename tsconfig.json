@@ -1,8 +1,14 @@
 {
   "extends": "@tsconfig/strictest/tsconfig.json",
   "compilerOptions": {
-    // Cannot write file 'eslint.config.mjs' because it would overwrite input file.ts
+    // Otherwise, `Class constructor App cannot be invoked without 'new'`
+    "target": "ESNext",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    // Otherwise, `Cannot write file 'eslint.config.mjs' because it would overwrite input file.ts`
     "allowJs": false,
-    "checkJs": false
+    "checkJs": false,
+    // Otherwise, TS4114
+    "noImplicitOverride": false
   }
 }

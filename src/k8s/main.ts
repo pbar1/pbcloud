@@ -1,14 +1,7 @@
-import { App, Chart, ChartProps } from "cdk8s";
-import { Construct } from "constructs";
+import { K8sApp, NamespaceChart } from "./util";
 
-export class MyChart extends Chart {
-  constructor(scope: Construct, id: string, props: ChartProps = {}) {
-    super(scope, id, props);
+const app = new K8sApp();
 
-    // define resources here
-  }
-}
+new NamespaceChart(app, "onepassword");
 
-const app = new App();
-new MyChart(app, "pbcloud-k8s");
 app.synth();
