@@ -3,6 +3,12 @@ version: "3"
 tasks:
   default: task --list
 
+  init:
+    aliases: ["i", "bootstrap"]
+    desc: Initializes an existing cluster
+    cmds:
+    - bash scripts/onepassword-init.sh
+
   clean:
     aliases: ["c", "purge"]
     desc: Removes all built config
@@ -41,8 +47,4 @@ tasks:
     cmds:
     - npm run --workspace=src/tf build
 
-  init:
-    aliases: ["i", "bootstrap"]
-    desc: Initializes an existing cluster
-    cmds:
-    - bash scripts/onepassword-init.sh
+

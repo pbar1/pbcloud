@@ -17,11 +17,14 @@ export class K8sApp extends cdk8s.App {
 }
 
 export class NamespaceChart extends cdk8s.Chart {
+  name: string;
+
   constructor(scope: Construct, name: string) {
     super(scope, name, {
       disableResourceNameHashes: true,
       namespace: name,
     });
+    this.name = name;
     new k8s.Namespace(this, name);
   }
 }
