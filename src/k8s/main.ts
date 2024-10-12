@@ -1,5 +1,5 @@
+import { ChartProps, App, Chart } from "cdk8s";
 import { Construct } from "constructs";
-import { App, Chart, ChartProps } from "cdk8s";
 
 export class MyChart extends Chart {
   constructor(scope: Construct, id: string, props: ChartProps = {}) {

@@ -1,0 +1,12 @@
+{
+    "name": "@pbcloud/crd",
+    "dependencies": {
+        "cdk8s": "^2.69.7"
+    },
+    "scripts": {
+        "import": "npx cdk8s import k8s@1.30.0 --no-class-prefix --language=typescript --output=. --save=false --check-upgrade=false "
+    },
+    "devDependencies": {
+        "cdk8s-cli": "^2.198.243"
+    }
+}

@@ -1,3 +1,8 @@
 {
-  "extends": "@tsconfig/strictest/tsconfig.json"
+  "extends": "@tsconfig/strictest/tsconfig.json",
+  "compilerOptions": {
+    // Cannot write file 'eslint.config.mjs' because it would overwrite input file.ts
+    "allowJs": false,
+    "checkJs": false
+  }
 }
