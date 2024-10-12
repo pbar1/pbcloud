@@ -1,0 +1,48 @@
+version: "3"
+
+tasks:
+  default: task --list
+
+  clean:
+    aliases: ["c", "purge"]
+    desc: Removes all built config
+    deps:
+    - clean:k8s
+    - clean:tf
+
+  clean:k8s:
+    desc: Removes built Terraform config
+    cmds:
+    - rm -rf out/k8s
+
+  clean:tf:
+    desc: Removes built Terraform config
+    cmds:
+    - rm -rf out/tf
+
+  build:
+    aliases: ["b", "materialize"]
+    desc: Builds all config
+    deps:
+    - build:k8s
+    - build:tf
+
+  build:k8s:
+    desc: Builds Kubernetes config
+    deps:
+    - clean:k8s
+    cmds:
+    - npm run --workspace=src/k8s build
+
+  build:tf:
+    desc: Build Terraform config
+    deps:
+    - clean:tf
+    cmds:
+    - npm run --workspace=src/tf build
+
+  init:
+    aliases: ["i", "bootstrap"]
+    desc: Initializes an existing cluster
+    cmds:
+    - bash scripts/onepassword-init.sh
