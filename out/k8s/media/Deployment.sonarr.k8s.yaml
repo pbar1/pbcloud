@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sonarr
+  namespace: media
+spec:
+  minReadySeconds: 0
+  progressDeadlineSeconds: 600
+  replicas: 1
+  selector:
+    matchLabels:
+      cdk8s.io/metadata.addr: media-sonarr-c83de5a2
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        cdk8s.io/metadata.addr: media-sonarr-c83de5a2
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - env:
+            - name: TZ
+              value: America/Los_Angeles
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "100"
+          image: ghcr.io/hotio/sonarr:nightly
+          imagePullPolicy: Always
+          name: sonarr
+          ports:
+            - containerPort: 8989
+          securityContext:
+            allowPrivilegeEscalation: false
+            privileged: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: false
+          startupProbe:
+            failureThreshold: 3
+            tcpSocket:
+              port: 8989
+          volumeMounts:
+            - mountPath: /config
+              name: config
+            - mountPath: /downloads
+              name: downloads
+            - mountPath: /tv
+              name: tv
+            - mountPath: /recycle-bin
+              name: recycle-bin
+            - mountPath: /tmp
+              name: tmp
+      dnsPolicy: ClusterFirst
+      hostNetwork: false
+      restartPolicy: Always
+      securityContext:
+        fsGroupChangePolicy: Always
+        runAsNonRoot: false
+      setHostnameAsFQDN: false
+      terminationGracePeriodSeconds: 30
+      volumes:
+        - hostPath:
+            path: /zssd/general/config/sonarr
+            type: ""
+          name: config
+        - hostPath:
+            path: /data/torrents
+            type: ""
+          name: downloads
+        - hostPath:
+            path: /data/media/tv
+            type: ""
+          name: tv
+        - hostPath:
+            path: /data/media/recycle-bin
+            type: ""
+          name: recycle-bin
+        - emptyDir: {}
+          name: tmp
