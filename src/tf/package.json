@@ -1,0 +1,6 @@
+{
+    "name": "@pbcloud/tf",
+    "scripts": {
+        "build": "ts-node main.ts"
+    }
+}

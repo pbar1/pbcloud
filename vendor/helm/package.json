@@ -1,0 +1,6 @@
+{
+    "name": "@pbcloud/helm",
+    "scripts": {
+        "connect": "cdk8s import helm:https://1password.github.io/connect-helm-charts/connect@1.16.0 --language=typescript --output=. --save=false --check-upgrade=false"
+    }
+}

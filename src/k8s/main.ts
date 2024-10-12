@@ -1,4 +1,4 @@
-import { ChartProps, App, Chart } from "cdk8s";
+import { App, Chart, ChartProps } from "cdk8s";
 import { Construct } from "constructs";
 
 export class MyChart extends Chart {
