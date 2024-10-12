@@ -9,6 +9,9 @@
     "allowJs": false,
     "checkJs": false,
     // Otherwise, TS4114
-    "noImplicitOverride": false
+    "noImplicitOverride": false,
+    // For importing .ts files
+    "allowImportingTsExtensions": true,
+    "noEmit": true
   }
 }

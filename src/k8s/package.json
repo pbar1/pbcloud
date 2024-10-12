@@ -1,6 +1,7 @@
 {
   "name": "@pbcloud/k8s",
+  "type": "module",
   "scripts": {
-    "build": "ts-node main.ts"
+    "build": "tsx main.ts"
   }
 }
