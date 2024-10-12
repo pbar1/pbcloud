@@ -1,13 +1,13 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: lidarr
+  name: bazarr
   namespace: media
 spec:
   externalIPs: []
   ports:
-    - port: 8686
-      targetPort: 8686
+    - port: 6767
+      targetPort: 6767
   selector:
-    cdk8s.io/metadata.addr: media-lidarr-c8bd7459
+    cdk8s.io/metadata.addr: media-bazarr-c83d26b1
   type: ClusterIP

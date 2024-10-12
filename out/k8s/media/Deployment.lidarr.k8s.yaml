@@ -33,7 +33,7 @@ spec:
           imagePullPolicy: Always
           name: lidarr
           ports:
-            - containerPort: 7878
+            - containerPort: 8686
           securityContext:
             allowPrivilegeEscalation: false
             privileged: false
@@ -42,18 +42,18 @@ spec:
           startupProbe:
             failureThreshold: 3
             tcpSocket:
-              port: 7878
+              port: 8686
           volumeMounts:
-            - mountPath: /config
-              name: config
             - mountPath: /downloads
               name: downloads
-            - mountPath: /music
-              name: music
             - mountPath: /recycle-bin
               name: recycle-bin
+            - mountPath: /music
+              name: music
             - mountPath: /tmp
               name: tmp
+            - mountPath: /config
+              name: config
       dnsPolicy: ClusterFirst
       hostNetwork: false
       restartPolicy: Always
@@ -64,20 +64,20 @@ spec:
       terminationGracePeriodSeconds: 30
       volumes:
         - hostPath:
-            path: /zssd/general/config/lidarr
-            type: ""
-          name: config
-        - hostPath:
             path: /data/torrents
             type: ""
           name: downloads
         - hostPath:
-            path: /data/media/music
-            type: ""
-          name: music
-        - hostPath:
             path: /data/media/recycle-bin
             type: ""
           name: recycle-bin
+        - hostPath:
+            path: /data/media/music
+            type: ""
+          name: music
         - emptyDir: {}
           name: tmp
+        - hostPath:
+            path: /zssd/general/config/lidarr
+            type: ""
+          name: config

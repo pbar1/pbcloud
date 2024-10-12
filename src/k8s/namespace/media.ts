@@ -4,37 +4,38 @@ import { NamespaceChart, envValues, nameFromImage } from "../util.ts";
 import { basename } from "node:path";
 
 export function create(ns: NamespaceChart) {
-  hotio(ns, "prowlarr:nightly", 9696, {
-    "/config": "/zssd/general/config/prowlarr",
-  });
+  hotio(ns, "ghcr.io/hotio/prowlarr:nightly", 9696);
 
   hotio(ns, "ghcr.io/hotio/sonarr:nightly", 8989, {
-    "/config": "/zssd/general/config/sonarr",
     "/downloads": "/data/torrents",
-    "/tv": "/data/media/tv",
     "/recycle-bin": "/data/media/recycle-bin",
+    "/tv": "/data/media/tv",
   });
 
   hotio(ns, "ghcr.io/hotio/radarr:nightly", 7878, {
-    "/config": "/zssd/general/config/radarr",
     "/downloads": "/data/torrents",
+    "/recycle-bin": "/data/media/recycle-bin",
     "/movies": "/data/media/movies",
-    "/recycle-bin": "/data/media/recycle-bin",
   });
 
-  hotio(ns, "ghcr.io/hotio/readarr:nightly", 7878, {
-    "/config": "/zssd/general/config/readarr",
+  hotio(ns, "ghcr.io/hotio/readarr:nightly", 8787, {
     "/downloads": "/data/torrents",
+    "/recycle-bin": "/data/media/recycle-bin",
     "/audiobooks": "/data/media/audiobooks",
-    "/recycle-bin": "/data/media/recycle-bin",
   });
 
-  hotio(ns, "ghcr.io/hotio/lidarr:nightly", 7878, {
-    "/config": "/zssd/general/config/lidarr",
+  hotio(ns, "ghcr.io/hotio/lidarr:nightly", 8686, {
     "/downloads": "/data/torrents",
-    "/music": "/data/media/music",
     "/recycle-bin": "/data/media/recycle-bin",
+    "/music": "/data/media/music",
   });
+
+  hotio(ns, "ghcr.io/hotio/bazarr:latest", 6767, {
+    "/tv": "/data/media/tv",
+    "/movies": "/data/media/movies",
+  });
+
+  hotio(ns, "ghcr.io/hotio/tautulli:latest", 8181);
 }
 
 function hotio(
@@ -75,6 +76,12 @@ function hotio(
     );
   }
   container.mount("/tmp", kplus.Volume.fromEmptyDir(ns, `${name}-tmp`, "tmp"));
+  container.mount(
+    "/config",
+    kplus.Volume.fromHostPath(ns, `${name}-config`, "config", {
+      path: `/zssd/general/config/${name}`,
+    }),
+  );
 
   deployment.exposeViaService({ name });
 }

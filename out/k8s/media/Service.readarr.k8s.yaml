@@ -6,8 +6,8 @@ metadata:
 spec:
   externalIPs: []
   ports:
-    - port: 7878
-      targetPort: 7878
+    - port: 8787
+      targetPort: 8787
   selector:
     cdk8s.io/metadata.addr: media-readarr-c81f5058
   type: ClusterIP

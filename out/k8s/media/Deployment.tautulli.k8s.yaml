@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: prowlarr
+  name: tautulli
   namespace: media
 spec:
   minReadySeconds: 0
@@ -9,7 +9,7 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      cdk8s.io/metadata.addr: media-prowlarr-c8f293d1
+      cdk8s.io/metadata.addr: media-tautulli-c8d81988
   strategy:
     rollingUpdate:
       maxSurge: 25%
@@ -18,7 +18,7 @@ spec:
   template:
     metadata:
       labels:
-        cdk8s.io/metadata.addr: media-prowlarr-c8f293d1
+        cdk8s.io/metadata.addr: media-tautulli-c8d81988
     spec:
       automountServiceAccountToken: false
       containers:
@@ -29,11 +29,11 @@ spec:
               value: "1000"
             - name: PGID
               value: "100"
-          image: ghcr.io/hotio/prowlarr:nightly
+          image: ghcr.io/hotio/tautulli:latest
           imagePullPolicy: Always
-          name: prowlarr
+          name: tautulli
           ports:
-            - containerPort: 9696
+            - containerPort: 8181
           securityContext:
             allowPrivilegeEscalation: false
             privileged: false
@@ -42,7 +42,7 @@ spec:
           startupProbe:
             failureThreshold: 3
             tcpSocket:
-              port: 9696
+              port: 8181
           volumeMounts:
             - mountPath: /tmp
               name: tmp
@@ -60,6 +60,6 @@ spec:
         - emptyDir: {}
           name: tmp
         - hostPath:
-            path: /zssd/general/config/prowlarr
+            path: /zssd/general/config/tautulli
             type: ""
           name: config

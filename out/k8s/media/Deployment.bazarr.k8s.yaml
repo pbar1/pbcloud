@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: prowlarr
+  name: bazarr
   namespace: media
 spec:
   minReadySeconds: 0
@@ -9,7 +9,7 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      cdk8s.io/metadata.addr: media-prowlarr-c8f293d1
+      cdk8s.io/metadata.addr: media-bazarr-c83d26b1
   strategy:
     rollingUpdate:
       maxSurge: 25%
@@ -18,7 +18,7 @@ spec:
   template:
     metadata:
       labels:
-        cdk8s.io/metadata.addr: media-prowlarr-c8f293d1
+        cdk8s.io/metadata.addr: media-bazarr-c83d26b1
     spec:
       automountServiceAccountToken: false
       containers:
@@ -29,11 +29,11 @@ spec:
               value: "1000"
             - name: PGID
               value: "100"
-          image: ghcr.io/hotio/prowlarr:nightly
+          image: ghcr.io/hotio/bazarr:latest
           imagePullPolicy: Always
-          name: prowlarr
+          name: bazarr
           ports:
-            - containerPort: 9696
+            - containerPort: 6767
           securityContext:
             allowPrivilegeEscalation: false
             privileged: false
@@ -42,8 +42,12 @@ spec:
           startupProbe:
             failureThreshold: 3
             tcpSocket:
-              port: 9696
+              port: 6767
           volumeMounts:
+            - mountPath: /tv
+              name: tv
+            - mountPath: /movies
+              name: movies
             - mountPath: /tmp
               name: tmp
             - mountPath: /config
@@ -57,9 +61,17 @@ spec:
       setHostnameAsFQDN: false
       terminationGracePeriodSeconds: 30
       volumes:
+        - hostPath:
+            path: /data/media/tv
+            type: ""
+          name: tv
+        - hostPath:
+            path: /data/media/movies
+            type: ""
+          name: movies
         - emptyDir: {}
           name: tmp
         - hostPath:
-            path: /zssd/general/config/prowlarr
+            path: /zssd/general/config/bazarr
             type: ""
           name: config

@@ -44,16 +44,16 @@ spec:
             tcpSocket:
               port: 7878
           volumeMounts:
-            - mountPath: /config
-              name: config
             - mountPath: /downloads
               name: downloads
-            - mountPath: /movies
-              name: movies
             - mountPath: /recycle-bin
               name: recycle-bin
+            - mountPath: /movies
+              name: movies
             - mountPath: /tmp
               name: tmp
+            - mountPath: /config
+              name: config
       dnsPolicy: ClusterFirst
       hostNetwork: false
       restartPolicy: Always
@@ -64,20 +64,20 @@ spec:
       terminationGracePeriodSeconds: 30
       volumes:
         - hostPath:
-            path: /zssd/general/config/radarr
-            type: ""
-          name: config
-        - hostPath:
             path: /data/torrents
             type: ""
           name: downloads
         - hostPath:
-            path: /data/media/movies
-            type: ""
-          name: movies
-        - hostPath:
             path: /data/media/recycle-bin
             type: ""
           name: recycle-bin
+        - hostPath:
+            path: /data/media/movies
+            type: ""
+          name: movies
         - emptyDir: {}
           name: tmp
+        - hostPath:
+            path: /zssd/general/config/radarr
+            type: ""
+          name: config
