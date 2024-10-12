@@ -69,3 +69,100 @@ export function envValues(values: { [name: string]: string }): {
   }
   return envValues;
 }
+
+/**
+ * Properties for `run`.
+ */
+export interface RunProps {
+  env?: { [name: string]: string };
+  hostNetwork?: boolean;
+  hostPaths?: { [containerPath: string]: string };
+  mountConfig?: boolean;
+  mountTmp?: boolean;
+  port?: number;
+  replicas?: number;
+  resources?: kplus.ContainerResources;
+  securityContextContainer?: kplus.ContainerSecurityContextProps;
+  securityContextPod?: kplus.PodSecurityContextProps;
+}
+
+/**
+ * Run a container image similar to `kubectl run`.
+ */
+export function run(
+  scope: Construct,
+  image: string,
+  props?: RunProps,
+): kplus.Deployment {
+  const name = nameFromImage(image);
+
+  const env = props?.env;
+  const hostNetwork = props?.hostNetwork ?? false;
+  const hostPaths = props?.hostPaths;
+  const mountConfig = props?.mountConfig ?? true;
+  const mountTmp = props?.mountTmp ?? true;
+  const portNumber = props?.port;
+  const replicas = props?.replicas ?? 1;
+  const resources = props?.resources ?? {};
+  const securityContextContainer = props?.securityContextContainer ?? {
+    ensureNonRoot: false,
+  };
+  const securityContextPod = props?.securityContextPod ?? {
+    ensureNonRoot: false,
+  };
+
+  // TODO: Merge with env from other mounts
+  const envVariables = env ? envValues(env) : undefined;
+
+  const deployment = new kplus.Deployment(scope, name, {
+    metadata: { name },
+    replicas,
+    securityContext: securityContextPod,
+    hostNetwork,
+  });
+
+  const container = deployment.addContainer({
+    name,
+    image,
+    portNumber,
+    envVariables,
+    resources,
+    securityContext: securityContextContainer,
+  });
+
+  for (const ctrPath in hostPaths) {
+    const hostPath = hostPaths[ctrPath];
+    if (!hostPath) {
+      continue;
+    }
+    const volName = path.basename(ctrPath);
+    container.mount(
+      ctrPath,
+      kplus.Volume.fromHostPath(scope, `${name}-${volName}`, volName, {
+        path: hostPath,
+      }),
+    );
+  }
+
+  if (mountTmp) {
+    container.mount(
+      "/tmp",
+      kplus.Volume.fromEmptyDir(scope, `${name}-tmp`, "tmp"),
+    );
+  }
+
+  if (mountConfig) {
+    container.mount(
+      "/config",
+      kplus.Volume.fromHostPath(scope, `${name}-config`, "config", {
+        path: `/zssd/general/config/${name}`,
+      }),
+    );
+  }
+
+  if (portNumber) {
+    deployment.exposeViaService({ name });
+  }
+
+  return deployment;
+}

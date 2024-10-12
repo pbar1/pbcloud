@@ -12,6 +12,8 @@
     "noImplicitOverride": false,
     // For importing .ts files
     "allowImportingTsExtensions": true,
-    "noEmit": true
+    "noEmit": true,
+    // Otherwise, using optional properties is inconvenient
+    "exactOptionalPropertyTypes": false
   }
 }
