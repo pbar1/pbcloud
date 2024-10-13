@@ -56,6 +56,22 @@ export function create(ns: NamespaceChart) {
     },
   });
 
+  run(ns, "sctx/overseerr:latest", {
+    port: 5055,
+    env: {
+      TZ: env.TZ,
+      LOG_LEVEL: "debug",
+    },
+    mountConfig: false,
+    securityContextContainer: {
+      readOnlyRootFilesystem: false,
+      ensureNonRoot: false,
+    },
+    hostPaths: {
+      "/app/config": "/zssd/general/config/overseerr",
+    },
+  });
+
   run(ns, "ghcr.io/hotio/tautulli:latest", { port: 8181, env });
 
   const plex = run(ns, "ghcr.io/linuxserver/plex", {
