@@ -1,0 +1,23 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    app.kubernetes.io/component: metrics
+    app.kubernetes.io/instance: monitoring-kube-prometheus-stack-helm-c8a1ee83
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: kube-state-metrics
+    app.kubernetes.io/part-of: kube-state-metrics
+    app.kubernetes.io/version: 2.13.0
+    helm.sh/chart: kube-state-metrics-5.26.0
+    release: monitoring-kube-prometheus-stack-helm-c8a1ee83
+  name: monitoring-kube-prometheus-stack-helm-c8a1ee83-kube-state-metri
+  namespace: monitoring
+spec:
+  endpoints:
+    - honorLabels: true
+      port: http
+  jobLabel: app.kubernetes.io/name
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: monitoring-kube-prometheus-stack-helm-c8a1ee83
+      app.kubernetes.io/name: kube-state-metrics

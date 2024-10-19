@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: kube-prometheus-stack-kube-controller-manager
+    app.kubernetes.io/instance: monitoring-kube-prometheus-stack-helm-c8a1ee83
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: kube-prometheus-stack
+    app.kubernetes.io/version: 65.3.1
+    chart: kube-prometheus-stack-65.3.1
+    heritage: Helm
+    jobLabel: kube-controller-manager
+    release: monitoring-kube-prometheus-stack-helm-c8a1ee83
+  name: monitoring-kube-prometheus-kube-controller-manager
+  namespace: kube-system
+spec:
+  clusterIP: None
+  ports:
+    - name: http-metrics
+      port: 10257
+      protocol: TCP
+      targetPort: 10257
+  selector:
+    component: kube-controller-manager
+  type: ClusterIP
