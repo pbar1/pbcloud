@@ -13,13 +13,6 @@ metadata:
   name: monitoring-kube-prometheus
   namespace: monitoring
 spec:
-  alerting:
-    alertmanagers:
-      - apiVersion: v2
-        name: monitoring-kube-prometheus-alertmanager
-        namespace: monitoring
-        pathPrefix: /
-        port: http-web
   automountServiceAccountToken: true
   enableAdminAPI: false
   externalUrl: http://monitoring-kube-prometheus-prometheus.monitoring:9090
