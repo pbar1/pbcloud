@@ -7,7 +7,15 @@ export function create(ns: NamespaceChart) {
   new Kubeprometheusstack(ns, "kube-prometheus-stack", {
     namespace: ns.name,
     values: {
-      cleanPrometheusOperatorObjectNames: true,
+      alertmanager: {
+        enabled: false,
+      },
+
+      grafana: {
+        defaultDashboardsTimezone: "browser",
+        persistence: { enabled: true, storageClassName: "local-path" },
+      },
+
       prometheus: {
         prometheusSpec: {
           retention: "90d",
@@ -22,13 +30,8 @@ export function create(ns: NamespaceChart) {
           },
         },
       },
-      alertmanager: {
-        enabled: false,
-      },
-      grafana: {
-        defaultDashboardsTimezone: "browser",
-        persistence: { enabled: true, storageClassName: "local-path" },
-      },
+
+      cleanPrometheusOperatorObjectNames: true,
     },
   });
 }
