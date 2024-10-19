@@ -34,6 +34,10 @@ export function create(ns: NamespaceChart) {
         },
       },
 
+      kubeControllerManager: { enabled: false },
+      kubeProxy: { enabled: false },
+      kubeScheduler: { enabled: false },
+
       cleanPrometheusOperatorObjectNames: true,
     },
   });
