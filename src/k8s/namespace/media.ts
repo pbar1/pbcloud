@@ -58,6 +58,15 @@ export function create(ns: NamespaceChart) {
 
   run(ns, "ghcr.io/hotio/tautulli:latest", { port: 8181, env });
 
+  run(ns, "ghcr.io/flaresolverr/flaresolverr:latest", {
+    port: 8191,
+    env: { TZ: env.TZ },
+    securityContextContainer: {
+      readOnlyRootFilesystem: false,
+      ensureNonRoot: false,
+    },
+  });
+
   const plex = run(ns, "ghcr.io/linuxserver/plex", {
     port: 32400,
     env,
