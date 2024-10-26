@@ -21,6 +21,11 @@ export function create(ns: NamespaceChart) {
 
       prometheus: {
         prometheusSpec: {
+          // Enable to receive OTLP
+          // https://prometheus.io/docs/guides/opentelemetry
+          // additionalArgs: [{ name: "web.enable-otlp-receiver" }],
+          // https://prometheus.io/docs/prometheus/latest/feature_flags/#otlp-receiver
+          enableFeatures: ["otlp-write-receiver"],
           retention: "90d",
           storageSpec: {
             volumeClaimTemplate: {
