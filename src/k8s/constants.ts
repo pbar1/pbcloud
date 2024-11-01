@@ -12,6 +12,8 @@ export const GLUETUN = {
   SERVER_COUNTRIES: "Switzerland",
   FIREWALL_VPN_INPUT_PORTS: "21133",
   HEALTH_VPN_DURATION_INITIAL: "120s",
+  PUBLICIP_API: "cloudflare",
+  DOT_PROVIDERS: "quad9",
 };
 
 export const HOST_PATHS = {

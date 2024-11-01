@@ -68,6 +68,10 @@ spec:
               value: "21133"
             - name: HEALTH_VPN_DURATION_INITIAL
               value: 120s
+            - name: PUBLICIP_API
+              value: cloudflare
+            - name: DOT_PROVIDERS
+              value: quad9
           envFrom:
             - secretRef:
                 name: qbittorrent

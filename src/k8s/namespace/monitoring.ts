@@ -1,4 +1,4 @@
-import { NamespaceChart } from "../util.ts";
+import { NamespaceChart, run } from "../util.ts";
 import { Kubeprometheusstack } from "@pbcloud/helm/kube-prometheus-stack.ts";
 
 export function create(ns: NamespaceChart) {
@@ -44,6 +44,17 @@ export function create(ns: NamespaceChart) {
       kubeScheduler: { enabled: false },
 
       cleanPrometheusOperatorObjectNames: true,
+    },
+  });
+
+  // FIXME: Expose otlp ports
+  run(ns, "mcr.microsoft.com/dotnet/aspire-dashboard:latest", {
+    port: 18888,
+    mountConfig: false,
+    mountTmp: false,
+    env: {
+      ASPNETCORE_URLS: "http://0.0.0.0:18888",
+      DOTNET_DASHBOARD_UNSECURED_ALLOW_ANONYMOUS: "true",
     },
   });
 }

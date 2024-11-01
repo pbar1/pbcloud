@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: aspire-dashboard
+  namespace: monitoring
+spec:
+  externalIPs: []
+  ports:
+    - port: 18888
+      targetPort: 18888
+  selector:
+    cdk8s.io/metadata.addr: monitoring-aspire-dashboard-c84aaf21
+  type: ClusterIP

@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aspire-dashboard
+  namespace: monitoring
+spec:
+  minReadySeconds: 0
+  progressDeadlineSeconds: 600
+  replicas: 1
+  selector:
+    matchLabels:
+      cdk8s.io/metadata.addr: monitoring-aspire-dashboard-c84aaf21
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        cdk8s.io/metadata.addr: monitoring-aspire-dashboard-c84aaf21
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - env:
+            - name: ASPNETCORE_URLS
+              value: http://0.0.0.0:18888
+            - name: DOTNET_DASHBOARD_UNSECURED_ALLOW_ANONYMOUS
+              value: "true"
+          image: mcr.microsoft.com/dotnet/aspire-dashboard:latest
+          imagePullPolicy: Always
+          name: aspire-dashboard
+          ports:
+            - containerPort: 18888
+          securityContext:
+            allowPrivilegeEscalation: false
+            privileged: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: false
+          startupProbe:
+            failureThreshold: 3
+            tcpSocket:
+              port: 18888
+      dnsPolicy: ClusterFirst
+      hostNetwork: false
+      restartPolicy: Always
+      securityContext:
+        fsGroupChangePolicy: Always
+        runAsNonRoot: false
+      setHostnameAsFQDN: false
+      terminationGracePeriodSeconds: 30
