@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: gitea
+    app.kubernetes.io/instance: gitea
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: gitea
+    app.kubernetes.io/version: 1.22.3
+    helm.sh/chart: gitea-10.5.0
+    version: 1.22.3
+  name: gitea-ssh
+  namespace: cicd
+spec:
+  clusterIP: None
+  ports:
+    - name: ssh
+      port: 22
+      protocol: TCP
+      targetPort: 2222
+  selector:
+    app.kubernetes.io/instance: gitea
+    app.kubernetes.io/name: gitea
+  type: ClusterIP

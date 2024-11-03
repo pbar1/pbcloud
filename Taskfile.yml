@@ -4,13 +4,13 @@ tasks:
   default: task --list
 
   init:
-    aliases: ["i", "bootstrap"]
+    aliases: [ "i", "bootstrap" ]
     desc: Initializes an existing cluster
     cmds:
     - bash scripts/onepassword-init.sh
 
   clean:
-    aliases: ["c", "purge"]
+    aliases: [ "c", "purge" ]
     desc: Removes all built config
     deps:
     - clean:k8s
@@ -27,7 +27,7 @@ tasks:
     - rm -rf out/tf
 
   build:
-    aliases: ["b", "materialize"]
+    aliases: [ "b", "materialize" ]
     desc: Builds all config
     deps:
     - build:k8s
@@ -46,5 +46,3 @@ tasks:
     - clean:tf
     cmds:
     - npm run --workspace=src/tf build
-
-
