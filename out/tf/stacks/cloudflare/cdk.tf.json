@@ -1,0 +1,18 @@
+{
+  "//": {
+    "metadata": {
+      "backend": "local",
+      "stackName": "cloudflare",
+      "version": "0.20.9"
+    },
+    "outputs": {
+    }
+  },
+  "terraform": {
+    "backend": {
+      "local": {
+        "path": "/Users/pierce/code/pbcloud/src/tf/terraform.cloudflare.tfstate"
+      }
+    }
+  }
+}

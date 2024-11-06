@@ -1,7 +1,7 @@
 {
-    "name": "@pbcloud/tf",
-    "type": "module",
-    "scripts": {
-        "build": "tsx main.ts"
-    }
+  "name": "@pbcloud/tf",
+  "type": "module",
+  "scripts": {
+    "build": "tsx main.ts"
+  }
 }

@@ -1,0 +1,16 @@
+{
+  "stacks": {
+    "cloudflare": {
+      "annotations": [
+      ],
+      "constructPath": "cloudflare",
+      "dependencies": [
+      ],
+      "name": "cloudflare",
+      "stackMetadataPath": "stacks/cloudflare/metadata.json",
+      "synthesizedStackPath": "stacks/cloudflare/cdk.tf.json",
+      "workingDirectory": "stacks/cloudflare"
+    }
+  },
+  "version": "0.20.9"
+}
