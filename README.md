@@ -7,6 +7,11 @@ Kubernetes YAML and Terraform JSON respectively.
 
 ## Structure
 
+Each Typescript file in `namespace`/`workspace` (K8s/TF respectively) is
+expected to export a top level function `create` that instantiates Constructs.
+These files will by dynamically resolved and built, with an output directory
+generated for each.
+
 ```
 .
 ├── src/
@@ -17,12 +22,16 @@ Kubernetes YAML and Terraform JSON respectively.
 │   │       └── ...
 │   └── tf/
 │       ├── main.ts
-│       └── stack/
+│       └── workspace/
+│           ├── example.ts
+│           └── ...
 ├── out/
 │   ├── k8s/
 │   │   └── example/
 │   │       └── Deployment.foo.k8s.yaml
 │   └── tf/
+│       └── stacks/example/
+│           └── cdk.tf.json
 └── vendor/
     ├── crd/
     └── helm/
