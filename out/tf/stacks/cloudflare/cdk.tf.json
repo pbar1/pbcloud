@@ -29,6 +29,18 @@
         "session_duration": "730h",
         "zone_id": "0ba0d05c6ffbfa2e8b254e07f1a29982"
       }
+    },
+    "cloudflare_zero_trust_access_tag": {
+      "media": {
+        "//": {
+          "metadata": {
+            "path": "cloudflare/media",
+            "uniqueId": "media"
+          }
+        },
+        "name": "media",
+        "zone_id": "0ba0d05c6ffbfa2e8b254e07f1a29982"
+      }
     }
   },
   "terraform": {
