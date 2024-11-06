@@ -47,3 +47,19 @@ tasks:
     # - clean:tf
     cmds:
     - npm run --workspace=src/tf build
+
+  apply:tf:
+    desc: Applies Terraform config
+    deps:
+    - build:tf
+    # TODO: Automate discovery of out ws dirs
+    cmds:
+    - terraform -chdir=out/tf/stacks/cloudflare init
+    - terraform -chdir=out/tf/stacks/cloudflare apply
+
+  delete:tf:
+    desc: Applies Terraform config
+    deps:
+    - build:tf
+    cmds:
+    - terraform -chdir=out/tf/stacks/cloudflare destroy
