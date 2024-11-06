@@ -42,7 +42,8 @@ tasks:
 
   build:tf:
     desc: Build Terraform config
-    deps:
-    - clean:tf
+    # TODO: Clean will delete local tfstate, can't do that yet
+    # deps:
+    # - clean:tf
     cmds:
     - npm run --workspace=src/tf build

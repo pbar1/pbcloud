@@ -8,10 +8,38 @@
     "outputs": {
     }
   },
+  "provider": {
+    "cloudflare": [
+      {
+      }
+    ]
+  },
+  "resource": {
+    "cloudflare_access_application": {
+      "example": {
+        "//": {
+          "metadata": {
+            "path": "cloudflare/example",
+            "uniqueId": "example"
+          }
+        },
+        "domain": "goober.xnauts.net",
+        "name": "My Example App",
+        "session_duration": "1m",
+        "zone_id": "0ba0d05c6ffbfa2e8b254e07f1a29982"
+      }
+    }
+  },
   "terraform": {
     "backend": {
       "local": {
         "path": "/Users/pierce/code/pbcloud/src/tf/terraform.cloudflare.tfstate"
+      }
+    },
+    "required_providers": {
+      "cloudflare": {
+        "source": "cloudflare/cloudflare",
+        "version": "4.45.0"
       }
     }
   }

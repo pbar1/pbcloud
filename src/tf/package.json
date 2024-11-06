@@ -3,5 +3,8 @@
   "type": "module",
   "scripts": {
     "build": "tsx main.ts"
+  },
+  "dependencies": {
+    "@cdktf/provider-cloudflare": "^11.23.0"
   }
 }
