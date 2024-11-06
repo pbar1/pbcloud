@@ -25,7 +25,7 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/config: ad6950df2c162ece15eeee01dcb7b3c3ebc0e139db7c808532b35be6460f009e
+        checksum/config: f6d204eb0322e56a546be9155e3059681cfc94bbc25f45d7dc89425056986969
       labels:
         app: gitea
         app.kubernetes.io/instance: gitea
@@ -157,9 +157,9 @@ spec:
             - name: GITEA_ADMIN_USERNAME
               value: gitea_admin
             - name: GITEA_ADMIN_PASSWORD
-              value: r8sA8CPHD9!bt6d
+              value: initial password only
             - name: GITEA_ADMIN_PASSWORD_MODE
-              value: keepUpdated
+              value: initialOnlyRequireReset
           image: gitea/gitea:1.22.3-rootless
           imagePullPolicy: IfNotPresent
           name: configure-gitea
@@ -194,5 +194,6 @@ spec:
             secretName: gitea-inline-config
         - emptyDir: {}
           name: temp
-        - emptyDir: {}
-          name: data
+        - name: data
+          persistentVolumeClaim:
+            claimName: gitea-shared-storage
