@@ -3,6 +3,16 @@ import * as path from "node:path";
 import * as url from "node:url";
 import { Construct } from "constructs";
 
+// General --------------------------------------------------------------------
+
+/**
+ * Capitalizes the first character of the given string.
+ * @param s String to capitalize.
+ */
+export function capitalize(s: string): string {
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
 // CDKTF ----------------------------------------------------------------------
 
 export class TFApp extends cdktf.App {

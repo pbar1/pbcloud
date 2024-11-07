@@ -16,18 +16,41 @@
   },
   "resource": {
     "cloudflare_zero_trust_access_application": {
-      "example": {
+      "lidarr": {
         "//": {
           "metadata": {
-            "path": "cloudflare/example",
-            "uniqueId": "example"
+            "path": "cloudflare/lidarr",
+            "uniqueId": "lidarr"
           }
         },
-        "domain": "example.xnauts.net",
-        "logo_url": "https://raw.githubusercontent.com/Sonarr/Sonarr/refs/heads/develop/Logo/Sonarr.svg",
-        "name": "ExampleApp",
-        "session_duration": "730h",
-        "zone_id": "0ba0d05c6ffbfa2e8b254e07f1a29982"
+        "account_id": "17d824c0799bab4158f3b78200dc4322",
+        "domain": "lidarr.xnauts.net",
+        "logo_url": "https://raw.githubusercontent.com/Lidarr/Lidarr/develop/Logo/Lidarr.svg",
+        "name": "Lidarr",
+        "policies": [
+          "admins"
+        ],
+        "session_duration": "730h"
+      }
+    },
+    "cloudflare_zero_trust_access_policy": {
+      "admins": {
+        "//": {
+          "metadata": {
+            "path": "cloudflare/admins",
+            "uniqueId": "admins"
+          }
+        },
+        "account_id": "17d824c0799bab4158f3b78200dc4322",
+        "decision": "allow",
+        "include": [
+          {
+            "group": [
+              "e314ccda-c53b-42fd-8056-5b1306b6416c"
+            ]
+          }
+        ],
+        "name": "admins"
       }
     },
     "cloudflare_zero_trust_access_tag": {
