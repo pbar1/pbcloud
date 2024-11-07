@@ -1,81 +1,79 @@
 import * as constants from "../constants.ts";
 import * as cf from "@cdktf/provider-cloudflare";
 import { WorkspaceStack, capitalize } from "../util.ts";
-import { Construct } from "constructs";
 
 import CloudflareProvider = cf.provider.CloudflareProvider;
 import AccessTag = cf.zeroTrustAccessTag.ZeroTrustAccessTag;
 import AccessApplication = cf.zeroTrustAccessApplication.ZeroTrustAccessApplication;
 import AccessPolicy = cf.zeroTrustAccessPolicy.ZeroTrustAccessPolicy;
 
-const zoneId = constants.DOMAIN.zoneId;
-const domain = constants.DOMAIN.name;
+const accountId = constants.CLOUDFLARE_ACCOUNT_ID;
+const zoneId = constants.CLOUDFLARE_ZONE_ID;
+const domain = constants.DOMAIN;
 const sessionDuration = "730h"; // 1 month
+const tags = ["media"];
 const apps = [
   // {
   //   name: "prowlarr",
   //   service: "http://prowlarr.media:9696",
-  //   logoUrl:
-  //     "https://raw.githubusercontent.com/Prowlarr/Prowlarr/develop/Logo/Prowlarr.svg",
+  //   logoUrl: arrLogo("prowlarr"),
+  //   tags: ["media"],
   // },
   // {
   //   name: "sonarr",
   //   service: "http://sonarr.media:8989",
-  //   logoUrl:
-  //     "https://raw.githubusercontent.com/Sonarr/Sonarr/develop/Logo/Sonarr.svg",
+  //   logoUrl: arrLogo("sonarr"),
+  //   tags: ["media"],
   // },
   // {
   //   name: "radarr",
   //   service: "http://radarr.media:7878",
-  //   logoUrl:
-  //     "https://raw.githubusercontent.com/Radarr/Radarr/develop/Logo/Radarr.svg",
+  //   logoUrl: arrLogo("radarr"),
+  //   tags: ["media"],
   // },
   // {
   //   name: "readarr",
   //   service: "http://readarr.media:8787",
-  //   logoUrl:
-  //     "https://raw.githubusercontent.com/Readarr/Readarr/develop/Logo/Readarr.svg",
+  //   logoUrl: arrLogo("readarr"),
+  //   tags: ["media"],
   // },
   {
     name: "lidarr",
     service: "http://lidarr.media:8686",
-    logoUrl:
-      "https://raw.githubusercontent.com/Lidarr/Lidarr/develop/Logo/Lidarr.svg",
+    logoUrl: arrLogo("lidarr"),
     tags: ["media"],
   },
 ];
+
+function arrLogo(name: string): string {
+  const n = capitalize(name);
+  return `https://raw.githubusercontent.com/${n}/${n}/develop/Logo/${n}.svg`;
+}
 
 export function create(ws: WorkspaceStack) {
   // Must set CLOUDFLARE_API_TOKEN, or CLOUDFLARE_EMAIL + CLOUDFLARE_API_KEY
   new CloudflareProvider(ws, "cloudflare");
 
-  const tags = createTags(ws, ["media"]);
+  for (const name of tags) {
+    new AccessTag(ws, name, { zoneId, name });
+  }
 
   const policyAdmins = new AccessPolicy(ws, "admins", {
-    accountId: constants.CLOUDFLARE_ACCOUNT_ID,
+    accountId,
     name: "admins",
     decision: "allow",
     include: [{ group: ["e314ccda-c53b-42fd-8056-5b1306b6416c"] }],
   });
 
-  // TODO: Sigh...
-  // https://github.com/cloudflare/terraform-provider-cloudflare/issues/4495
-  for (const { name, service, logoUrl } of apps) {
+  for (const { name, logoUrl, tags } of apps) {
     new AccessApplication(ws, name, {
-      accountId: constants.CLOUDFLARE_ACCOUNT_ID,
+      accountId,
       name: capitalize(name),
-      domain: `${name}.${domain}`,
+      domain: `${domain}/${name}`,
       sessionDuration,
       logoUrl,
-      policies: ["admins"],
+      policies: [policyAdmins.id],
+      tags,
     });
   }
-}
-
-function createTags(scope: Construct, tags: string[]): Map<string, AccessTag> {
-  const map = new Map<string, AccessTag>();
-  for (const name of tags) {
-    map.set(name, new AccessTag(scope, name, { zoneId, name }));
-  }
-  return map;
 }
