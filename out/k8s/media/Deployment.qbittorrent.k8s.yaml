@@ -42,7 +42,7 @@ spec:
           securityContext:
             allowPrivilegeEscalation: false
             privileged: false
-            readOnlyRootFilesystem: true
+            readOnlyRootFilesystem: false
             runAsNonRoot: false
           startupProbe:
             failureThreshold: 3
@@ -61,7 +61,7 @@ spec:
             - name: VPN_TYPE
               value: wireguard
             - name: WIREGUARD_ADDRESSES
-              value: 10.184.150.109/32,fd7d:76ee:e68f:a993:38c6:c8f3:5d35:8c9/128
+              value: 10.184.150.109/32
             - name: SERVER_COUNTRIES
               value: Switzerland
             - name: FIREWALL_VPN_INPUT_PORTS
@@ -70,23 +70,21 @@ spec:
               value: 120s
             - name: PUBLICIP_API
               value: cloudflare
-            - name: DOT_PROVIDERS
-              value: quad9
           envFrom:
             - secretRef:
                 name: qbittorrent
           image: qmcgaw/gluetun:latest
           imagePullPolicy: Always
-          name: main
+          name: gluetun
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:
               add:
                 - NET_ADMIN
             privileged: false
-            readOnlyRootFilesystem: true
+            readOnlyRootFilesystem: false
             runAsNonRoot: false
-      dnsPolicy: ClusterFirst
+      dnsPolicy: Default
       hostNetwork: false
       restartPolicy: Always
       securityContext:

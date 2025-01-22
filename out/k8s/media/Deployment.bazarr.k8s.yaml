@@ -52,7 +52,7 @@ spec:
               name: tmp
             - mountPath: /config
               name: config
-      dnsPolicy: ClusterFirst
+      dnsPolicy: Default
       hostNetwork: false
       restartPolicy: Always
       securityContext:

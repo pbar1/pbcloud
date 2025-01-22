@@ -95,6 +95,10 @@ export function create(ns: NamespaceChart) {
     hostPaths: {
       ...HOST_PATHS.downloads,
     },
+    securityContextContainer: {
+      readOnlyRootFilesystem: false,
+      ensureNonRoot: false,
+    },
   });
   qbt.podMetadata.addAnnotation(
     "operator.1password.io/item-name",
@@ -105,6 +109,7 @@ export function create(ns: NamespaceChart) {
     "vaults/pbcloud/items/qbittorrent",
   );
   qbt.addContainer({
+    name: "gluetun",
     image: "qmcgaw/gluetun:latest",
     envVariables: envValues(GLUETUN),
     envFrom: [
@@ -114,6 +119,7 @@ export function create(ns: NamespaceChart) {
     securityContext: {
       capabilities: { add: [Capability.NET_ADMIN] },
       ensureNonRoot: false,
+      readOnlyRootFilesystem: false,
     },
   });
 }

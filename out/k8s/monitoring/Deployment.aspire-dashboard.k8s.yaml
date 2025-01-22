@@ -41,7 +41,7 @@ spec:
             failureThreshold: 3
             tcpSocket:
               port: 18888
-      dnsPolicy: ClusterFirst
+      dnsPolicy: Default
       hostNetwork: false
       restartPolicy: Always
       securityContext:

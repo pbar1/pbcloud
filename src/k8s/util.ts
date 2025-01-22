@@ -119,6 +119,7 @@ export function run(
     replicas,
     securityContext: securityContextPod,
     hostNetwork,
+    dns: { policy: kplus.DnsPolicy.DEFAULT },
   });
 
   const container = deployment.addContainer({

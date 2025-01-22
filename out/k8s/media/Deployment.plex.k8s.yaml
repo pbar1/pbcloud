@@ -60,7 +60,7 @@ spec:
               name: config
             - mountPath: /transcode
               name: transcode
-      dnsPolicy: ClusterFirst
+      dnsPolicy: Default
       hostNetwork: true
       restartPolicy: Always
       securityContext:

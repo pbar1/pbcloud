@@ -22,31 +22,35 @@ spec:
     spec:
       automountServiceAccountToken: false
       containers:
-      - env:
-        - name: MEMOS_MODE
-          value: prod
-        - name: MEMOS_ADDR
-          value: 0.0.0.0
-        - name: MEMOS_PORT
-          value: "5320"
-        - name: MEMOS_DATA
-          value: /var/opt/memos
-        - name: MEMOS_DRIVER
-          value: sqlite
-        image: neosmemo/memos:stable
-        imagePullPolicy: Always
-        name: memos
-        ports:
-        - containerPort: 5230
-        securityContext:
-          allowPrivilegeEscalation: false
-          privileged: false
-          readOnlyRootFilesystem: true
-          runAsNonRoot: false
-        volumeMounts:
-        - mountPath: /var/opt/memos
+        - env:
+            - name: MEMOS_MODE
+              value: prod
+            - name: MEMOS_ADDR
+              value: 0.0.0.0
+            - name: MEMOS_PORT
+              value: "5320"
+            - name: MEMOS_DATA
+              value: /var/opt/memos
+            - name: MEMOS_DRIVER
+              value: sqlite
+          image: neosmemo/memos:stable
+          imagePullPolicy: Always
           name: memos
-      dnsPolicy: ClusterFirst
+          ports:
+            - containerPort: 5230
+          securityContext:
+            allowPrivilegeEscalation: false
+            privileged: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: false
+          startupProbe:
+            failureThreshold: 3
+            tcpSocket:
+              port: 5230
+          volumeMounts:
+            - mountPath: /var/opt/memos
+              name: memos
+      dnsPolicy: Default
       hostNetwork: false
       restartPolicy: Always
       securityContext:
@@ -55,7 +59,7 @@ spec:
       setHostnameAsFQDN: false
       terminationGracePeriodSeconds: 30
       volumes:
-      - hostPath:
-          path: /zssd/general/memos
-          type: ""
-        name: memos
+        - hostPath:
+            path: /zssd/general/memos
+            type: ""
+          name: memos
