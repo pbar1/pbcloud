@@ -13,6 +13,7 @@ locals {
   movies      = "/data/media/movies"
   audiobooks  = "/data/media/audiobooks"
   music       = "/data/media/music"
+  youtube     = "/data/media/youtube"
 }
 
 module "prowlarr" {
@@ -116,5 +117,21 @@ module "overseer" {
   port      = 5055
   vol = {
     "${local.config}/overseerr" = "/app/config"
+  }
+}
+
+module "plex" {
+  source    = "../../modules/arr-app"
+  namespace = "media"
+  image     = "ghcr.io/hotio/plex:latest"
+  port      = 32400
+  vol = {
+    "${local.config}/plex" = "/config"
+    (local.movies)         = "/movies"
+    (local.tv)             = "/tv"
+    (local.audiobooks)     = "/audiobooks"
+    (local.music)          = "/music"
+    (local.youtube)        = "/youtube"
+    # FIXME: transcode memory dir
   }
 }
