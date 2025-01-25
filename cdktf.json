@@ -1,9 +1,0 @@
-{
-  "language": "typescript",
-  "app": "bun run main.ts",
-  "projectId": "fd7dd5d3-f644-4edf-8643-7481c25cdbb7",
-  "sendCrashReports": "false",
-  "terraformProviders": [],
-  "terraformModules": [],
-  "context": {}
-}
