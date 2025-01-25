@@ -1,19 +1,27 @@
+// https://bun.sh/docs/typescript#suggested-compileroptions
 {
-  "extends": "@tsconfig/strictest/tsconfig.json",
   "compilerOptions": {
-    // Otherwise, `Class constructor App cannot be invoked without 'new'`
+    // Enable latest features
+    "lib": [
+      "ESNext"
+    ],
     "target": "ESNext",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
-    // Otherwise, `Cannot write file 'eslint.config.mjs' because it would overwrite input file.ts`
-    "allowJs": false,
-    "checkJs": false,
-    // Otherwise, TS4114
-    "noImplicitOverride": false,
-    // For importing .ts files
+    "module": "ESNext",
+    "moduleDetection": "force",
+    "jsx": "react-jsx",
+    "allowJs": true,
+    // Bundler mode
+    "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
     "noEmit": true,
-    // Otherwise, using optional properties is inconvenient
-    "exactOptionalPropertyTypes": false
+    // Best practices
+    "strict": true,
+    "skipLibCheck": true,
+    "noFallthroughCasesInSwitch": true,
+    // Some stricter flags
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noPropertyAccessFromIndexSignature": true
   }
 }
