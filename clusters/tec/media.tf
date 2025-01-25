@@ -108,3 +108,13 @@ module "tautulli" {
     "${local.config}/tautulli" = "/config"
   }
 }
+
+module "overseer" {
+  source    = "../../modules/arr-app"
+  namespace = "media"
+  image     = "sctx/overseerr:latest"
+  port      = 5055
+  vol = {
+    "${local.config}/overseerr" = "/app/config"
+  }
+}
