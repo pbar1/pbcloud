@@ -1,0 +1,19 @@
+{
+  "extends": "@tsconfig/strictest/tsconfig.json",
+  "compilerOptions": {
+    // Otherwise, `Class constructor App cannot be invoked without 'new'`
+    "target": "ESNext",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    // Otherwise, `Cannot write file 'eslint.config.mjs' because it would overwrite input file.ts`
+    "allowJs": false,
+    "checkJs": false,
+    // Otherwise, TS4114
+    "noImplicitOverride": false,
+    // For importing .ts files
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
+    // Otherwise, using optional properties is inconvenient
+    "exactOptionalPropertyTypes": false
+  }
+}
