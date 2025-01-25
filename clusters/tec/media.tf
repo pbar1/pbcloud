@@ -5,13 +5,23 @@
 #   }
 # }
 
+locals {
+  config      = "/zssd/general/config"
+  torrents    = "/data/torrents"
+  recycle_bin = "/data/media/recycle-bin"
+  tv          = "/data/media/tv"
+  movies      = "/data/media/movies"
+  audiobooks  = "/data/media/audiobooks"
+  music       = "/data/media/music"
+}
+
 module "prowlarr" {
   source    = "../../modules/arr-app"
   namespace = "media"
   image     = "ghcr.io/hotio/prowlarr:latest"
   port      = 9696
   vol = {
-    "/zssd/general/config/prowlarr" = "/config"
+    "${local.config}/prowlarr" = "/config"
   }
 }
 
@@ -21,10 +31,10 @@ module "sonarr" {
   image     = "ghcr.io/hotio/sonarr:latest"
   port      = 8989
   vol = {
-    "/zssd/general/config/sonarr" = "/config"
-    "/data/torrents"              = "/downloads"
-    "/data/media/tv"              = "/tv"
-    "/data/media/recycle-bin"     = "/recycle-bin"
+    "${local.config}/sonarr" = "/config"
+    (local.torrents)         = "/downloads"
+    (local.tv)               = "/tv"
+    (local.recycle_bin)      = "/recycle-bin"
   }
 }
 
@@ -34,10 +44,10 @@ module "radarr" {
   image     = "ghcr.io/hotio/radarr:latest"
   port      = 7878
   vol = {
-    "/zssd/general/config/radarr" = "/config"
-    "/data/torrents"              = "/downloads"
-    "/data/media/movies"          = "/movies"
-    "/data/media/recycle-bin"     = "/recycle-bin"
+    "${local.config}/radarr" = "/config"
+    (local.torrents)         = "/downloads"
+    (local.movies)           = "/movies"
+    (local.recycle_bin)      = "/recycle-bin"
   }
 }
 
@@ -47,10 +57,10 @@ module "readarr" {
   image     = "ghcr.io/hotio/readarr:latest"
   port      = 8787
   vol = {
-    "/zssd/general/config/readarr" = "/config"
-    "/data/torrents"               = "/downloads"
-    "/data/media/audiobooks"       = "/audiobooks"
-    "/data/media/recycle-bin"      = "/recycle-bin"
+    "${local.config}/readarr" = "/config"
+    (local.torrents)          = "/downloads"
+    (local.audiobooks)        = "/audiobooks"
+    (local.recycle_bin)       = "/recycle-bin"
   }
 }
 
@@ -60,10 +70,10 @@ module "lidarr" {
   image     = "ghcr.io/hotio/lidarr:latest"
   port      = 8686
   vol = {
-    "/zssd/general/config/lidarr" = "/config"
-    "/data/torrents"              = "/downloads"
-    "/data/media/music"           = "/music"
-    "/data/media/recycle-bin"     = "/recycle-bin"
+    "${local.config}/lidarr" = "/config"
+    (local.torrents)         = "/downloads"
+    (local.music)            = "/music"
+    (local.recycle_bin)      = "/recycle-bin"
   }
 }
 
@@ -73,9 +83,9 @@ module "bazarr" {
   image     = "ghcr.io/hotio/bazarr:latest"
   port      = 6767
   vol = {
-    "/zssd/general/config/bazarr" = "/config"
-    "/data/media/movies"          = "/movies"
-    "/data/media/tv"              = "/tv"
+    "${local.config}/bazarr" = "/config"
+    (local.movies)           = "/movies"
+    (local.tv)               = "/tv"
   }
 }
 
@@ -85,7 +95,7 @@ module "flaresolverr" {
   image     = "ghcr.io/flaresolverr/flaresolverr:latest"
   port      = 8191
   vol = {
-    "/zssd/general/config/flaresolverr" = "/config"
+    "${local.config}/flaresolverr" = "/config"
   }
 }
 
@@ -95,6 +105,6 @@ module "tautulli" {
   image     = "ghcr.io/hotio/tautulli:latest"
   port      = 8181
   vol = {
-    "/zssd/general/config/tautulli" = "/config"
+    "${local.config}/tautulli" = "/config"
   }
 }
