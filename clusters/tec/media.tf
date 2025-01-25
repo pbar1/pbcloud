@@ -66,3 +66,35 @@ module "lidarr" {
     "/data/media/recycle-bin"     = "/recycle-bin"
   }
 }
+
+module "bazarr" {
+  source    = "../../modules/arr-app"
+  namespace = "media"
+  image     = "ghcr.io/hotio/bazarr:latest"
+  port      = 6767
+  vol = {
+    "/zssd/general/config/bazarr" = "/config"
+    "/data/media/movies"          = "/movies"
+    "/data/media/tv"              = "/tv"
+  }
+}
+
+module "flaresolverr" {
+  source    = "../../modules/arr-app"
+  namespace = "media"
+  image     = "ghcr.io/flaresolverr/flaresolverr:latest"
+  port      = 8191
+  vol = {
+    "/zssd/general/config/flaresolverr" = "/config"
+  }
+}
+
+module "tautulli" {
+  source    = "../../modules/arr-app"
+  namespace = "media"
+  image     = "ghcr.io/hotio/tautulli:latest"
+  port      = 8181
+  vol = {
+    "/zssd/general/config/tautulli" = "/config"
+  }
+}
