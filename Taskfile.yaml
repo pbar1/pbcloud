@@ -1,0 +1,27 @@
+version: "3"
+
+tasks:
+  default: task --list
+
+  init:
+    aliases: [ "i", "bootstrap" ]
+    desc: Initialize remote state
+    cmds:
+    - terraform -chdir=clusters/tec init
+
+  plan:
+    aliases: [ "p", "diff" ]
+    desc: Plan changes
+    cmds:
+    - terraform -chdir=clusters/tec plan
+
+  apply:
+    aliases: [ "a" ]
+    desc: Apply changes
+    cmds:
+    - terraform -chdir=clusters/tec apply
+
+  destroy:
+    desc: Destroy resources
+    cmds:
+    - terraform -chdir=clusters/tec destroy
