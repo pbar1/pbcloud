@@ -1,6 +1,0 @@
-{
-    "name": "@pbcloud/crd",
-    "scripts": {
-        "k8s": "cdk8s import k8s@1.30.0 --no-class-prefix --language=typescript --output=. --save=false --check-upgrade=false"
-    }
-}

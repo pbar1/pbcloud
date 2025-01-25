@@ -1,9 +1,0 @@
-{
-  "name": "@pbcloud/helm",
-  "scripts": {
-    "connect": "cdk8s import helm:https://1password.github.io/connect-helm-charts/connect@1.16.0 --language=typescript --output=. --save=false --check-upgrade=false",
-    "gitea": "cdk8s import helm:https://dl.gitea.io/charts/gitea@10.5.0 --language=typescript --output=. --save=false --check-upgrade=false",
-    "kube-prometheus-stack": "cdk8s import helm:https://prometheus-community.github.io/helm-charts/kube-prometheus-stack@65.3.1 --language=typescript --output=. --save=false --check-upgrade=false",
-    "open-webui": "cdk8s import helm:https://open-webui.github.io/helm-charts/open-webui@5.4.0 --language=typescript --output=. --save=false --check-upgrade=false"
-  }
-}
