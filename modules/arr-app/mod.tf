@@ -49,7 +49,7 @@ locals {
   )
 
   labels = {
-    "app" : local.name
+    "app" = local.name
   }
 
   env_default = {
