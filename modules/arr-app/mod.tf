@@ -25,6 +25,18 @@ variable "vol" {
   default     = {}
 }
 
+variable "emptydirs" {
+  type        = map(string)
+  description = "emptyDir container path to medium mappings"
+  default     = {}
+}
+
+variable "host_network" {
+  type        = bool
+  description = "Container uses the host network namespace instead of its own"
+  default     = false
+}
+
 locals {
   name = try(
     regex("^([^/:]+)(?::[^/]+)?$",
@@ -53,6 +65,14 @@ locals {
     element(compact(split("/", container_path)), -1) => {
       host_path      = host_path
       container_path = container_path
+    }
+  }
+
+  emptydirs = {
+    for container_path, medium in var.emptydirs :
+    element(compact(split("/", container_path)), -1) => {
+      container_path = container_path,
+      medium         = medium
     }
   }
 }
@@ -99,6 +119,8 @@ resource "kubernetes_stateful_set" "app" {
               value = env.value
             }
           }
+
+          # hostpaths
           dynamic "volume_mount" {
             for_each = local.vol
             content {
@@ -106,7 +128,18 @@ resource "kubernetes_stateful_set" "app" {
               mount_path = volume_mount.value.container_path
             }
           }
+
+          # emptyDirs
+          dynamic "volume_mount" {
+            for_each = local.emptydirs
+            content {
+              name       = volume_mount.key
+              mount_path = volume_mount.value.container_path
+            }
+          }
         }
+
+        # hostpaths
         dynamic "volume" {
           for_each = local.vol
           content {
@@ -116,6 +149,19 @@ resource "kubernetes_stateful_set" "app" {
             }
           }
         }
+
+        # emptyDirs
+        dynamic "volume" {
+          for_each = local.emptydirs
+          content {
+            name = volume.key
+            empty_dir {
+              medium = volume.value.medium
+            }
+          }
+        }
+
+        host_network = var.host_network
       }
     }
   }

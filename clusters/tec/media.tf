@@ -121,10 +121,11 @@ module "overseer" {
 }
 
 module "plex" {
-  source    = "../../modules/arr-app"
-  namespace = "media"
-  image     = "ghcr.io/hotio/plex:latest"
-  port      = 32400
+  source       = "../../modules/arr-app"
+  namespace    = "media"
+  image        = "ghcr.io/linuxserver/plex:latest"
+  port         = 32400
+  host_network = true
   vol = {
     "${local.config}/plex" = "/config"
     (local.movies)         = "/movies"
@@ -132,6 +133,8 @@ module "plex" {
     (local.audiobooks)     = "/audiobooks"
     (local.music)          = "/music"
     (local.youtube)        = "/youtube"
-    # FIXME: transcode memory dir
+  }
+  emptydirs = {
+    "/transcode" = "Memory"
   }
 }

@@ -12,6 +12,8 @@ tasks:
   plan:
     aliases: [ "p", "diff" ]
     desc: Plan changes
+    deps:
+    - init
     cmds:
     - terraform -chdir=clusters/tec plan
 
