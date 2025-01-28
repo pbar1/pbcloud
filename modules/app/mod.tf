@@ -37,6 +37,12 @@ variable "host_network" {
   default     = false
 }
 
+variable "enable_gluetun" {
+  type        = bool
+  description = "Adds sidecar container running gluetun to route all pod traffic through a VPN"
+  default     = false
+}
+
 locals {
   name = try(
     regex("^([^/:]+)(?::[^/]+)?$",
@@ -75,6 +81,16 @@ locals {
       medium         = medium
     }
   }
+
+  gluetun_env = {
+    VPN_SERVICE_PROVIDER        = "airvpn"
+    VPN_TYPE                    = "wireguard"
+    WIREGUARD_ADDRESSES         = "10.184.150.109/32"
+    SERVER_COUNTRIES            = "Switzerland"
+    FIREWALL_VPN_INPUT_PORTS    = "21133"
+    HEALTH_VPN_DURATION_INITIAL = "120s"
+    PUBLICIP_API                = "cloudflare"
+  }
 }
 
 resource "kubernetes_service" "app" {
@@ -106,6 +122,9 @@ resource "kubernetes_stateful_set" "app" {
         labels = local.labels
       }
       spec {
+        host_network = var.host_network
+
+        # main container
         container {
           name  = local.name
           image = var.image
@@ -161,8 +180,37 @@ resource "kubernetes_stateful_set" "app" {
           }
         }
 
-        host_network = var.host_network
-      }
-    }
-  }
-}
+        # gluetun container
+        dynamic "container" {
+          for_each = var.enable_gluetun ? [1] : []
+          content {
+            name  = "gluetun"
+            image = "docker.io/qmcgaw/gluetun:latest"
+
+            security_context {
+              capabilities {
+                add = ["NET_ADMIN"]
+              }
+            }
+
+            # must be created out of band with `scripts/sync-secrets`
+            env_from {
+              secret_ref {
+                name = "gluetun"
+              }
+            }
+
+            dynamic "env" {
+              for_each = local.gluetun_env
+              content {
+                name  = env.key
+                value = env.value
+              }
+            }
+
+          }
+        } # gluetun container
+      }   # pod spec
+    }     # pod template
+  }       # statefulset spec
+}         # statefulset

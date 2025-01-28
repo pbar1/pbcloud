@@ -1,11 +1,6 @@
-# TODO: Import state
-# resource "kubernetes_namespace" "media" {
-#   metadata {
-#     name = "media"
-#   }
-# }
-
 locals {
+  namespace_media = "media"
+
   config      = "/zssd/general/config"
   torrents    = "/data/torrents"
   recycle_bin = "/data/media/recycle-bin"
@@ -16,9 +11,16 @@ locals {
   youtube     = "/data/media/youtube"
 }
 
+# TODO: Import state
+# resource "kubernetes_namespace" "media" {
+#   metadata {
+#     name = "media"
+#   }
+# }
+
 module "prowlarr" {
-  source    = "../../modules/arr-app"
-  namespace = "media"
+  source    = "../../modules/app"
+  namespace = local.namespace_media
   image     = "ghcr.io/hotio/prowlarr:latest"
   port      = 9696
   vol = {
@@ -27,8 +29,8 @@ module "prowlarr" {
 }
 
 module "sonarr" {
-  source    = "../../modules/arr-app"
-  namespace = "media"
+  source    = "../../modules/app"
+  namespace = local.namespace_media
   image     = "ghcr.io/hotio/sonarr:latest"
   port      = 8989
   vol = {
@@ -40,8 +42,8 @@ module "sonarr" {
 }
 
 module "radarr" {
-  source    = "../../modules/arr-app"
-  namespace = "media"
+  source    = "../../modules/app"
+  namespace = local.namespace_media
   image     = "ghcr.io/hotio/radarr:latest"
   port      = 7878
   vol = {
@@ -53,8 +55,8 @@ module "radarr" {
 }
 
 module "readarr" {
-  source    = "../../modules/arr-app"
-  namespace = "media"
+  source    = "../../modules/app"
+  namespace = local.namespace_media
   image     = "ghcr.io/hotio/readarr:latest"
   port      = 8787
   vol = {
@@ -66,8 +68,8 @@ module "readarr" {
 }
 
 module "lidarr" {
-  source    = "../../modules/arr-app"
-  namespace = "media"
+  source    = "../../modules/app"
+  namespace = local.namespace_media
   image     = "ghcr.io/hotio/lidarr:latest"
   port      = 8686
   vol = {
@@ -79,8 +81,8 @@ module "lidarr" {
 }
 
 module "bazarr" {
-  source    = "../../modules/arr-app"
-  namespace = "media"
+  source    = "../../modules/app"
+  namespace = local.namespace_media
   image     = "ghcr.io/hotio/bazarr:latest"
   port      = 6767
   vol = {
@@ -91,8 +93,8 @@ module "bazarr" {
 }
 
 module "flaresolverr" {
-  source    = "../../modules/arr-app"
-  namespace = "media"
+  source    = "../../modules/app"
+  namespace = local.namespace_media
   image     = "ghcr.io/flaresolverr/flaresolverr:latest"
   port      = 8191
   vol = {
@@ -101,8 +103,8 @@ module "flaresolverr" {
 }
 
 module "tautulli" {
-  source    = "../../modules/arr-app"
-  namespace = "media"
+  source    = "../../modules/app"
+  namespace = local.namespace_media
   image     = "ghcr.io/hotio/tautulli:latest"
   port      = 8181
   vol = {
@@ -111,8 +113,8 @@ module "tautulli" {
 }
 
 module "overseer" {
-  source    = "../../modules/arr-app"
-  namespace = "media"
+  source    = "../../modules/app"
+  namespace = local.namespace_media
   image     = "sctx/overseerr:latest"
   port      = 5055
   vol = {
@@ -121,8 +123,8 @@ module "overseer" {
 }
 
 module "plex" {
-  source       = "../../modules/arr-app"
-  namespace    = "media"
+  source       = "../../modules/app"
+  namespace    = local.namespace_media
   image        = "ghcr.io/linuxserver/plex:latest"
   port         = 32400
   host_network = true
@@ -136,5 +138,20 @@ module "plex" {
   }
   emptydirs = {
     "/transcode" = "Memory"
+  }
+}
+
+module "qbittorrent" {
+  source         = "../../modules/app"
+  namespace      = local.namespace_media
+  image          = "ghcr.io/hotio/qbittorrent:latest"
+  port           = 8080
+  enable_gluetun = true
+  env = {
+    "QBT_TORRENTING_PORT" = "21133"
+  }
+  vol = {
+    "${local.config}/qbittorrent" = "/config"
+    (local.torrents)              = "/downloads"
   }
 }
