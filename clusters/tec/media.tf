@@ -11,13 +11,6 @@ locals {
   youtube     = "/data/media/youtube"
 }
 
-# TODO: Import state
-# resource "kubernetes_namespace" "media" {
-#   metadata {
-#     name = "media"
-#   }
-# }
-
 module "prowlarr" {
   source    = "../../modules/app"
   namespace = local.namespace_media
