@@ -140,6 +140,7 @@ module "qbittorrent" {
   image          = "ghcr.io/hotio/qbittorrent:latest"
   port           = 8080
   enable_gluetun = true
+  dns_policy     = "Default" // required for resolving public queries
   env = {
     "QBT_TORRENTING_PORT" = "21133"
   }

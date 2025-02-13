@@ -43,6 +43,12 @@ variable "enable_gluetun" {
   default     = false
 }
 
+variable "dns_policy" {
+  type        = string
+  description = "DNS policy to use for the pod"
+  default     = "ClusterFirst"
+}
+
 locals {
   name = try(
     regex("^([^/:]+)(?::[^/]+)?$",
@@ -123,6 +129,7 @@ resource "kubernetes_stateful_set" "app" {
       }
       spec {
         host_network = var.host_network
+        dns_policy   = var.dns_policy
 
         # main container
         container {
