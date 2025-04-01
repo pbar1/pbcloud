@@ -10,7 +10,21 @@ terraform {
       source  = "1Password/onepassword"
       version = "~> 2"
     }
+    cloudflare = {
+      source  = "cloudflare/cloudflare"
+      version = "~> 5"
+    }
   }
+}
+
+# Uses 1Password CLI integration
+provider "onepassword" {
+  account = "my.1password.com"
+}
+
+provider "cloudflare" {
+  email   = data.onepassword_item.cloudflare_api.username
+  api_key = data.onepassword_item.cloudflare_api.credential
 }
 
 provider "kubernetes" {
@@ -26,6 +40,7 @@ provider "helm" {
   }
 }
 
-provider "onepassword" {
-  account = "my.1password.com"
+data "onepassword_item" "cloudflare_api" {
+  vault = "private"
+  title = "Cloudflare API Key"
 }

@@ -1,5 +1,8 @@
 locals {
   ns_ingress = kubernetes_namespace.ingress.metadata[0].name
+
+  cloudflared        = "cloudflared"
+  cloudflared_labels = { app = local.cloudflared }
 }
 
 resource "kubernetes_namespace" "ingress" {
@@ -8,6 +11,8 @@ resource "kubernetes_namespace" "ingress" {
   }
 }
 
+# Cloudflare ------------------------------------------------------------------
+
 data "onepassword_item" "cloudflared" {
   vault = "private"
   title = "cloudflared TUNNEL_TOKEN (xnauts-net)"
@@ -15,7 +20,7 @@ data "onepassword_item" "cloudflared" {
 
 resource "kubernetes_secret" "cloudflared" {
   metadata {
-    name      = "cloudflared"
+    name      = local.cloudflared
     namespace = local.ns_ingress
   }
   data = {
@@ -25,25 +30,21 @@ resource "kubernetes_secret" "cloudflared" {
 
 resource "kubernetes_deployment" "cloudflared" {
   metadata {
-    name      = "cloudflared"
+    name      = local.cloudflared
     namespace = local.ns_ingress
   }
   spec {
     replicas = 1
     selector {
-      match_labels = {
-        "app" = "cloudflared"
-      }
+      match_labels = local.cloudflared_labels
     }
     template {
       metadata {
-        labels = {
-          "app" = "cloudflared"
-        }
+        labels = local.cloudflared_labels
       }
       spec {
         container {
-          name  = "cloudflared"
+          name  = local.cloudflared
           image = "docker.io/cloudflare/cloudflared:latest"
           args  = ["tunnel", "run"]
           env {
