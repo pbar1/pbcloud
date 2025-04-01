@@ -8,7 +8,7 @@ terraform {
   required_providers {
     onepassword = {
       source  = "1Password/onepassword"
-      version = "~>2"
+      version = "~> 2"
     }
   }
 }
@@ -17,4 +17,15 @@ provider "kubernetes" {
   config_path = "~/.kube/config.tec.yaml"
 }
 
-provider "onepassword" {}
+provider "helm" {
+  kubernetes {
+    config_path = "~/.kube/config.tec.yaml"
+  }
+  experiments {
+    manifest = true
+  }
+}
+
+provider "onepassword" {
+  account = "my.1password.com"
+}

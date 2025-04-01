@@ -49,6 +49,30 @@ variable "dns_policy" {
   default     = "ClusterFirst"
 }
 
+variable "access" {
+  type        = bool
+  description = "Expose the app as a Cloudflare Access application"
+  default     = false
+}
+
+variable "access_icon" {
+  type        = string
+  description = "Icon to show in the Cloudflare Access app launcher"
+  default     = ""
+}
+
+variable "access_session_duration" {
+  type        = string
+  description = "Cloudflare Access session duration"
+  default     = "168h"
+}
+
+variable "access_policy" {
+  type        = string
+  description = "Cloudflare Access policy to apply"
+  default     = "admins"
+}
+
 locals {
   name = try(
     regex("^([^/:]+)(?::[^/]+)?$",

@@ -1,5 +1,5 @@
 locals {
-  namespace_media = "media"
+  ns_media = "media"
 
   config      = "/zssd/general/config"
   torrents    = "/data/torrents"
@@ -13,7 +13,7 @@ locals {
 
 module "prowlarr" {
   source    = "../../modules/app"
-  namespace = local.namespace_media
+  namespace = local.ns_media
   image     = "ghcr.io/hotio/prowlarr:latest"
   port      = 9696
   vol = {
@@ -23,7 +23,7 @@ module "prowlarr" {
 
 module "sonarr" {
   source    = "../../modules/app"
-  namespace = local.namespace_media
+  namespace = local.ns_media
   image     = "ghcr.io/hotio/sonarr:latest"
   port      = 8989
   vol = {
@@ -36,7 +36,7 @@ module "sonarr" {
 
 module "radarr" {
   source    = "../../modules/app"
-  namespace = local.namespace_media
+  namespace = local.ns_media
   image     = "ghcr.io/hotio/radarr:latest"
   port      = 7878
   vol = {
@@ -49,7 +49,7 @@ module "radarr" {
 
 module "readarr" {
   source    = "../../modules/app"
-  namespace = local.namespace_media
+  namespace = local.ns_media
   image     = "ghcr.io/hotio/readarr:latest"
   port      = 8787
   vol = {
@@ -62,7 +62,7 @@ module "readarr" {
 
 module "lidarr" {
   source    = "../../modules/app"
-  namespace = local.namespace_media
+  namespace = local.ns_media
   image     = "ghcr.io/hotio/lidarr:latest"
   port      = 8686
   vol = {
@@ -75,7 +75,7 @@ module "lidarr" {
 
 module "bazarr" {
   source    = "../../modules/app"
-  namespace = local.namespace_media
+  namespace = local.ns_media
   image     = "ghcr.io/hotio/bazarr:latest"
   port      = 6767
   vol = {
@@ -87,7 +87,7 @@ module "bazarr" {
 
 module "flaresolverr" {
   source    = "../../modules/app"
-  namespace = local.namespace_media
+  namespace = local.ns_media
   image     = "ghcr.io/flaresolverr/flaresolverr:latest"
   port      = 8191
   vol = {
@@ -97,7 +97,7 @@ module "flaresolverr" {
 
 module "tautulli" {
   source    = "../../modules/app"
-  namespace = local.namespace_media
+  namespace = local.ns_media
   image     = "ghcr.io/hotio/tautulli:latest"
   port      = 8181
   vol = {
@@ -107,7 +107,7 @@ module "tautulli" {
 
 module "overseer" {
   source    = "../../modules/app"
-  namespace = local.namespace_media
+  namespace = local.ns_media
   image     = "sctx/overseerr:latest"
   port      = 5055
   vol = {
@@ -117,7 +117,7 @@ module "overseer" {
 
 module "plex" {
   source       = "../../modules/app"
-  namespace    = local.namespace_media
+  namespace    = local.ns_media
   image        = "ghcr.io/linuxserver/plex:latest"
   port         = 32400
   host_network = true
@@ -136,7 +136,7 @@ module "plex" {
 
 module "qbittorrent" {
   source         = "../../modules/app"
-  namespace      = local.namespace_media
+  namespace      = local.ns_media
   image          = "ghcr.io/hotio/qbittorrent:latest"
   port           = 8080
   enable_gluetun = true

@@ -27,3 +27,15 @@ tasks:
     desc: Destroy resources
     cmds:
     - terraform -chdir=clusters/tec destroy
+
+  output:
+    aliases: [ "o" ]
+    desc: Show output
+    cmds:
+    - terraform -chdir=clusters/tec output
+
+  refresh:
+    aliases: [ "r" ]
+    desc: Refresh state
+    cmds:
+    - terraform -chdir=clusters/tec refresh
