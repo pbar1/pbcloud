@@ -23,25 +23,7 @@ tasks:
     cmds:
     - terraform -chdir=clusters/tec apply
 
-  destroy:
-    desc: Destroy resources
+  tec:
+    desc: Run arbitrary Terraform commands on `clusters/tec`
     cmds:
-    - terraform -chdir=clusters/tec destroy
-
-  output:
-    aliases: [ "o" ]
-    desc: Show output
-    cmds:
-    - terraform -chdir=clusters/tec output
-
-  refresh:
-    aliases: [ "r" ]
-    desc: Refresh state
-    cmds:
-    - terraform -chdir=clusters/tec refresh
-
-  import:
-    aliases: [ "im" ]
-    desc: Import resources
-    cmds:
-    - terraform -chdir=clusters/tec import {{.CLI_ARGS}}
+    - terraform -chdir=clusters/tec {{.CLI_ARGS}}
