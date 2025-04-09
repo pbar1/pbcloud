@@ -149,3 +149,93 @@ module "qbittorrent" {
     (local.torrents)              = "/downloads"
   }
 }
+
+# SMB -------------------------------------------------------------------------
+
+resource "kubernetes_service" "smb" {
+  metadata {
+    name      = "smb"
+    namespace = local.ns_media
+  }
+
+  spec {
+    type = "LoadBalancer"
+
+    port {
+      port        = 139
+      protocol    = "TCP"
+      target_port = 139
+      name        = "smb-netbios"
+    }
+
+    port {
+      port        = 445
+      protocol    = "TCP"
+      target_port = 445
+      name        = "smb-tcp"
+    }
+
+    selector = {
+      run = "smb"
+    }
+  }
+}
+
+resource "kubernetes_pod" "smb" {
+  metadata {
+    name      = "smb"
+    namespace = local.ns_media
+    labels = {
+      run = "smb"
+    }
+  }
+
+  spec {
+    container {
+      name  = "smb"
+      image = "dperson/samba"
+
+      args = [
+        "-u",
+        "user;pass",
+        "-s",
+        "mount;/mount;yes;yes;no;user"
+      ]
+
+      env {
+        name  = "USERID"
+        value = "1000"
+      }
+
+      env {
+        name  = "GROUPID"
+        value = "100"
+      }
+
+      env {
+        name  = "TZ"
+        value = "America/Los_Angeles"
+      }
+
+      port {
+        container_port = 139
+      }
+
+      port {
+        container_port = 445
+      }
+
+      volume_mount {
+        name       = "media"
+        mount_path = "/mount"
+      }
+    }
+
+    volume {
+      name = "media"
+      host_path {
+        path = "/data/media"
+      }
+    }
+  }
+}
